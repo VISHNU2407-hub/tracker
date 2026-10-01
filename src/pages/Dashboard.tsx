@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import type { AppDataApi } from '../hooks/useAppData';
 import { useAnalytics } from '../hooks/useArc';
 import type { PageId } from '../hooks/useArc';
@@ -12,6 +12,7 @@ import {
 import {
   formatDateRange, formatShort, todayISO, addDays, dayNumber,
 } from '../services/date';
+import { isArcComplete } from '../services/analytics';
 
 /* ============================================================
    Dashboard (spec §3): hero, quick stats, today's tasks,
@@ -27,6 +28,35 @@ export function DashboardPage({ api, onNavigate }: { api: AppDataApi; onNavigate
 
   const todayEv = evaluate(today)!;
   const lastArcDay = addDays(arc.startDate, arc.durationDays - 1);
+  const arcComplete = isArcComplete(arc, today);
+
+  const finale = useMemo(() => {
+    if (!arcComplete) return null;
+    const days = stats?.elapsedDays ?? 0;
+    let totalValue = 0;
+    let loggedDays = 0;
+    for (let i = 0; i < days; i++) {
+      const d = addDays(arc.startDate, i);
+      const rec = data.dailyRecords[d];
+      if (rec && Object.keys(rec.habits).length > 0) loggedDays += 1;
+      for (const h of data.habits) {
+        const v = rec?.habits[h.id]?.value;
+        if (typeof v === 'number') totalValue += v;
+      }
+    }
+    const active = data.habits.filter((h) => h.active).length;
+    return {
+      perfectDays: stats?.perfectDays ?? 0,
+      bestStreak: stats?.streaks.best ?? 0,
+      currentStreak: stats?.streaks.current ?? 0,
+      consistency: stats?.totalPct ?? null,
+      totalValue,
+      loggedDays,
+      days,
+      activeHabits: active,
+      eligibleCount: todayEv.eligibleCount,
+    };
+  }, [arcComplete, stats, data.dailyRecords, data.habits, arc.startDate, todayEv.eligibleCount]);
 
   return (
     <div className="stack" style={{ gap: 20 }}>
@@ -49,6 +79,7 @@ export function DashboardPage({ api, onNavigate }: { api: AppDataApi; onNavigate
               <div className="muted small" style={{ marginTop: 4 }}>
                 {formatShort(today)}
               </div>
+              {arcComplete && <div className="success-text small" style={{ marginTop: 4 }}>✓ Arc complete</div>}
             </div>
           </div>
         </div>
@@ -63,6 +94,32 @@ export function DashboardPage({ api, onNavigate }: { api: AppDataApi; onNavigate
 
         {arc.goal && <p className="hero-goal">🎯 {arc.goal}</p>}
       </section>
+
+      {/* Arc finale — shown once every Arc day has passed */}
+      {arcComplete && finale && (
+        <section className="card" style={{ borderColor: 'var(--success-border)', background: 'var(--success-dim)' }} role="status">
+          <div className="card-title">
+            <span>Your {arc.durationDays}-day Arc is complete</span>
+            <IconTrophy size={16} style={{ color: 'var(--success)' }} />
+          </div>
+          <p className="secondary small" style={{ marginBottom: 14 }}>
+            {finale.eligibleCount === 0
+              ? 'No habits were eligible during this Arc.'
+              : `${finale.days} days · ${finale.loggedDays} with logged progress · ${finale.activeHabits} active habit${finale.activeHabits === 1 ? '' : 's'}.`}
+          </p>
+          <div className="stats-row">
+            <StatCard icon={<IconSpark size={16} />} green value={finale.perfectDays} label="Perfect days" />
+            <StatCard icon={<IconTrophy size={16} />} green value={finale.bestStreak} label="Best streak" sub="days" />
+            <StatCard
+              icon={<IconChart size={16} />}
+              value={finale.consistency === null ? '—' : `${finale.consistency}%`}
+              label="Consistency"
+              sub="avg daily"
+            />
+            <StatCard icon={<IconFlame size={16} />} value={finale.totalValue} label="Total logged" sub="all units" />
+          </div>
+        </section>
+      )}
 
       {/* Quick stats */}
       <section className="stats-row" aria-label="Quick stats">

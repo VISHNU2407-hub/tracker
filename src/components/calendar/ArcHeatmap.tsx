@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import type { Arc, DailyRecord, Habit } from '../../types';
 import { evaluateDay } from '../../services/analytics';
 import { addDays, formatShort, fromISO, todayISO, isWeekend } from '../../services/date';
@@ -55,6 +55,7 @@ export function ArcHeatmap({
 }: ArcHeatmapProps) {
   const now = todayISO();
   const lastArcDay = useMemo(() => addDays(arc.startDate, arc.durationDays - 1), [arc.startDate, arc.durationDays]);
+  const gridRef = useRef<HTMLDivElement>(null);
 
   const columns = useMemo(() => {
     // Determine the window the grid covers.
@@ -98,6 +99,49 @@ export function ArcHeatmap({
     }
     return cols;
   }, [arc.startDate, lastArcDay, range, now]);
+
+  // Dates inside the Arc reachable via keyboard: Day 1..duration up to today.
+  // Outside-arc and future cells remain mouse/touch clickable but are not
+  // tab stops, so Tabbing through the heatmap costs a single stop.
+  const keyNavigable = useMemo(() => {
+    const list: string[] = [];
+    for (const col of columns) {
+      for (const d of col.days) {
+        if (!d) continue;
+        const n = Math.round((fromISO(d).getTime() - fromISO(arc.startDate).getTime()) / 86_400_000) + 1;
+        if (n >= 1 && n <= arc.durationDays && d <= now) list.push(d);
+      }
+    }
+    return list;
+  }, [columns, arc.startDate, arc.durationDays, now]);
+
+  // Roving tabindex: exactly one cell (default: today, else the first
+  // reachable day) is in the tab order; arrows move focus and scroll it
+  // into view within `keyNavigable`.
+  const [activeCell, setActiveCell] = useState<string | null>(null);
+  const defaultCell = keyNavigable.includes(now) ? now : keyNavigable[0];
+  const focusedCell =
+    activeCell !== null && keyNavigable.includes(activeCell) ? activeCell : defaultCell;
+
+  const onGridKeyDown = (e: React.KeyboardEvent) => {
+    const keys = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End'];
+    if (!keys.includes(e.key) || keyNavigable.length === 0) return;
+    e.preventDefault();
+    const idx = keyNavigable.indexOf(focusedCell);
+    let next: number;
+    switch (e.key) {
+      case 'ArrowLeft': next = idx - 1; break;  // previous day
+      case 'ArrowRight': next = idx + 1; break; // next day
+      case 'ArrowUp': next = idx - 7; break;    // same weekday, previous week
+      case 'ArrowDown': next = idx + 7; break;  // same weekday, next week
+      case 'Home': next = 0; break;
+      default: next = keyNavigable.length - 1;  // End
+    }
+    next = Math.max(0, Math.min(keyNavigable.length - 1, next));
+    const target = keyNavigable[next];
+    setActiveCell(target);
+    gridRef.current?.querySelector<HTMLButtonElement>(`[data-date="${target}"]`)?.focus();
+  };
 
   // Summary line, like LeetCode's "X submissions" ribbon.
   const summary = useMemo(() => {
@@ -145,12 +189,15 @@ export function ArcHeatmap({
             </div>
 
             <div
+              ref={gridRef}
               className="heatmap-grid"
-              role="list"
+              role="grid"
               aria-label={range === 'year' ? 'Last 365 days completion heatmap' : '90-day completion heatmap'}
+              tabIndex={0}
+              onKeyDown={onGridKeyDown}
             >
               {columns.map((col) => (
-                <div className={`heatmap-col${col.monthStart ? ' month-start' : ''}`} key={col.key}>
+                <div className={`heatmap-col${col.monthStart ? ' month-start' : ''}`} key={col.key} role="row">
                   {col.days.map((date, ri) => {
                     if (!date) {
                       return <div key={`${col.key}-${ri}`} className="heat-cell ghost" aria-hidden="true" />;
@@ -164,10 +211,9 @@ export function ArcHeatmap({
                       return (
                         <div
                           key={date}
-                          role="listitem"
                           className="heat-cell lvl-0 outside"
                           title={label}
-                          aria-label={label}
+                          aria-hidden="true"
                         />
                       );
                     }
@@ -177,18 +223,23 @@ export function ArcHeatmap({
                     const isToday = date === now;
                     const weekend = isWeekend(date);
                     const label = `Day ${dayNum} · ${formatShort(date)} · ${LEVEL_TEXT[lvl]}`;
+                    const isFuture = ev.state === 'future';
+                    const inTabOrder = date === focusedCell;
 
                     return (
                       <button
                         key={date}
                         type="button"
-                        role="listitem"
-                        className={['heat-cell', `lvl-${lvl}`, weekend ? 'weekend' : '', isToday ? 'today' : '', ev.state === 'future' ? 'future' : '']
+                        role="gridcell"
+                        data-date={date}
+                        tabIndex={inTabOrder ? 0 : -1}
+                        className={['heat-cell', `lvl-${lvl}`, weekend ? 'weekend' : '', isToday ? 'today' : '', isFuture ? 'future' : '']
                           .filter(Boolean)
                           .join(' ')}
                         onClick={() => onDayClick?.(date)}
+                        onFocus={() => setActiveCell(date)}
+                        aria-label={`${label}${isFuture ? ' (upcoming — view only)' : ''}`}
                         title={label}
-                        aria-label={label}
                       >
                         {isToday && <span className="sr-only">Today</span>}
                       </button>

@@ -24,12 +24,14 @@ export function TodayPage({ api, onNavigate }: { api: AppDataApi; onNavigate: (p
   const [note, setNote] = useState<string | null>(null);
   const [confirmJump, setConfirmJump] = useState<string | null>(null);
 
+  // Clamp to the Arc window. Future days stay viewable (read-only below);
+  // only days before the Arc starts get pulled up to Day 1.
   const clamped = useMemo(() => {
     if (viewDate < arc.startDate) return arc.startDate;
     const last = addDays(arc.startDate, arc.durationDays - 1);
     if (viewDate > last) return last;
-    return viewDate > today ? today : viewDate;
-  }, [viewDate, arc, today]);
+    return viewDate;
+  }, [viewDate, arc]);
 
   const ev = evaluate(clamped)!;
   const rec = data.dailyRecords[clamped];
@@ -54,6 +56,7 @@ export function TodayPage({ api, onNavigate }: { api: AppDataApi; onNavigate: (p
     const n = Number(raw);
     if (!Number.isInteger(n) || n < 1 || n > arc.durationDays) return;
     const target = addDays(arc.startDate, n - 1);
+    if (target === clamped) return; // already viewing it
     if (target > today) {
       setConfirmJump(target); // future days need explicit confirmation (spec §10)
     } else {
@@ -88,6 +91,15 @@ export function TodayPage({ api, onNavigate }: { api: AppDataApi; onNavigate: (p
           <IconAlert size={16} style={{ color: 'var(--warning)' }} />
           <span className="secondary small">
             You are editing a <strong>past day</strong> ({clamped}). Changes here update streaks and analytics.
+          </span>
+        </div>
+      )}
+
+      {isFuture && (
+        <div className="card row" style={{ marginBottom: 14, borderLeft: '3px solid var(--accent)', padding: '12px 16px' }}>
+          <IconLock size={16} style={{ color: 'var(--accent)' }} />
+          <span className="secondary small">
+            Viewing a <strong>future day</strong> ({clamped}). It becomes editable once this date arrives.
           </span>
         </div>
       )}

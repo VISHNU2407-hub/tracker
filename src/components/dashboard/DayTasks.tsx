@@ -1,6 +1,6 @@
 import React from 'react';
 import type { Arc, DailyRecord, Habit } from '../../types';
-import { eligibleHabitsForDate } from '../../services/analytics';
+import { eligibleHabitsForDate, habitValueDone } from '../../services/analytics';
 import { toggleHabitForDate, setHabitValueForDate } from '../habits/dayActions';
 import { HabitProgressInput } from '../habits/HabitProgressInput';
 import { IconCheck, IconLock } from '../icons';
@@ -40,7 +40,8 @@ export function DayTasks({ arc, habits, records, date, now, onToggle, onSetValue
     <div className="stack" style={{ gap: compact ? 8 : 10 }}>
       {eligible.map((habit) => {
         const rec = records[date]?.habits[habit.id];
-        const done = rec?.completed === true;
+        // Same rule as analytics: checkbox = stored flag, numeric/duration = value >= target.
+        const done = habitValueDone(habit, rec);
         const Icon = IconFor(habit.icon);
 
         return (

@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useAppData } from './hooks/useAppData';
 import type { AppDataApi } from './hooks/useAppData';
 import type { PageId } from './hooks/useArc';
@@ -22,9 +22,28 @@ import { todayISO, dayNumber } from './services/date';
    Demo mode swaps the data fed to pages; real data untouched.
    ============================================================ */
 
+const PAGES: PageId[] = ['dashboard', 'today', 'calendar', 'habits', 'stats', 'reflection', 'myarc', 'settings'];
+
+function pageFromHash(): PageId {
+  const hash = window.location.hash.replace(/^#\/?/, '');
+  return (PAGES as string[]).includes(hash) ? (hash as PageId) : 'dashboard';
+}
+
 export default function App() {
   const realApi = useAppData();
-  const [page, setPage] = useState<PageId>('dashboard');
+  const [page, setPage] = useState<PageId>(pageFromHash);
+
+  // Keep the URL hash in sync and follow browser Back/Forward.
+  useEffect(() => {
+    const apply = () => setPage(pageFromHash());
+    window.addEventListener('hashchange', apply);
+    return () => window.removeEventListener('hashchange', apply);
+  }, []);
+
+  const navigate = (p: PageId) => {
+    if (p !== page) window.location.hash = p; // pushes a history entry → Back works
+    setPage(p);
+  };
 
   if (!realApi.loaded) {
     return <div className="onboard"><div className="muted">Loading…</div></div>;
@@ -35,7 +54,7 @@ export default function App() {
     return <Onboarding api={realApi} />;
   }
 
-  return <Shell api={realApi} page={page} setPage={setPage} />;
+  return <Shell api={realApi} page={page} setPage={navigate} />;
 }
 
 function Shell({ api, page, setPage }: { api: AppDataApi; page: PageId; setPage: (p: PageId) => void }) {

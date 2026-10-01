@@ -24,6 +24,18 @@ export function eligibleHabitsForDate(habits: Habit[], date: string, now: string
   });
 }
 
+/** A habit counts as done for analytics when its logged value actually meets the
+ *  target: checkbox = stored flag (value 0/1), numeric/duration = value >= target.
+ *  Never trust the stale stored `completed` flag for numeric/duration — it can
+ *  disagree with the value after a partial log or a target edit. */
+export function habitValueDone(
+  habit: Pick<Habit, 'type' | 'target'>,
+  rec: { value: number; completed: boolean } | undefined
+): boolean {
+  if (!rec) return false;
+  return habit.type === 'checkbox' ? rec.completed === true : rec.value >= habit.target;
+}
+
 function recordFor(records: Record<string, DailyRecord>, date: string): DailyRecord | undefined {
   const rec = records[date];
   return rec && Object.keys(rec.habits).length >= 0 ? rec : undefined;
@@ -50,7 +62,7 @@ export function evaluateDay(
 
   const eligible = eligibleHabitsForDate(habits, date, now);
   const rec = recordFor(records, date);
-  const done = eligible.filter((h) => rec?.habits[h.id]?.completed === true);
+  const done = eligible.filter((h) => habitValueDone(h, rec?.habits[h.id]));
   const eligibleCount = eligible.length;
   const completedCount = done.length;
   const pct = eligibleCount === 0 ? null : Math.round((completedCount / eligibleCount) * 100);
@@ -126,6 +138,12 @@ export function computeStreaks(
   return { current, best: Math.max(best, current) };
 }
 
+/** True once the final Arc day has fully passed (i.e. the day AFTER the last
+ *  Arc day has begun). The Arc stays visible/complete on Day 90 itself. */
+export function isArcComplete(arc: Arc, now: string = todayISO()): boolean {
+  return now > addDays(arc.startDate, arc.durationDays - 1);
+}
+
 export interface OverallStats {
   dayNumber: number;
   totalPct: number | null;
@@ -199,7 +217,7 @@ export function computeHabitStats(
     let cursor = arc.startDate;
     while (cursor <= today) {
       const el = eligibleHabitsForDate([habit], cursor, now).length > 0;
-      const isDone = records[cursor]?.habits[habit.id]?.completed === true;
+      const isDone = habitValueDone(habit, records[cursor]?.habits[habit.id]);
       if (el) {
         eligible += 1;
         if (isDone) completed += 1;
@@ -220,7 +238,7 @@ export function computeHabitStats(
     let probe = today;
     const lastEligible = (d: string) => eligibleHabitsForDate([habit], d, now).length > 0;
     while (probe >= arc.startDate) {
-      if (records[probe]?.habits[habit.id]?.completed === true) cur += 1;
+      if (habitValueDone(habit, records[probe]?.habits[habit.id])) cur += 1;
       else if (lastEligible(probe)) break;
       // not eligible (e.g. habit created later): keep walking back
       probe = addDays(probe, -1);

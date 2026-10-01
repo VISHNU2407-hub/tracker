@@ -4,6 +4,7 @@
    ============================================================ */
 
 import { useCallback, useEffect, useState } from 'react';
+import { useToday } from './useToday';
 import type { AppData, Arc, Habit, DailyRecord, Reflection } from '../types';
 import {
   loadAppData,
@@ -26,6 +27,8 @@ const EMPTY: AppData = {
 export interface AppDataApi {
   data: AppData;
   loaded: boolean;
+  /** Today's local date (YYYY-MM-DD). Refreshes automatically at midnight. */
+  today: string;
   /* onboarding / settings */
   completeOnboarding: (arc: Arc, habits: Omit<Habit, 'id' | 'createdAt' | 'order' | 'active'>[]) => void;
   setOnboarded: (v: boolean) => void;
@@ -66,6 +69,7 @@ function makeHabit(h: Omit<Habit, 'id' | 'createdAt' | 'order' | 'active'>, orde
 
 export function useAppData(): AppDataApi {
   const [data, setData] = useState<AppData>(EMPTY);
+  const hookToday = useToday();
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
@@ -224,27 +228,44 @@ export function useAppData(): AppDataApi {
 
   const setHabitValue = useCallback<AppDataApi['setHabitValue']>(
     (date, habitId, value) => {
-      mutateDay(date, (rec) => ({
-        ...rec,
-        habits: {
-          ...rec.habits,
-          [habitId]: { value, completed: value > 0 },
-        },
-      }));
+      apply((d) => {
+        const habit = d.habits.find((h) => h.id === habitId);
+        const completed =
+          habit?.type === 'checkbox' ? value > 0 : habit ? value >= habit.target : value > 0;
+        return mutateDay(date, (rec) => ({
+          ...rec,
+          habits: { ...rec.habits, [habitId]: { value, completed } },
+        }))(d);
+      });
     },
-    [mutateDay]
+    [apply, mutateDay]
   );
 
   const toggleHabit = useCallback<AppDataApi['toggleHabit']>(
     (date, habitId) => {
-      mutateDay(date, (rec) => {
-        const cur = rec.habits[habitId];
-        const completed = !cur?.completed;
-        const value = completed ? (cur?.value && cur.value > 0 ? cur.value : 1) : 0;
-        return { ...rec, habits: { ...rec.habits, [habitId]: { value, completed } } };
+      apply((d) => {
+        const habit = d.habits.find((h) => h.id === habitId);
+        return mutateDay(date, (rec) => {
+          const cur = rec.habits[habitId];
+          const wasDone = habit
+            ? habit.type === 'checkbox'
+              ? cur?.completed === true
+              : (cur?.value ?? 0) >= habit.target
+            : cur?.completed === true;
+          const completed = !wasDone;
+          // Restore the last logged value when un-completing, else a sensible full value.
+          const value = completed
+            ? cur?.value && cur.value > 0
+              ? cur.value
+              : habit?.type === 'checkbox'
+                ? 1
+                : (habit?.target ?? 1)
+            : 0;
+          return { ...rec, habits: { ...rec.habits, [habitId]: { value, completed } } };
+        })(d);
       });
     },
-    [mutateDay]
+    [apply, mutateDay]
   );
 
   const setDayNote = useCallback<AppDataApi['setDayNote']>(
@@ -304,6 +325,7 @@ export function useAppData(): AppDataApi {
   return {
     data,
     loaded,
+    today: hookToday,
     completeOnboarding,
     setOnboarded,
     setDemoMode,

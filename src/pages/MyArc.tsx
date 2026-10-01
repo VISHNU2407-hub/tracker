@@ -6,6 +6,7 @@ import { ProgressRing } from '../components/ui/ProgressRing';
 import {
   addDays, formatDateRange, formatLong, isValidISO, todayISO,
 } from '../services/date';
+import { isArcComplete } from '../services/analytics';
 import { IconPlus, IconTrash, IconCheck } from '../components/icons';
 
 /* ============================================================
@@ -27,6 +28,7 @@ export function MyArcPage({ api }: { api: AppDataApi }) {
   const today = todayISO();
   const lastArcDay = addDays(arc.startDate, arc.durationDays - 1);
   const hasProgress = Object.keys(data.dailyRecords).length > 0;
+  const arcComplete = isArcComplete(arc, today);
 
   const identityDirty =
     goal !== arc.goal || why !== arc.why ||
@@ -99,7 +101,7 @@ export function MyArcPage({ api }: { api: AppDataApi }) {
           <div className="card">
             <div className="card-title">Status</div>
             <div className="kv-row"><span className="kv-key">Title</span><span className="kv-val">{arc.title}</span></div>
-            <div className="kv-row"><span className="kv-key">Status</span><span className="kv-val success-text">{arc.status}</span></div>
+            <div className="kv-row"><span className="kv-key">Status</span><span className="kv-val success-text">{arcComplete ? 'completed' : arc.status}</span></div>
             <div className="kv-row"><span className="kv-key">Dates</span><span className="kv-val">{formatDateRange(arc.startDate, lastArcDay)}</span></div>
             <div className="kv-row"><span className="kv-key">Duration</span><span className="kv-val">{arc.durationDays} days</span></div>
             <div className="kv-row"><span className="kv-key">Habits</span><span className="kv-val">{data.habits.filter((h) => h.active).length} active · {data.habits.filter((h) => !h.active).length} archived</span></div>
