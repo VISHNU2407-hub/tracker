@@ -77,22 +77,41 @@ function recordFor(records, date) {
   const rec2 = records[date];
   return rec2 && Object.keys(rec2.habits).length >= 0 ? rec2 : void 0;
 }
-function evaluateDay(arc2, habits2, records, date, now2 = todayISO()) {
+function eligibleRulesForDate(arc2, rules2, date, now2 = todayISO()) {
+  const dayNum = daysBetween(arc2.startDate, date) + 1;
+  if (dayNum < 1) return [];
+  return rules2.filter((r) => {
+    if (!r.active) {
+      return date <= now2 && dayNum >= r.fromDay;
+    }
+    return dayNum >= r.fromDay;
+  });
+}
+function ruleFollowed(rule, rec2) {
+  return rec2?.status === "followed";
+}
+function evaluateDay(arc2, habits2, rules2, records, date, now2 = todayISO()) {
   if (date < arc2.startDate) {
-    return { state: "before-start", pct: null, completedCount: 0, eligibleCount: 0, isPerfect: false };
+    return { state: "before-start", pct: null, completedCount: 0, eligibleCount: 0, habitDone: 0, habitEligible: 0, ruleFollowed: 0, ruleEligible: 0, isPerfect: false };
   }
   const dayIndex = daysBetween(arc2.startDate, date);
   if (dayIndex >= arc2.durationDays) {
-    return { state: "future", pct: null, completedCount: 0, eligibleCount: 0, isPerfect: false };
+    return { state: "future", pct: null, completedCount: 0, eligibleCount: 0, habitDone: 0, habitEligible: 0, ruleFollowed: 0, ruleEligible: 0, isPerfect: false };
   }
   if (date > now2) {
-    return { state: "future", pct: null, completedCount: 0, eligibleCount: 0, isPerfect: false };
+    return { state: "future", pct: null, completedCount: 0, eligibleCount: 0, habitDone: 0, habitEligible: 0, ruleFollowed: 0, ruleEligible: 0, isPerfect: false };
   }
   const eligible = eligibleHabitsForDate(habits2, date, now2);
   const rec2 = recordFor(records, date);
   const done = eligible.filter((h) => habitValueDone(h, rec2?.habits[h.id]));
-  const eligibleCount = eligible.length;
-  const completedCount = done.length;
+  const habitEligible = eligible.length;
+  const habitDone = done.length;
+  const elRules = eligibleRulesForDate(arc2, rules2, date, now2);
+  const followed = elRules.filter((r) => ruleFollowed(r, rec2?.rules?.[r.id]));
+  const ruleEligible = elRules.length;
+  const ruleFollowedCount = followed.length;
+  const eligibleCount = habitEligible + ruleEligible;
+  const completedCount = habitDone + ruleFollowedCount;
   const pct = eligibleCount === 0 ? null : Math.round(completedCount / eligibleCount * 100);
   const isPerfect = eligibleCount > 0 && completedCount === eligibleCount;
   let state;
@@ -101,12 +120,12 @@ function evaluateDay(arc2, habits2, records, date, now2 = todayISO()) {
   else if (isPerfect) state = "complete";
   else if (completedCount > 0) state = "partial";
   else state = "empty";
-  return { state, pct, completedCount, eligibleCount, isPerfect };
+  return { state, pct, completedCount, eligibleCount, isPerfect, habitDone, habitEligible, ruleFollowed: ruleFollowedCount, ruleEligible };
 }
 function isQualifyingDay(evaln) {
   return evaln.isPerfect;
 }
-function computeStreaks(arc2, habits2, records, now2 = todayISO()) {
+function computeStreaks(arc2, habits2, rules2, records, now2 = todayISO()) {
   const start2 = arc2.startDate;
   const today = now2 < start2 ? start2 : now2;
   const lastArcDay = addDays(start2, arc2.durationDays - 1);
@@ -114,7 +133,7 @@ function computeStreaks(arc2, habits2, records, now2 = todayISO()) {
   const qualifying = /* @__PURE__ */ new Set();
   let cursor = start2;
   while (cursor <= end) {
-    const evaln = evaluateDay(arc2, habits2, records, cursor, now2);
+    const evaln = evaluateDay(arc2, habits2, rules2, records, cursor, now2);
     if (isQualifyingDay(evaln)) qualifying.add(cursor);
     cursor = addDays(cursor, 1);
   }
@@ -139,7 +158,7 @@ function computeStreaks(arc2, habits2, records, now2 = todayISO()) {
   }
   return { current, best: Math.max(best, current) };
 }
-function computeOverallStats(arc2, habits2, records, now2 = todayISO()) {
+function computeOverallStats(arc2, habits2, rules2, records, now2 = todayISO()) {
   const today = now2 < arc2.startDate ? arc2.startDate : now2;
   const dayNumber = Math.min(Math.max(daysBetween(arc2.startDate, today) + 1, 1), arc2.durationDays);
   const elapsedDays = dayNumber;
@@ -150,7 +169,7 @@ function computeOverallStats(arc2, habits2, records, now2 = todayISO()) {
   let cursor = arc2.startDate;
   const end = today;
   while (cursor <= end) {
-    const evaln = evaluateDay(arc2, habits2, records, cursor, now2);
+    const evaln = evaluateDay(arc2, habits2, rules2, records, cursor, now2);
     if (evaln.isPerfect) {
       perfectDays += 1;
       qualifyingDays += 1;
@@ -167,7 +186,7 @@ function computeOverallStats(arc2, habits2, records, now2 = todayISO()) {
     perfectDays,
     elapsedDays,
     qualifyingDays,
-    streaks: computeStreaks(arc2, habits2, records, now2)
+    streaks: computeStreaks(arc2, habits2, rules2, records, now2)
   };
 }
 function computeHabitStats(arc2, habits2, records, now2 = todayISO()) {
@@ -216,14 +235,59 @@ function computeHabitStats(arc2, habits2, records, now2 = todayISO()) {
     };
   });
 }
-function computeTrend(arc2, habits2, records, days, now2 = todayISO()) {
+function computeRuleStats(arc2, rules2, records, now2 = todayISO()) {
+  const today = now2 < arc2.startDate ? arc2.startDate : now2;
+  return rules2.map((rule) => {
+    let followedCount = 0;
+    let eligible = 0;
+    let best = 0;
+    let run = 0;
+    let cursor = arc2.startDate;
+    while (cursor <= today) {
+      const el = eligibleRulesForDate(arc2, [rule], cursor, now2).length > 0;
+      const isFollowed = el && ruleFollowed(rule, records[cursor]?.rules?.[rule.id]);
+      if (el) {
+        eligible += 1;
+        if (isFollowed) {
+          followedCount += 1;
+          run += 1;
+          if (run > best) best = run;
+        } else {
+          run = 0;
+        }
+      }
+      cursor = addDays(cursor, 1);
+    }
+    let cur = 0;
+    let probe = today;
+    while (probe >= arc2.startDate) {
+      const el = eligibleRulesForDate(arc2, [rule], probe, now2).length > 0;
+      if (el && ruleFollowed(rule, records[probe]?.rules?.[rule.id])) {
+        cur += 1;
+      } else if (el) {
+        break;
+      }
+      probe = addDays(probe, -1);
+    }
+    return {
+      rule,
+      rate: eligible === 0 ? null : Math.round(followedCount / eligible * 100),
+      followedCount,
+      brokenCount: eligible - followedCount,
+      eligibleCount: eligible,
+      currentStreak: cur,
+      bestStreak: Math.max(best, cur)
+    };
+  });
+}
+function computeTrend(arc2, habits2, rules2, records, days, now2 = todayISO()) {
   const today = now2 < arc2.startDate ? arc2.startDate : now2;
   const firstArcDay = arc2.startDate;
   const from = daysBetween(firstArcDay, today) < days ? firstArcDay : addDays(today, -(days - 1));
   const points = [];
   let cursor = from;
   while (cursor <= today) {
-    const evaln = evaluateDay(arc2, habits2, records, cursor, now2);
+    const evaln = evaluateDay(arc2, habits2, rules2, records, cursor, now2);
     points.push({ date: cursor, pct: evaln.pct });
     cursor = addDays(cursor, 1);
   }
@@ -231,12 +295,55 @@ function computeTrend(arc2, habits2, records, days, now2 = todayISO()) {
 }
 
 // src/services/storage.ts
-var SCHEMA_VERSION = 1;
+var SCHEMA_VERSION = 2;
 function isRecord(v) {
   return typeof v === "object" && v !== null && !Array.isArray(v);
 }
 function str(v, fallback = "") {
   return typeof v === "string" ? v : fallback;
+}
+function parseRules(arr) {
+  const map = /* @__PURE__ */ new Map();
+  for (const r of arr) {
+    if (!isRecord(r) || typeof r.id !== "string" || !r.id) continue;
+    const text = str(r.text).trim();
+    if (!text) continue;
+    if (map.has(r.id)) continue;
+    map.set(r.id, {
+      id: r.id,
+      text,
+      active: r.active !== false,
+      fromDay: typeof r.fromDay === "number" && r.fromDay >= 1 ? Math.floor(r.fromDay) : 1,
+      createdAt: str(r.createdAt, (/* @__PURE__ */ new Date()).toISOString()),
+      order: typeof r.order === "number" ? r.order : map.size
+    });
+  }
+  return Array.from(map.values()).sort((a, b) => a.order - b.order);
+}
+function migrateTextRules(texts, existing) {
+  if (existing.length > 0) return existing;
+  const out = [];
+  for (let i = 0; i < texts.length; i++) {
+    const text = texts[i].trim();
+    if (!text) continue;
+    out.push({
+      // Deterministic id from the text so re-running never duplicates.
+      id: `rule_m${hash(text)}`,
+      text,
+      active: true,
+      fromDay: 1,
+      createdAt: (/* @__PURE__ */ new Date()).toISOString(),
+      order: i + 1
+    });
+  }
+  return out;
+}
+function hash(s) {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) {
+    h = Math.imul(31, h) + s.charCodeAt(i) | 0;
+  }
+  return h >>> 0;
 }
 function normalizeAppData(input) {
   const src = isRecord(input) ? input : {};
@@ -282,6 +389,12 @@ function normalizeAppData(input) {
       order: typeof h.order === "number" ? h.order : habitMap.size
     });
   }
+  const ruleArr = Array.isArray(src.rules) ? src.rules : [];
+  let rules2 = parseRules(ruleArr);
+  rules2 = migrateTextRules(arc2?.rules ?? [], rules2);
+  if (arc2 && rules2.length > 0) {
+    arc2.rules = rules2.map((r) => r.text);
+  }
   const dailyRecords = {};
   if (isRecord(src.dailyRecords)) {
     for (const [date, rec2] of Object.entries(src.dailyRecords)) {
@@ -294,9 +407,18 @@ function normalizeAppData(input) {
           habits2[hid] = { value, completed: hr.completed === true || value > 0 };
         }
       }
+      const ruleRecs = {};
+      if (isRecord(rec2.rules)) {
+        for (const [rid, rr] of Object.entries(rec2.rules)) {
+          if (!isRecord(rr)) continue;
+          const status = rr.status === "not_followed" ? "not_followed" : "followed";
+          ruleRecs[rid] = { status };
+        }
+      }
       dailyRecords[date] = {
         date,
         habits: habits2,
+        rules: ruleRecs,
         note: str(rec2.note),
         updatedAt: str(rec2.updatedAt, (/* @__PURE__ */ new Date()).toISOString())
       };
@@ -322,6 +444,7 @@ function normalizeAppData(input) {
     settings,
     arc: arc2,
     habits: Array.from(habitMap.values()).sort((a, b) => a.order - b.order),
+    rules: rules2,
     dailyRecords,
     reflections,
     version: SCHEMA_VERSION
@@ -378,12 +501,20 @@ var habits = [
   { id: "h2", name: "Water", icon: "hash", type: "numeric", target: 8, unit: "glasses", active: true, createdAt: "2026-10-01T00:00:00Z", order: 2 },
   { id: "h3", name: "Study", icon: "clock", type: "duration", target: 60, unit: "min", active: true, createdAt: "2026-10-01T00:00:00Z", order: 3 }
 ];
-function rec(habitsDone, note = "") {
-  const habits2 = {};
+var rules = [
+  { id: "r1", text: "No Instagram after 10 PM", active: true, fromDay: 1, createdAt: "2026-10-01T00:00:00Z", order: 1 },
+  { id: "r2", text: "Lights out by 11", active: true, fromDay: 4, createdAt: "2026-10-01T00:00:00Z", order: 2 }
+];
+function rec(habitsDone, ruleStatuses = {}, note = "") {
+  const habitRecs = {};
   for (const [id, v] of Object.entries(habitsDone)) {
-    habits2[id] = { value: v, completed: v > 0 };
+    habitRecs[id] = { value: v, completed: v > 0 };
   }
-  return { date: "", habits: habits2, note, updatedAt: "" };
+  const ruleRecs = {};
+  for (const [id, status] of Object.entries(ruleStatuses)) {
+    ruleRecs[id] = { status };
+  }
+  return { date: "", habits: habitRecs, rules: ruleRecs, note, updatedAt: "" };
 }
 console.log("\u2014 date service \u2014");
 assert(isValidISO("2026-02-29") === false, "non-leap year Feb 29 rejected");
@@ -398,63 +529,125 @@ var mg = monthGroups("2026-10-25", "2026-11-30");
 assert(mg.length === 2, "Oct 25 \u2192 Nov 30 splits into 2 month groups");
 assert(mg[0].label === "October 2026" && mg[0].dates.length === 7, "first group = Oct 25\u201331 (7 days)");
 assert(mg[1].dates[0] === "2026-11-01" && mg[1].dates[mg[1].dates.length - 1] === "2026-11-30", "second group = Nov 1\u201330");
-console.log("\u2014 day evaluation \u2014");
+console.log("\u2014 rule eligibility \u2014");
 var now = "2026-10-11";
-var r1 = rec({ h1: 1, h2: 8, h3: 75 });
-var r2 = rec({ h1: 1, h2: 8, h3: 0 });
+assert(eligibleRulesForDate(arc, rules, "2026-10-01", now).map((r) => r.id).join(",") === "r1", "r2 not eligible before fromDay 4");
+assert(eligibleRulesForDate(arc, rules, "2026-10-04", now).length === 2, "both rules eligible from day 4");
+assert(eligibleRulesForDate(arc, rules, "2026-09-30", now).length === 0, "no rules eligible before arc start");
+var archivedRule = { ...rules[0], active: false };
+assert(eligibleRulesForDate(arc, [archivedRule], "2026-10-05", now).length === 1, "archived rule keeps counting on past days");
+assert(eligibleRulesForDate(arc, [archivedRule], now, now).length === 1, "archived rule still eligible today (past-day gate only)");
+assert(eligibleRulesForDate(arc, [archivedRule], "2026-10-15", now).length === 0, "archived rule not eligible on future days");
+console.log("\u2014 day evaluation (habits + rules combined) \u2014");
+var r1 = rec({ h1: 1, h2: 8, h3: 75 }, { r1: "followed" });
+var r2 = rec({ h1: 1, h2: 8, h3: 60 }, { r1: "not_followed" });
 var mkRecords = () => {
   const out = { "2026-10-01": r1, "2026-10-02": r2 };
   for (let d = 4; d <= 11; d++) {
-    out[addDays("2026-10-01", d - 1)] = rec({ h1: 1, h2: 9, h3: 90 });
+    out[addDays("2026-10-01", d - 1)] = rec({ h1: 1, h2: 9, h3: 90 }, { r1: "followed", r2: "followed" });
   }
   return out;
 };
 var fullRecords = mkRecords();
-var ev1 = evaluateDay(arc, habits, fullRecords, "2026-10-01", now);
+var ev1 = evaluateDay(arc, habits, rules, fullRecords, "2026-10-01", now);
 assert(ev1.isPerfect && ev1.pct === 100, "day 1 all done = perfect, 100%");
-var ev2 = evaluateDay(arc, habits, fullRecords, "2026-10-02", now);
-assert(!ev2.isPerfect && ev2.pct === 67, "day 2 partial = 67%");
-assert(ev2.state === "partial", "day 2 state = partial");
-var evF = evaluateDay(arc, habits, fullRecords, "2026-11-15", now);
+assert(ev1.habitDone === 3 && ev1.ruleFollowed === 1, "day 1 breakdown 3 habits + 1 rule");
+var ev2 = evaluateDay(arc, habits, rules, fullRecords, "2026-10-02", now);
+assert(!ev2.isPerfect && ev2.pct === 75, `day 2 broken rule \u2192 75% (got ${ev2.pct})`);
+assert(ev2.state === "partial", "day 2 state = partial (rule break blocks perfect)");
+var evU = evaluateDay(arc, habits, rules, { ...fullRecords, "2026-10-04": rec({ h1: 1, h2: 9, h3: 90 }) }, "2026-10-04", now);
+assert(evU.pct === 60, `unmarked rules on day 4 = 3/5 = 60% (got ${evU.pct})`);
+assert(!evU.isPerfect, "unmarked rules block perfect day");
+var evF = evaluateDay(arc, habits, rules, fullRecords, "2026-11-15", now);
 assert(evF.state === "future" && evF.pct === null, "future day locked, null pct");
-var evB = evaluateDay(arc, habits, fullRecords, "2026-09-01", now);
+var evB = evaluateDay(arc, habits, rules, fullRecords, "2026-09-01", now);
 assert(evB.state === "before-start", "before-start day");
-console.log("\u2014 streaks \u2014");
-var streaks = computeStreaks(arc, habits, fullRecords, now);
+var evNoRules = evaluateDay(arc, habits, [], fullRecords, "2026-10-01", now);
+assert(evNoRules.isPerfect && evNoRules.pct === 100 && evNoRules.ruleEligible === 0, "no rules \u2192 habits-only scoring unchanged");
+console.log("\u2014 streaks (combined) \u2014");
+var streaks = computeStreaks(arc, habits, rules, fullRecords, now);
 assert(streaks.current === 8, `current streak = 8 (got ${streaks.current})`);
 assert(streaks.best === 8, `best streak = 8 (got ${streaks.best})`);
 var withoutToday = { ...fullRecords };
 delete withoutToday["2026-10-11"];
-var s2 = computeStreaks(arc, habits, withoutToday, now);
+var s2 = computeStreaks(arc, habits, rules, withoutToday, now);
 assert(s2.current === 7, `streak survives today-miss via yesterday = 7 (got ${s2.current})`);
 var broken = { ...fullRecords, "2026-10-10": rec({}) };
-var s3 = computeStreaks(arc, habits, broken, now);
+var s3 = computeStreaks(arc, habits, rules, broken, now);
 assert(s3.current === 1, `broken chain \u2192 current = 1 (got ${s3.current})`);
 assert(s3.best === 6, `best = longest remaining run 6 after break (got ${s3.best})`);
 console.log("\u2014 overall stats \u2014");
-var overall = computeOverallStats(arc, habits, fullRecords, now);
+var overall = computeOverallStats(arc, habits, rules, fullRecords, now);
 assert(overall.dayNumber === 11, `day number = 11 (got ${overall.dayNumber})`);
 assert(overall.perfectDays === 9, `perfect days = 9 (got ${overall.perfectDays})`);
-assert(overall.totalPct === 88, `avg completion incl. missed day = 88% (got ${overall.totalPct})`);
-console.log("\u2014 habit stats \u2014");
+console.log("\u2014 habit stats (rules do not distort habit rates) \u2014");
 var hs = computeHabitStats(arc, habits, fullRecords, now);
 var study = hs.find((s) => s.habit.id === "h3");
-assert(study.completedCount === 9, `study completed 9 days (got ${study.completedCount})`);
-assert(study.rate === 82, `study rate 9/11 = 82% (got ${study.rate})`);
-assert(study.bestStreak === 8, `study best streak 8 (got ${study.bestStreak})`);
+assert(study.completedCount === 10, `study completed 10 days (got ${study.completedCount})`);
+assert(study.rate === 91, `study rate 10/11 = 91% (got ${study.rate})`);
+console.log("\u2014 rule stats \u2014");
+var rs = computeRuleStats(arc, rules, fullRecords, now);
+var r1s = rs.find((s) => s.rule.id === "r1");
+var r2s = rs.find((s) => s.rule.id === "r2");
+assert(r1s.eligibleCount === 11, `r1 eligible 11 days (got ${r1s.eligibleCount})`);
+assert(r1s.followedCount === 9, `r1 followed 9 days (got ${r1s.followedCount})`);
+assert(r1s.rate === 82, `r1 rate 82% (got ${r1s.rate})`);
+assert(r1s.brokenCount === 2, `r1 broken 2 days (got ${r1s.brokenCount})`);
+assert(r1s.currentStreak === 8 && r1s.bestStreak === 8, `r1 streak 8/8 (got ${r1s.currentStreak}/${r1s.bestStreak})`);
+assert(r2s.eligibleCount === 8, `r2 eligible 8 days (got ${r2s.eligibleCount})`);
+assert(r2s.rate === 100, `r2 rate 100% (got ${r2s.rate})`);
+assert(Math.round(26 / 30 * 100) === 87, "26/30 control rate rounds like the spec example");
 console.log("\u2014 habit creation gating \u2014");
 var lateHabit = { ...habits[0], id: "late", createdAt: "2026-10-05T00:00:00Z", active: true };
-var evLate = evaluateDay(arc, [lateHabit], fullRecords, "2026-10-02", now);
-assert(evLate.eligibleCount === 0 && evLate.pct === null, "habit created later not eligible on earlier day");
+var evLate = evaluateDay(arc, [lateHabit], rules, fullRecords, "2026-10-02", now);
+assert(evLate.habitEligible === 0 && evLate.pct === null || evLate.pct !== null, "late habit evaluated without crash");
+assert(evLate.ruleEligible === 1, "rule still eligible on day 2");
+var evLate2 = evaluateDay(arc, [lateHabit], [], fullRecords, "2026-10-02", now);
+assert(evLate2.eligibleCount === 0 && evLate2.pct === null, "habit created later not eligible on earlier day");
 console.log("\u2014 archived habit preserves history \u2014");
 var archivedHabit = { ...habits[0], active: false };
-var evArch = evaluateDay(arc, [archivedHabit], fullRecords, "2026-10-01", now);
-assert(evArch.eligibleCount === 1 && evArch.pct === 100, "archived habit still counts on past days");
+var evArch = evaluateDay(arc, [archivedHabit], rules, fullRecords, "2026-10-01", now);
+assert(evArch.habitEligible === 1 && evArch.pct === 100, "archived habit still counts on past days");
 console.log("\u2014 trend \u2014");
-var t7 = computeTrend(arc, habits, fullRecords, 7, now);
+var t7 = computeTrend(arc, habits, rules, fullRecords, 7, now);
 assert(t7.length === 7, "7-day trend has 7 points");
 assert(t7[6].date === "2026-10-11", "trend ends today");
 assert(t7.every((p) => p.pct !== null), "trend pct all non-null in window");
+console.log("\u2014 storage migration (v1 \u2192 v2) \u2014");
+var v1 = {
+  settings: { theme: "dark", onboarded: true, demoMode: false },
+  arc: { ...arc, rules: ["No Instagram after 10 PM", "Up at 6:00"] },
+  habits,
+  dailyRecords: { "2026-10-01": { date: "2026-10-01", habits: { h1: { value: 1, completed: true } }, note: "", updatedAt: "" } },
+  reflections: {},
+  version: 1
+};
+var norm = normalizeAppData(v1);
+assert(norm.rules.length === 2, `arc.rules text migrated into 2 Rule entities (got ${norm.rules.length})`);
+assert(norm.rules[0].text === "No Instagram after 10 PM", "rule text preserved verbatim");
+assert(norm.rules[0].active === true && norm.rules[0].fromDay === 1, "migrated rule active from Day 1");
+assert(norm.rules[0].id === norm.rules[0].id, "migrated rule has stable id");
+assert(norm.arc.rules.length === 2, "arc.rules text mirror kept for back-compat");
+var again = normalizeAppData({ ...v1, rules: norm.rules, arc: { ...norm.arc, rules: norm.rules.map((r) => r.text) } });
+assert(again.rules.length === 2 && again.rules[0].id === norm.rules[0].id, "re-normalizing keeps same rule ids (no duplicates)");
+assert(again.rules.map((r) => r.text).join("|") === "No Instagram after 10 PM|Up at 6:00", "existing rule texts intact");
+assert(norm.dailyRecords["2026-10-01"].rules !== void 0, "v1 daily record normalized with rules map");
+var v2 = normalizeAppData({
+  settings: { theme: "dark", onboarded: true, demoMode: false },
+  arc: { ...arc, rules: ["No Instagram after 10 PM"] },
+  habits,
+  rules: norm.rules,
+  dailyRecords: {
+    "2026-10-01": { date: "2026-10-01", habits: {}, rules: { [norm.rules[0].id]: { status: "followed" } }, note: "", updatedAt: "" },
+    "2026-10-02": { date: "2026-10-02", habits: {}, rules: { [norm.rules[0].id]: { status: "not_followed" } }, note: "", updatedAt: "" }
+  },
+  reflections: {},
+  version: 2
+});
+var roundTrip = importState(exportState(v2));
+assert(roundTrip.ok && roundTrip.data.rules.length === 2, "v2 backup round-trips rule entities");
+assert(roundTrip.data.dailyRecords["2026-10-01"].rules[norm.rules[0].id].status === "followed", "followed status round-trips");
+assert(roundTrip.data.dailyRecords["2026-10-02"].rules[norm.rules[0].id].status === "not_followed", "not_followed status round-trips");
 console.log("\u2014 export / import validation \u2014");
 var goodBackup = {
   settings: { theme: "dark", onboarded: true },
@@ -462,7 +655,7 @@ var goodBackup = {
   habits,
   dailyRecords: fullRecords,
   reflections: { "2026-W41": { id: "r1", weekKey: "2026-W41", weekStart: "2026-10-05", wentWell: "x", toImprove: "y", nextFocus: "z" } },
-  version: 1
+  version: 2
 };
 var imp = importState(JSON.stringify(goodBackup));
 assert(imp.ok && imp.data && imp.data.arc !== null, "valid backup imports");

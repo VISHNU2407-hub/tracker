@@ -18,7 +18,7 @@ export function DayDetail({ date, api, onClose }: DayDetailProps) {
   const { data } = api;
   const arc = data.arc!;
   const today = todayISO();
-  const ev = arc ? evaluateDay(arc, data.habits, data.dailyRecords, date, todayISO()) : null;
+  const ev = arc ? evaluateDay(arc, data.habits, data.rules, data.dailyRecords, date, todayISO()) : null;
   const rec = data.dailyRecords[date];
 
   const dn = dayNumber(date, arc.startDate, arc.durationDays);
@@ -43,10 +43,10 @@ export function DayDetail({ date, api, onClose }: DayDetailProps) {
         <div>
           <div style={{ fontWeight: 700 }}>
             {ev?.pct === null
-              ? 'No habits were eligible on this day'
+              ? 'Nothing was trackable on this day'
               : ev?.isPerfect
-                ? 'Perfect day — everything done'
-                : `${ev?.completedCount ?? 0} of ${ev?.eligibleCount ?? 0} habits completed`}
+                ? 'Perfect day — everything done & every rule followed'
+                : `${ev?.completedCount ?? 0} of ${ev?.eligibleCount ?? 0} done · ${ev?.habitDone ?? 0} habits + ${ev?.ruleFollowed ?? 0} rules`}
           </div>
           <div className="secondary small" style={{ marginTop: 3 }}>
             {isFuture ? 'Future day — view only.' : date < today ? 'Past day.' : 'Today.'}
@@ -58,11 +58,13 @@ export function DayDetail({ date, api, onClose }: DayDetailProps) {
         <DayTasks
           arc={arc}
           habits={data.habits}
+          rules={data.rules}
           records={data.dailyRecords}
           date={date}
           now={today}
           onToggle={api.toggleHabit}
           onSetValue={api.setHabitValue}
+          onRuleStatus={api.setRuleStatus}
           compact
         />
       )}
@@ -83,4 +85,3 @@ export function DayDetail({ date, api, onClose }: DayDetailProps) {
     </Modal>
   );
 }
-

@@ -5,10 +5,11 @@ import type { PageId } from '../hooks/useArc';
 import { DayTasks } from '../components/dashboard/DayTasks';
 import { ArcHeatmap } from '../components/calendar/ArcHeatmap';
 import { ProgressRing } from '../components/ui/ProgressRing';
+import { LineChart } from '../components/ui/Charts';
 import { DayDetail } from '../components/calendar/DayDetail';
 import {
   IconFlame, IconTrophy, IconSpark, IconChart, IconNote, IconArrowLeft,
-  IconCalendar, IconCheck, IconTarget,
+  IconCalendar, IconCheck, IconTarget, IconShield,
 } from '../components/icons';
 import {
   formatDateRange, formatShort, todayISO, addDays, dayNumber, daysBetween, weekKeyOf,
@@ -18,16 +19,17 @@ import { habitCellFor } from '../components/habits/habitCell';
 import { IconFor } from './Habits';
 
 /* ============================================================
-   Dashboard (spec §3): hero, quick stats, My Day, coming up,
-   weekly summary, goal, habit glance, 90-day overview —
-   every section is derived from real stored data only.
+   Dashboard (spec §3): hero, quick stats (incl. Rule Control),
+   My Day (habits + rules), coming up, weekly summary, goal,
+   habit & rule glance, 90-day overview — every section is
+   derived from real stored data only.
    ============================================================ */
 
 export function DashboardPage({ api, onNavigate }: { api: AppDataApi; onNavigate: (p: PageId) => void }) {
   const { data } = api;
   const arc = data.arc!;
   const today = todayISO();
-  const { stats, habitStats, evaluate } = useAnalytics(data);
+  const { stats, habitStats, ruleStats, evaluate } = useAnalytics(data);
   const [detailDate, setDetailDate] = useState<string | null>(null);
 
   const todayEv = evaluate(today)!;
@@ -66,8 +68,8 @@ export function DashboardPage({ api, onNavigate }: { api: AppDataApi; onNavigate
 
   // Last 14 arc days → "this week" (last 7) vs the previous 7 for comparison.
   const weekTrend = useMemo(
-    () => computeTrend(arc, data.habits, data.dailyRecords, 14),
-    [arc, data.habits, data.dailyRecords]
+    () => computeTrend(arc, data.habits, data.rules, data.dailyRecords, 14),
+    [arc, data.habits, data.rules, data.dailyRecords]
   );
 
   const week = useMemo(() => {
@@ -76,11 +78,20 @@ export function DashboardPage({ api, onNavigate }: { api: AppDataApi; onNavigate
       if (tracked.length === 0) return null;
       return Math.round(tracked.reduce((s, p) => s + (p.pct ?? 0), 0) / tracked.length);
     };
+    // 7-day rolling average at each point — context line for the daily trend.
+    const withAvg = weekTrend.map((p, i) => {
+      const win = weekTrend.slice(Math.max(0, i - 6), i + 1).filter((q) => q.pct !== null);
+      return {
+        ...p,
+        sub: win.length === 0 ? null : Math.round(win.reduce((s, q) => s + (q.pct ?? 0), 0) / win.length),
+      };
+    });
     const last7 = weekTrend.slice(-7);
     const prev7 = weekTrend.slice(0, -7);
     const tracked = last7.filter((p) => p.pct !== null);
     return {
       last7,
+      trend14: withAvg,
       avg: avg(last7),
       prevAvg: avg(prev7),
       perfect: tracked.filter((p) => p.pct === 100).length,
@@ -118,7 +129,7 @@ export function DashboardPage({ api, onNavigate }: { api: AppDataApi; onNavigate
   const guard: { good: boolean; text: string } | null = arcComplete
     ? null
     : todayEv.pct === null
-      ? { good: false, text: 'No habits are eligible today — add or restore a habit to keep tracking.' }
+      ? { good: false, text: 'No habits or rules are eligible today — add one to keep tracking.' }
       : todayEv.isPerfect
         ? {
             good: true,
@@ -132,15 +143,25 @@ export function DashboardPage({ api, onNavigate }: { api: AppDataApi; onNavigate
             return {
               good: false,
               text: streak > 0
-                ? `${remaining} habit${remaining === 1 ? '' : 's'} left today to keep your ${streak}-day streak alive.`
-                : `${remaining} habit${remaining === 1 ? '' : 's'} left today — finish them all to start a streak.`,
+                ? `${remaining} item${remaining === 1 ? '' : 's'} left today to keep your ${streak}-day streak alive.`
+                : `${remaining} item${remaining === 1 ? '' : 's'} left today — finish them all to start a streak.`,
             };
           })();
 
-  // Habits at a glance — active habits only, ordered like the Habits page.
+  // Habits & rules at a glance — active only, ordered like their pages.
   const glance = habitStats
     .filter((s) => s.habit.active)
     .sort((a, b) => a.habit.order - b.habit.order);
+  const rulesGlance = ruleStats
+    .filter((s) => s.rule.active)
+    .sort((a, b) => a.rule.order - b.rule.order);
+
+  // Aggregate rule control across all rules (used by the Rule Control stat card).
+  const ruleAgg = useMemo(() => {
+    const followed = ruleStats.reduce((s, r) => s + r.followedCount, 0);
+    const eligible = ruleStats.reduce((s, r) => s + r.eligibleCount, 0);
+    return { followed, eligible, pct: eligible === 0 ? null : Math.round((followed / eligible) * 100) };
+  }, [ruleStats]);
 
   return (
     <div className="stack" style={{ gap: 20 }}>
@@ -188,7 +209,7 @@ export function DashboardPage({ api, onNavigate }: { api: AppDataApi; onNavigate
           </div>
           <p className="secondary small" style={{ marginBottom: 14 }}>
             {finale.eligibleCount === 0
-              ? 'No habits were eligible during this Arc.'
+              ? 'No habits or rules were eligible during this Arc.'
               : `${finale.days} days · ${finale.loggedDays} with logged progress · ${finale.activeHabits} active habit${finale.activeHabits === 1 ? '' : 's'}.`}
           </p>
           <div className="stats-row">
@@ -200,7 +221,7 @@ export function DashboardPage({ api, onNavigate }: { api: AppDataApi; onNavigate
               label="Consistency"
               sub="avg daily"
             />
-            <StatCard icon={<IconFlame size={16} />} value={finale.totalValue} label="Total logged" sub="all units" />
+            <StatCard icon={<IconShield size={16} />} value={ruleAgg.pct === null ? '—' : `${ruleAgg.pct}%`} label="Rule control" sub="days followed" />
           </div>
         </section>
       )}
@@ -211,10 +232,10 @@ export function DashboardPage({ api, onNavigate }: { api: AppDataApi; onNavigate
         <StatCard icon={<IconTrophy size={16} />} green value={stats?.streaks.best ?? 0} label="Best streak" sub="days" />
         <StatCard icon={<IconSpark size={16} />} green value={stats?.perfectDays ?? 0} label="Perfect days" />
         <StatCard
-          icon={<IconChart size={16} />}
-          value={stats?.totalPct === null || stats?.totalPct === undefined ? '—' : `${stats.totalPct}%`}
-          label="Consistency"
-          sub="avg daily"
+          icon={<IconShield size={16} />}
+          value={ruleAgg.pct === null ? '—' : `${ruleAgg.pct}%`}
+          label="Rule control"
+          sub={`${ruleAgg.followed}/${ruleAgg.eligible} followed`}
         />
       </section>
 
@@ -222,7 +243,7 @@ export function DashboardPage({ api, onNavigate }: { api: AppDataApi; onNavigate
       <section className="grid-2" style={{ alignItems: 'start' }}>
         <div className="card">
           <div className="card-title">
-            <span>My Day — today's tasks</span>
+            <span>My Day — today's tracking</span>
             <button type="button" className="btn btn-ghost btn-sm" onClick={() => onNavigate('today')}>
               Open day view <IconArrowLeft size={13} style={{ transform: 'rotate(180deg)' }} />
             </button>
@@ -230,11 +251,13 @@ export function DashboardPage({ api, onNavigate }: { api: AppDataApi; onNavigate
           <DayTasks
             arc={arc}
             habits={data.habits}
+            rules={data.rules}
             records={data.dailyRecords}
             date={today}
             now={today}
             onToggle={api.toggleHabit}
             onSetValue={api.setHabitValue}
+            onRuleStatus={api.setRuleStatus}
           />
         </div>
 
@@ -243,11 +266,16 @@ export function DashboardPage({ api, onNavigate }: { api: AppDataApi; onNavigate
             <ProgressRing pct={todayEv.pct} size={140} stroke={11} label="Today" />
             <p className="small muted" style={{ marginTop: 12, textAlign: 'center' }}>
               {todayEv.pct === null
-                ? 'No habits yet — add your first habit.'
+                ? 'No habits or rules yet — add your first one.'
                 : todayEv.isPerfect
-                  ? `Perfect day — all ${todayEv.eligibleCount} habits complete.`
+                  ? `Perfect day — all ${todayEv.eligibleCount} items complete.`
                   : `${todayEv.completedCount} of ${todayEv.eligibleCount} done · ${todayEv.eligibleCount - todayEv.completedCount} to go`}
             </p>
+            {todayEv.ruleEligible > 0 && (
+              <p className="small secondary" style={{ marginTop: 4, textAlign: 'center' }}>
+                {todayEv.habitDone}/{todayEv.habitEligible} habits done · {todayEv.ruleFollowed}/{todayEv.ruleEligible} rules followed
+              </p>
+            )}
           </div>
 
           {data.dailyRecords[today]?.note && (
@@ -343,28 +371,22 @@ export function DashboardPage({ api, onNavigate }: { api: AppDataApi; onNavigate
 
           <p className="small secondary" style={{ marginTop: 10 }}>
             {week.tracked === 0
-              ? 'No tracked days yet — log habits to build your weekly picture.'
+              ? 'No tracked days yet — log habits and rules to build your weekly picture.'
               : `${week.perfect} perfect · ${week.partialDays} partial · ${week.missed} missed of ${week.tracked} tracked day${week.tracked === 1 ? '' : 's'}.`}
           </p>
 
-          <div
-            className="trend-chart"
-            style={{ height: 72, marginTop: 12 }}
-            role="img"
-            aria-label={`Daily completion for the last ${week.last7.length} days. ${week.tracked === 0 ? 'No tracked days.' : `${week.perfect} perfect, ${week.partialDays} partial, ${week.missed} missed.`}`}
-          >
-            {week.last7.map((p) => (
-              <div
-                key={p.date}
-                className={`trend-bar${p.pct === null ? ' none' : ''}`}
-                style={{ height: `${p.pct === null ? 3 : Math.max(3, p.pct)}%` }}
-                title={`${formatShort(p.date)}: ${p.pct === null ? 'no habits' : `${p.pct}%`}`}
-              />
-            ))}
-          </div>
-          <div className="trend-axis">
-            <span>{week.last7.length ? formatShort(week.last7[0].date) : ''}</span>
-            <span>{week.last7.length ? formatShort(week.last7[week.last7.length - 1].date) : ''}</span>
+          <div style={{ marginTop: 12 }}>
+            <LineChart
+              points={week.trend14.map((p) => ({ label: p.date, value: p.pct, sub: p.sub }))}
+              height={148}
+              ariaLabel={`Daily completion for the last ${week.trend14.length} days. ${week.tracked === 0 ? 'No tracked days.' : `${week.perfect} perfect, ${week.partialDays} partial, ${week.missed} missed.`}`}
+            />
+            {week.trend14.some((p) => p.sub !== null) && (
+              <div className="row small muted" style={{ gap: 6, marginTop: 6 }}>
+                <span style={{ width: 16, height: 0, borderTop: '2px dashed #c7d3fd', display: 'inline-block' }} />
+                7-day rolling average · solid line = daily completion
+              </div>
+            )}
           </div>
         </div>
       </section>
@@ -392,13 +414,18 @@ export function DashboardPage({ api, onNavigate }: { api: AppDataApi; onNavigate
             )}
           </div>
           <div className="goal-rules">
-            <span className="hs-k">Rules ({arc.rules.length})</span>
-            {arc.rules.length === 0 ? (
-              <p className="small muted" style={{ marginTop: 6 }}>No personal rules yet.</p>
+            <span className="hs-k">Rules ({rulesGlance.length} active)</span>
+            {rulesGlance.length === 0 ? (
+              <p className="small muted" style={{ marginTop: 6 }}>No active rules yet.</p>
             ) : (
               <ul>
-                {arc.rules.map((r, i) => (
-                  <li key={i}>{r}</li>
+                {rulesGlance.map((r) => (
+                  <li key={r.rule.id}>
+                    {r.rule.text}
+                    <span className="small muted" style={{ marginLeft: 6 }}>
+                      {r.rate === null ? '' : `· ${r.rate}% followed`}
+                    </span>
+                  </li>
                 ))}
               </ul>
             )}
@@ -461,6 +488,49 @@ export function DashboardPage({ api, onNavigate }: { api: AppDataApi; onNavigate
         )}
       </section>
 
+      {/* Rules at a glance — self-control performance */}
+      {rulesGlance.length > 0 && (
+        <section className="card">
+          <div className="card-title">
+            <span className="row" style={{ gap: 6 }}><IconShield size={13} /> Rule control</span>
+            <button type="button" className="btn btn-ghost btn-sm" onClick={() => onNavigate('myarc')}>
+              Manage rules
+            </button>
+          </div>
+          {rulesGlance.map((s) => {
+            const followedToday = data.dailyRecords[today]?.rules?.[s.rule.id]?.status === 'followed';
+            return (
+              <div className="habit-stat-row" key={s.rule.id}>
+                <div className="row" style={{ minWidth: 0 }}>
+                  <span className="task-icon rule-icon" style={{ width: 28, height: 28 }}><IconShield size={13} /></span>
+                  <div style={{ minWidth: 0 }}>
+                    <div className="task-name truncate">{s.rule.text}</div>
+                    <div className="task-meta">
+                      <span className={followedToday ? 'success-text' : ''}>
+                        {followedToday ? 'Followed today' : 'Not followed today'}
+                      </span>
+                      {' · '}{s.followedCount}/{s.eligibleCount} days followed
+                    </div>
+                  </div>
+                </div>
+                <div className="stat-value" style={{ fontSize: 16 }}>{s.rate === null ? '—' : `${s.rate}%`}</div>
+                <div className="hs-bar">
+                  <div className="rate-bar">
+                    <div
+                      className={`rate-bar-fill${s.rate !== null && s.rate >= 80 ? ' good' : ''}`}
+                      style={{ width: `${s.rate ?? 0}%` }}
+                    />
+                  </div>
+                </div>
+                <div className="hs-streak small secondary">
+                  <IconFlame size={12} style={{ verticalAlign: '-2px' }} /> {s.currentStreak} / {s.bestStreak}
+                </div>
+              </div>
+            );
+          })}
+        </section>
+      )}
+
       {/* 90-day overview */}
       <section className="card">
         <div className="card-title">
@@ -472,6 +542,7 @@ export function DashboardPage({ api, onNavigate }: { api: AppDataApi; onNavigate
         <ArcHeatmap
           arc={arc}
           habits={data.habits}
+          rules={data.rules}
           records={data.dailyRecords}
           onDayClick={setDetailDate}
           cellSize={11}

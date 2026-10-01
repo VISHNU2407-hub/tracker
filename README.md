@@ -14,6 +14,19 @@ npm run preview  # serve the production build
 npm test         # smoke tests for date/analytics/storage services
 ```
 
+## Deploy to Vercel
+
+The app builds to a static site — deploy as-is:
+
+```bash
+npx vercel          # preview deployment
+npx vercel --prod   # production
+```
+
+Or import the repo at vercel.com/new — the framework preset (Vite), build command (`npm run build`) and output directory (`dist`) are auto-detected, with `vercel.json` pinning them explicitly plus SPA rewrites and cache headers.
+
+No environment variables required — all data stays in each visitor's browser (localStorage), so there are no secrets or server config.
+
 ## What's inside
 
 - **Onboarding** — welcome → arc setup (start date, 90-day default) → goal & why → personal rules → initial habits → Day 1.

@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import type { AppDataApi } from '../hooks/useAppData';
-import { PageHeader } from '../components/layout/PageHeader';
+import { PageHeader } from '../app/layout/PageHeader';
 import { ConfirmModal } from '../components/ui/Modal';
 import {
   addDays, formatShort, todayISO, weekKeyOf, weekStartOf,

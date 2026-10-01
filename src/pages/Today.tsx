@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import type { AppDataApi } from '../hooks/useAppData';
 import { useAnalytics } from '../hooks/useArc';
 import type { PageId } from '../hooks/useArc';
-import { PageHeader } from '../components/layout/PageHeader';
+import { PageHeader } from '../app/layout/PageHeader';
 import { DayTasks } from '../components/dashboard/DayTasks';
 import { ProgressRing } from '../components/ui/ProgressRing';
 import { ConfirmModal } from '../components/ui/Modal';
@@ -87,33 +87,40 @@ export function TodayPage({ api, onNavigate }: { api: AppDataApi; onNavigate: (p
       />
 
       {isPast && (
-        <div className="card row" style={{ marginBottom: 14, borderLeft: '3px solid var(--warning)', padding: '12px 16px' }}>
-          <IconAlert size={16} style={{ color: 'var(--warning)' }} />
-          <span className="secondary small">
-            You are editing a <strong>past day</strong> ({clamped}). Changes here update streaks and analytics.
+        <div
+          className="coming-note"
+          role="status"
+          style={{ marginBottom: 16, background: 'var(--warning-dim)', borderColor: 'var(--warning-border)' }}
+        >
+          <IconAlert size={15} style={{ color: 'var(--warning)', flexShrink: 0, marginTop: 2 }} />
+          <span>
+            You are editing a <strong>past day</strong>. Changes here update streaks and analytics.
           </span>
         </div>
       )}
 
       {isFuture && (
-        <div className="card row" style={{ marginBottom: 14, borderLeft: '3px solid var(--accent)', padding: '12px 16px' }}>
-          <IconLock size={16} style={{ color: 'var(--accent)' }} />
-          <span className="secondary small">
-            Viewing a <strong>future day</strong> ({clamped}). It becomes editable once this date arrives.
+        <div
+          className="coming-note"
+          role="status"
+          style={{ marginBottom: 16, background: 'var(--accent-soft)', borderColor: 'var(--accent-border)' }}
+        >
+          <IconLock size={15} style={{ color: 'var(--accent-strong)', flexShrink: 0, marginTop: 2 }} />
+          <span>
+            Viewing a <strong>future day</strong>. It becomes editable once this date arrives.
           </span>
         </div>
       )}
 
-      <div className="grid-2" style={{ alignItems: 'start' }}>
-        <div className="card">
-          <div className="card-title">
-            <span>Day {dayNumber(clamped, arc.startDate, arc.durationDays)} · Tasks</span>
-            {isFuture && (
-              <span className="row muted small" style={{ gap: 5 }}>
-                <IconLock size={13} /> Future — locked
-              </span>
-            )}
-          </div>
+      <div className="grid-2" style={{ alignItems: 'start' }}>          <div className="card">
+            <div className="card-title">
+              <span>Day {dayNumber(clamped, arc.startDate, arc.durationDays)} · Tracking</span>
+              {isFuture && (
+                <span className="row muted small" style={{ gap: 5 }}>
+                  <IconLock size={13} /> Future — locked
+                </span>
+              )}
+            </div>
 
           {isFuture ? (
             <div className="empty-state">
@@ -125,11 +132,13 @@ export function TodayPage({ api, onNavigate }: { api: AppDataApi; onNavigate: (p
             <DayTasks
               arc={arc}
               habits={data.habits}
+              rules={data.rules}
               records={data.dailyRecords}
               date={clamped}
               now={today}
               onToggle={api.toggleHabit}
               onSetValue={api.setHabitValue}
+              onRuleStatus={api.setRuleStatus}
             />
           )}
         </div>
@@ -139,11 +148,16 @@ export function TodayPage({ api, onNavigate }: { api: AppDataApi; onNavigate: (p
             <ProgressRing pct={ev.pct} size={130} stroke={10} label={`Day ${dayNumber(clamped, arc.startDate, arc.durationDays)}`} />
             <p className="small muted" style={{ marginTop: 10 }}>
               {ev.pct === null
-                ? 'No eligible habits yet — add some on the Habits page.'
+                ? 'No eligible habits or rules yet — add some first.'
                 : ev.isPerfect
-                  ? `Perfect day — all ${ev.eligibleCount} habits done.`
-                  : `${ev.completedCount} of ${ev.eligibleCount} habits · ${ev.eligibleCount - ev.completedCount} remaining`}
+                  ? `Perfect day — all ${ev.eligibleCount} items done.`
+                  : `${ev.completedCount} of ${ev.eligibleCount} items · ${ev.eligibleCount - ev.completedCount} remaining`}
             </p>
+            {ev.ruleEligible > 0 && (
+              <p className="small secondary" style={{ marginTop: 2 }}>
+                {ev.habitDone}/{ev.habitEligible} habits · {ev.ruleFollowed}/{ev.ruleEligible} rules followed
+              </p>
+            )}
           </div>
 
           {/* Optional daily note */}

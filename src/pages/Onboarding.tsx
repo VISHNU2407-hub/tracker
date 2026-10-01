@@ -71,7 +71,11 @@ export function Onboarding({ api }: { api: AppDataApi }) {
         unit: h.unit,
       }));
     const cleanedRules = rules.map((r) => r.trim()).filter(Boolean);
-    api.completeOnboarding({ ...arc, goal: arc.goal.trim(), why: arc.why.trim(), rules: cleanedRules }, habitDefs);
+    api.completeOnboarding(
+      { ...arc, goal: arc.goal.trim(), why: arc.why.trim(), rules: cleanedRules },
+      habitDefs,
+      cleanedRules
+    );
   };
 
   return (
@@ -283,7 +287,8 @@ function Rules({
       <div className="onboard-kicker">Step 3 · Rules</div>
       <h1>Your personal rules</h1>
       <p className="lead">
-        3–7 short, non-negotiable rules for the next {90} days. Optional — skip if you prefer.
+        3–7 short, non-negotiable rules for the next {90} days. Rules are things you want to follow,
+        avoid or control — they become daily check-ins next to your habits. Optional — skip if you prefer.
       </p>
 
       <div className="rules-editor">

@@ -1,11 +1,12 @@
 import React from 'react';
-import type { Arc, DailyRecord, Habit } from '../../types';
+import type { Arc, DailyRecord, Habit, Rule } from '../../types';
 import { evaluateDay } from '../../services/analytics';
 import { addDays, formatShort, isWeekend, todayISO } from '../../services/date';
 
 interface NinetyDayGridProps {
   arc: Arc;
   habits: Habit[];
+  rules?: Rule[];
   records: Record<string, DailyRecord>;
   onDayClick?: (date: string) => void;
   compact?: boolean;
@@ -20,13 +21,13 @@ const STATE_LABEL: Record<string, string> = {
 };
 
 /** Full 90-day map with state + text title (never color-only, spec §10). */
-export function NinetyDayGrid({ arc, habits, records, onDayClick, compact }: NinetyDayGridProps) {
+export function NinetyDayGrid({ arc, habits, rules = [], records, onDayClick, compact }: NinetyDayGridProps) {
   const now = todayISO();
   const cells: React.ReactNode[] = [];
 
   for (let i = 0; i < arc.durationDays; i++) {
     const date = addDays(arc.startDate, i);
-    const ev = evaluateDay(arc, habits, records, date, now);
+    const ev = evaluateDay(arc, habits, rules, records, date, now);
     const cls = [
       'day-cell',
       ev.state,

@@ -10,7 +10,7 @@ import {
   IconTarget,
   IconSettings,
   type IconProps,
-} from '../icons';
+} from '../../components/icons';
 
 export interface NavEntry {
   id: PageId;
@@ -28,3 +28,6 @@ export const NAV_ENTRIES: NavEntry[] = [
   { id: 'myarc', label: 'My Winter Arc', icon: IconTarget },
   { id: 'settings', label: 'Settings', icon: IconSettings },
 ];
+
+/** Screen order used for direction-aware transitions (forward slides right). */
+export const NAV_ORDER: PageId[] = NAV_ENTRIES.map((e) => e.id);

@@ -1,11 +1,13 @@
 /* ============================================================
    useAppData — central state store wired to the storage service.
    Every mutation persists immediately (spec §5).
+   v2: rules are daily-trackable entities; per-day follow status
+   is stored inside each DailyRecord.
    ============================================================ */
 
 import { useCallback, useEffect, useState } from 'react';
 import { useToday } from './useToday';
-import type { AppData, Arc, Habit, DailyRecord, Reflection } from '../types';
+import type { AppData, Arc, Habit, Rule, DailyRecord, Reflection, RuleStatus } from '../types';
 import {
   loadAppData,
   saveAppData,
@@ -13,12 +15,13 @@ import {
   normalizeAppData,
   SCHEMA_VERSION,
 } from '../services/storage';
-import { todayISO, weekStartOf, weekKeyOf } from '../services/date';
+import { todayISO, weekStartOf } from '../services/date';
 
 const EMPTY: AppData = {
   settings: { theme: 'dark', onboarded: false, demoMode: false },
   arc: null,
   habits: [],
+  rules: [],
   dailyRecords: {},
   reflections: {},
   version: SCHEMA_VERSION,
@@ -30,7 +33,7 @@ export interface AppDataApi {
   /** Today's local date (YYYY-MM-DD). Refreshes automatically at midnight. */
   today: string;
   /* onboarding / settings */
-  completeOnboarding: (arc: Arc, habits: Omit<Habit, 'id' | 'createdAt' | 'order' | 'active'>[]) => void;
+  completeOnboarding: (arc: Arc, habits: Omit<Habit, 'id' | 'createdAt' | 'order' | 'active'>[], rules: string[]) => void;
   setOnboarded: (v: boolean) => void;
   setDemoMode: (v: boolean) => void;
   updateArc: (patch: Partial<Arc>) => void;
@@ -41,6 +44,15 @@ export interface AppDataApi {
   restoreHabit: (id: string) => void;
   deleteHabitPermanently: (id: string) => void;
   reorderHabits: (orderedIds: string[]) => void;
+  /* rules */
+  addRule: (text: string, fromDay?: number) => Rule;
+  updateRule: (id: string, patch: Partial<Omit<Rule, 'id' | 'createdAt'>>) => void;
+  archiveRule: (id: string) => void;
+  restoreRule: (id: string) => void;
+  deleteRulePermanently: (id: string) => void;
+  reorderRules: (orderedIds: string[]) => void;
+  /** status null removes the stored status for that day */
+  setRuleStatus: (date: string, ruleId: string, status: RuleStatus | null) => void;
   /* daily records */
   setHabitValue: (date: string, habitId: string, value: number) => void;
   toggleHabit: (date: string, habitId: string) => void;
@@ -63,10 +75,11 @@ function withDay(d: AppData, date: string, fn: (rec: DailyRecord) => DailyRecord
   const existing: DailyRecord = d.dailyRecords[date] ?? {
     date,
     habits: {},
+    rules: {},
     note: '',
     updatedAt: new Date().toISOString(),
   };
-  const next = fn(existing);
+  const next = fn({ ...existing, rules: existing.rules ?? {} });
   return {
     ...d,
     dailyRecords: {
@@ -81,6 +94,17 @@ function makeHabit(h: Omit<Habit, 'id' | 'createdAt' | 'order' | 'active'>, orde
     ...h,
     id: newId('habit'),
     active: true,
+    createdAt: new Date().toISOString(),
+    order,
+  };
+}
+
+function makeRule(text: string, order: number, fromDay: number): Rule {
+  return {
+    id: newId('rule'),
+    text: text.trim(),
+    active: true,
+    fromDay,
     createdAt: new Date().toISOString(),
     order,
   };
@@ -109,13 +133,14 @@ export function useAppData(): AppDataApi {
   }, []);
 
   const completeOnboarding = useCallback<AppDataApi['completeOnboarding']>(
-    (arc, habitDefs) => {
+    (arc, habitDefs, ruleTexts) => {
       apply((d) => ({
         ...d,
         settings: { ...d.settings, onboarded: true },
         arc: { ...arc, updatedAt: new Date().toISOString() },
         habits: habitDefs.map((h, i) => makeHabit(h, i + 1)),
-        dailyRecords: {},
+        rules: ruleTexts.map((t, i) => makeRule(t, i + 1, 1)),
+        dailyRecords: {}, // fresh arc
         reflections: {},
       }));
     },
@@ -217,6 +242,125 @@ export function useAppData(): AppDataApi {
           ),
         };
       });
+    },
+    [apply]
+  );
+
+  /* ---------- rules ---------- */
+
+  const addRule = useCallback<AppDataApi['addRule']>(
+    (text, fromDay) => {
+      const rule = makeRule(text, 0, fromDay ?? 1);
+      apply((d) => ({
+        ...d,
+        rules: [...d.rules, { ...rule, order: d.rules.length + 1 }],
+        // Mirror active rule texts onto arc.rules for back-compat.
+        arc: d.arc
+          ? { ...d.arc, rules: [...d.arc.rules, rule.text], updatedAt: new Date().toISOString() }
+          : d.arc,
+      }));
+      return rule;
+    },
+    [apply]
+  );
+
+  const updateRule = useCallback<AppDataApi['updateRule']>(
+    (id, patch) => {
+      apply((d) => {
+        const rules = d.rules.map((r) => (r.id === id ? { ...r, ...patch } : r));
+        return {
+          ...d,
+          rules,
+          arc: d.arc ? { ...d.arc, rules: rules.map((r) => r.text), updatedAt: new Date().toISOString() } : d.arc,
+        };
+      });
+    },
+    [apply]
+  );
+
+  const archiveRule = useCallback(
+    (id: string) => {
+      apply((d) => {
+        const rules = d.rules.map((r) => (r.id === id ? { ...r, active: false } : r));
+        return {
+          ...d,
+          rules,
+          arc: d.arc ? { ...d.arc, rules: rules.filter((r) => r.active).map((r) => r.text) } : d.arc,
+        };
+      });
+    },
+    [apply]
+  );
+
+  const restoreRule = useCallback(
+    (id: string) => {
+      apply((d) => {
+        const rules = d.rules.map((r) => (r.id === id ? { ...r, active: true } : r));
+        return {
+          ...d,
+          rules,
+          arc: d.arc ? { ...d.arc, rules: rules.filter((r) => r.active).map((r) => r.text) } : d.arc,
+        };
+      });
+    },
+    [apply]
+  );
+
+  const deleteRulePermanently = useCallback(
+    (id: string) => {
+      apply((d) => {
+        // Removes the rule entity AND all its stored statuses (history-destroying,
+        // confirm-gated in the UI like habit deletion).
+        const dailyRecords: Record<string, DailyRecord> = {};
+        for (const [date, rec] of Object.entries(d.dailyRecords)) {
+          if (!rec.rules?.[id]) {
+            dailyRecords[date] = rec;
+          } else {
+            const rules = { ...rec.rules };
+            delete rules[id];
+            dailyRecords[date] = { ...rec, rules, updatedAt: new Date().toISOString() };
+          }
+        }
+        const remaining = d.rules.filter((r) => r.id !== id);
+        return {
+          ...d,
+          rules: remaining,
+          dailyRecords,
+          arc: d.arc ? { ...d.arc, rules: remaining.map((r) => r.text) } : d.arc,
+        };
+      });
+    },
+    [apply]
+  );
+
+  const reorderRules = useCallback<AppDataApi['reorderRules']>(
+    (orderedIds) => {
+      apply((d) => {
+        const orderMap = new Map(orderedIds.map((id, i) => [id, i + 1]));
+        return {
+          ...d,
+          rules: d.rules.map((r) =>
+            orderMap.has(r.id) ? { ...r, order: orderMap.get(r.id)! } : r
+          ),
+        };
+      });
+    },
+    [apply]
+  );
+
+  const setRuleStatus = useCallback<AppDataApi['setRuleStatus']>(
+    (date, ruleId, status) => {
+      apply((d) =>
+        withDay(d, date, (rec) => {
+          const rules = { ...(rec.rules ?? {}) };
+          if (status === null) {
+            delete rules[ruleId];
+          } else {
+            rules[ruleId] = { status };
+          }
+          return { ...rec, rules };
+        })
+      );
     },
     [apply]
   );
@@ -340,6 +484,13 @@ export function useAppData(): AppDataApi {
     restoreHabit,
     deleteHabitPermanently,
     reorderHabits,
+    addRule,
+    updateRule,
+    archiveRule,
+    restoreRule,
+    deleteRulePermanently,
+    reorderRules,
+    setRuleStatus,
     setHabitValue,
     toggleHabit,
     setDayNote,

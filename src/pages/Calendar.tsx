@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import type { AppDataApi } from '../hooks/useAppData';
-import { PageHeader } from '../components/layout/PageHeader';
+import { PageHeader } from '../app/layout/PageHeader';
 import { ArcHeatmap } from '../components/calendar/ArcHeatmap';
 import { HabitGrid } from '../components/calendar/HabitGrid';
 import { DayDetail } from '../components/calendar/DayDetail';
@@ -9,8 +9,8 @@ import { evaluateDay } from '../services/analytics';
 
 /* ============================================================
    Calendar page (spec §3): LeetCode-style heatmaps with
-   Arc (90-day) and full-year ranges, plus a month grid.
-   Click any arc day for details.
+   Arc (90-day) and full-year ranges, plus a month grid with
+   habits AND rules. Click any arc day for details.
    ============================================================ */
 
 type View = 'year' | 'arc' | 'month' | 'grid';
@@ -62,6 +62,7 @@ export function CalendarPage({ api }: { api: AppDataApi }) {
           <ArcHeatmap
             arc={arc}
             habits={data.habits}
+            rules={data.rules}
             records={data.dailyRecords}
             onDayClick={setDetailDate}
             cellSize={view === 'year' ? 12 : 14}
@@ -74,7 +75,7 @@ export function CalendarPage({ api }: { api: AppDataApi }) {
         <div className="card">
           <div className="row-between" style={{ marginBottom: 14 }}>
             <div className="card-title" style={{ marginBottom: 0 }}>
-              {view === 'grid' ? `Habit tracker · ${month?.label ?? ''}` : month?.label}
+              {view === 'grid' ? `Habit & rule tracker · ${month?.label ?? ''}` : month?.label}
             </div>
             <div className="row" style={{ gap: 6 }}>
               <button type="button" className="btn btn-icon" onClick={() => setMonthOffset((m) => Math.max(0, m - 1))} disabled={monthOffset === 0} aria-label="Previous month">
@@ -90,6 +91,7 @@ export function CalendarPage({ api }: { api: AppDataApi }) {
             <HabitGrid
               arc={arc}
               habits={data.habits}
+              rules={data.rules}
               records={data.dailyRecords}
               dates={month.dates}
               now={today}
@@ -104,7 +106,7 @@ export function CalendarPage({ api }: { api: AppDataApi }) {
                   <span key={`pad-${i}`} className="day-cell pad" aria-hidden="true" />
                 ))}
                 {month.dates.map((date) => {
-                  const ev = evaluateDay(arc, data.habits, data.dailyRecords, date, today);
+                  const ev = evaluateDay(arc, data.habits, data.rules, data.dailyRecords, date, today);
                   const cls = ['day-cell', ev.state, ev.state === 'today' && ev.isPerfect ? 'complete' : '']
                     .filter(Boolean).join(' ');
                   return (

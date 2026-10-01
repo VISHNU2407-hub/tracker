@@ -1,24 +1,25 @@
 import React, { useMemo } from 'react';
-import type { Arc, DailyRecord, Habit } from '../../types';
+import type { Arc, DailyRecord, Habit, Rule } from '../../types';
 import { eligibleHabitsForDate, evaluateDay, habitValueDone } from '../../services/analytics';
 import { formatLong, formatShort, fromISO, todayISO, weekdayInitial } from '../../services/date';
-import { habitCellFor } from '../habits/habitCell';
+import { habitCellFor, ruleCellFor } from '../habits/habitCell';
 import { HabitCellLegend } from '../habits/HabitCellLegend';
 import { IconLock } from '../icons';
 import { IconFor } from '../../pages/Habits';
 
 /* ============================================================
-   HabitGrid — monthly habit tracker (rows = habits, columns =
-   days of the month). Inspired by monthly habit-grid layouts,
-   but built entirely on the existing habit/day data model:
-   eligibility + completion rules come from the analytics service,
-   future days stay locked, and every cell is derived — nothing
-   new is stored.
+   HabitGrid — monthly habit tracker (rows = habits + rules,
+   columns = days of the month). Habits and rules are grouped in
+   clearly labeled sections. Built entirely on the existing
+   habit/day data model: eligibility + completion rules come from
+   the analytics service, future days stay locked, and every cell
+   is derived — nothing new is stored.
    ============================================================ */
 
 interface HabitGridProps {
   arc: Arc;
   habits: Habit[];
+  rules: Rule[];
   records: Record<string, DailyRecord>;
   /** Days of the visible month (already clamped to the Arc window). */
   dates: string[];
@@ -26,7 +27,7 @@ interface HabitGridProps {
   onDayClick?: (date: string) => void;
 }
 
-export function HabitGrid({ arc, habits, records, dates, now = todayISO(), onDayClick }: HabitGridProps) {
+export function HabitGrid({ arc, habits, rules, records, dates, now = todayISO(), onDayClick }: HabitGridProps) {
   const label = useMemo(
     () =>
       dates[0]
@@ -35,10 +36,15 @@ export function HabitGrid({ arc, habits, records, dates, now = todayISO(), onDay
     [dates]
   );
 
-  const rows = useMemo(() => {
-    const sorted = [...habits].sort((a, b) => a.order - b.order);
-    return [...sorted.filter((h) => h.active), ...sorted.filter((h) => !h.active)];
-  }, [habits]);
+  const activeRows = useMemo(
+    () => [...habits].sort((a, b) => a.order - b.order).filter((h) => h.active),
+    [habits]
+  );
+  const archivedRows = useMemo(
+    () => [...habits].sort((a, b) => a.order - b.order).filter((h) => !h.active),
+    [habits]
+  );
+  const ruleRows = useMemo(() => [...rules].sort((a, b) => a.order - b.order), [rules]);
 
   // Month-level summary line (elapsed days only, real evaluateDay output).
   const monthSummary = useMemo(() => {
@@ -47,14 +53,14 @@ export function HabitGrid({ arc, habits, records, dates, now = todayISO(), onDay
     let perfect = 0;
     for (const d of dates) {
       if (d > now) continue;
-      const ev = evaluateDay(arc, habits, records, d, now);
+      const ev = evaluateDay(arc, habits, rules, records, d, now);
       if (ev.pct === null) continue;
       elapsed += 1;
       pctSum += ev.pct;
       if (ev.isPerfect) perfect += 1;
     }
     return { elapsed, perfect, avg: elapsed === 0 ? null : Math.round(pctSum / elapsed) };
-  }, [arc, habits, records, dates, now]);
+  }, [arc, habits, rules, records, dates, now]);
 
   /** Per-habit summary for the visible month: done / eligible days. */
   const summaryFor = (habit: Habit) => {
@@ -69,14 +75,100 @@ export function HabitGrid({ arc, habits, records, dates, now = todayISO(), onDay
     return { eligible, done, pct: eligible === 0 ? null : Math.round((done / eligible) * 100) };
   };
 
-  if (dates.length === 0 || rows.length === 0) {
+  /** Per-rule summary for the visible month: followed / eligible days. */
+  const ruleSummaryFor = (rule: Rule) => {
+    let eligible = 0;
+    let followed = 0;
+    for (const d of dates) {
+      if (d > now) continue;
+      const dayNum = Math.round((fromISO(d).getTime() - fromISO(arc.startDate).getTime()) / 86_400_000) + 1;
+      if (dayNum < rule.fromDay) continue;
+      eligible += 1;
+      if (records[d]?.rules?.[rule.id]?.status === 'followed') followed += 1;
+    }
+    return { eligible, followed, pct: eligible === 0 ? null : Math.round((followed / eligible) * 100) };
+  };
+
+  if (dates.length === 0 || (activeRows.length === 0 && ruleRows.length === 0)) {
     return (
       <div className="empty-state">
-        <div className="big">{dates.length === 0 ? 'No days in this month' : 'No habits yet'}</div>
-        <p>Add habits on the Habits page — the grid fills in as you track days.</p>
+        <div className="big">{dates.length === 0 ? 'No days in this month' : 'No habits or rules yet'}</div>
+        <p>Add habits on the Habits page or rules in My Winter Arc — the grid fills in as you track days.</p>
       </div>
     );
   }
+
+  const renderHabitRow = (habit: Habit, paused: boolean) => {
+    const Icon = IconFor(habit.icon);
+    const sum = summaryFor(habit);
+    return (
+      <tr key={habit.id} className={paused ? 'paused' : undefined}>
+        <th scope="row" className="mg-name-col">
+          <span className="mg-name-inner">
+            <span className="mg-icon"><Icon size={13} /></span>
+            <span className="mg-habit-name truncate" title={habit.name}>{habit.name}</span>
+            {paused && <span className="hc-chip paused">Paused</span>}
+          </span>
+        </th>
+        {dates.map((d) => {
+          const c = habitCellFor(habit, d, records, now, arc);
+          const text = `${formatShort(d)}: ${c.label}`;
+          return (
+            <td key={d} className={`mg-cell ${c.state}`} title={text}>
+              {c.state === 'future' ? <IconLock size={11} /> : c.glyph}
+              <span className="sr-only">{text}</span>
+            </td>
+          );
+        })}
+        <td
+          className="mg-sum-col"
+          title={
+            sum.eligible === 0
+              ? 'No eligible days this month'
+              : `${sum.done} of ${sum.eligible} eligible days completed this month`
+          }
+        >
+          <span className="mg-sum-pct">{sum.pct === null ? '—' : `${sum.pct}%`}</span>
+          <span className="mg-sum-sub">{sum.eligible === 0 ? 'no days' : `${sum.done}/${sum.eligible}`}</span>
+        </td>
+      </tr>
+    );
+  };
+
+  const renderRuleRow = (rule: Rule) => {
+    const sum = ruleSummaryFor(rule);
+    return (
+      <tr key={rule.id} className="mg-rule-row">
+        <th scope="row" className="mg-name-col">
+          <span className="mg-name-inner">
+            <span className="mg-icon mg-rule-icon">R</span>
+            <span className="mg-habit-name truncate" title={rule.text}>{rule.text}</span>
+          </span>
+        </th>
+        {dates.map((d) => {
+          const c = ruleCellFor(arc, rule, d, records, now);
+          const text = `${formatShort(d)}: ${c.label}`;
+          return (
+            <td key={d} className={`mg-cell mg-rule-cell ${c.state}`} title={text}>
+              {c.state === 'future' ? <IconLock size={11} /> : c.glyph}
+              <span className="sr-only">{text}</span>
+            </td>
+          );
+        })}
+        <td
+          className="mg-sum-col"
+          title={
+            sum.eligible === 0
+              ? 'No applicable days this month'
+              : `${sum.followed} of ${sum.eligible} days followed this month`
+          }
+        >
+          <span className="mg-sum-pct">{sum.pct === null ? '—' : `${sum.pct}%`}</span>
+          <span className="mg-sum-sub">{sum.eligible === 0 ? 'no days' : `${sum.followed}/${sum.eligible}`}</span>
+        </td>
+      </tr>
+    );
+  };
 
   return (
     <div className="mg-wrap">
@@ -89,7 +181,7 @@ export function HabitGrid({ arc, habits, records, dates, now = todayISO(), onDay
       <div className="mg-scroll">
         <table className="mg-table">
           <caption className="sr-only">
-            {`Monthly habit tracker for ${label}. Rows are habits, columns are days of the month.`}
+            {`Monthly habit and rule tracker for ${label}. Rows are habits and rules, columns are days of the month.`}
           </caption>
           <thead>
             <tr>
@@ -126,44 +218,14 @@ export function HabitGrid({ arc, habits, records, dates, now = todayISO(), onDay
           </thead>
 
           <tbody>
-            {rows.map((habit) => {
-              const Icon = IconFor(habit.icon);
-              const sum = summaryFor(habit);
-              return (
-                <tr key={habit.id} className={habit.active ? undefined : 'paused'}>
-                  <th scope="row" className="mg-name-col">
-                    <span className="mg-name-inner">
-                      <span className="mg-icon"><Icon size={13} /></span>
-                      <span className="mg-habit-name truncate" title={habit.name}>{habit.name}</span>
-                      {!habit.active && <span className="hc-chip paused">Paused</span>}
-                    </span>
-                  </th>
-
-                  {dates.map((d) => {
-                    const c = habitCellFor(habit, d, records, now, arc);
-                    const text = `${formatShort(d)}: ${c.label}`;
-                    return (
-                      <td key={d} className={`mg-cell ${c.state}`} title={text}>
-                        {c.state === 'future' ? <IconLock size={11} /> : c.glyph}
-                        <span className="sr-only">{text}</span>
-                      </td>
-                    );
-                  })}
-
-                  <td
-                    className="mg-sum-col"
-                    title={
-                      sum.eligible === 0
-                        ? 'No eligible days this month'
-                        : `${sum.done} of ${sum.eligible} eligible days completed this month`
-                    }
-                  >
-                    <span className="mg-sum-pct">{sum.pct === null ? '—' : `${sum.pct}%`}</span>
-                    <span className="mg-sum-sub">{sum.eligible === 0 ? 'no days' : `${sum.done}/${sum.eligible}`}</span>
-                  </td>
-                </tr>
-              );
-            })}
+            {activeRows.map((h) => renderHabitRow(h, false))}
+            {archivedRows.map((h) => renderHabitRow(h, true))}
+            {ruleRows.length > 0 && (
+              <tr className="mg-section-row">
+                <td colSpan={1 + dates.length + 1}>Rules — what you controlled</td>
+              </tr>
+            )}
+            {ruleRows.map(renderRuleRow)}
           </tbody>
         </table>
       </div>

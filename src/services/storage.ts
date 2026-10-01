@@ -1,21 +1,25 @@
 /* ============================================================
    Storage service — ALL localStorage access lives here (spec §5).
    Handles missing/corrupt storage safely; validates imports.
+   v2: adds Rule entities + per-day rule statuses. Legacy v1 data
+   (rules stored as arc.rules text) migrates automatically and
+   idempotently — existing rule texts are preserved verbatim.
    ============================================================ */
 
-import type { AppData, Arc, Habit, DailyRecord, Reflection, Settings } from '../types';
+import type { AppData, Arc, Habit, Rule, DailyRecord, Reflection, Settings } from '../types';
 import { isValidISO } from './date';
 
 const KEYS = {
   settings: 'winterArc.settings',
   arc: 'winterArc.arc',
   habits: 'winterArc.habits',
+  rules: 'winterArc.rules',
   dailyRecords: 'winterArc.dailyRecords',
   reflections: 'winterArc.reflections',
   version: 'winterArc.version',
 } as const;
 
-export const SCHEMA_VERSION = 1;
+export const SCHEMA_VERSION = 2;
 
 /* ---------- Safe JSON primitives ---------- */
 
@@ -49,7 +53,61 @@ function str(v: unknown, fallback = ''): string {
   return typeof v === 'string' ? v : fallback;
 }
 
-/** Coerce unknown data into a valid AppData. Used on load AND import. */
+/* ---------- Rules: parse + legacy migration ----------
+   Existing arc.rules strings stay intact; they become trackable
+   Rule entities eligible from Arc Day 1 (user choice: backfill).
+   Migration is idempotent: stored Rule entities win; deterministic
+   ids derived from text mean re-runs never duplicate. */
+
+function parseRules(arr: unknown[]): Rule[] {
+  const map = new Map<string, Rule>();
+  for (const r of arr) {
+    if (!isRecord(r) || typeof r.id !== 'string' || !r.id) continue;
+    const text = str(r.text).trim();
+    if (!text) continue;
+    if (map.has(r.id)) continue; // dedupe by id, keep first
+    map.set(r.id, {
+      id: r.id,
+      text,
+      active: r.active !== false,
+      fromDay: typeof r.fromDay === 'number' && r.fromDay >= 1 ? Math.floor(r.fromDay) : 1,
+      createdAt: str(r.createdAt, new Date().toISOString()),
+      order: typeof r.order === 'number' ? r.order : map.size,
+    });
+  }
+  return Array.from(map.values()).sort((a, b) => a.order - b.order);
+}
+
+/** Turn arc.rules text into Rule entities (stable ids derived from the text). */
+function migrateTextRules(texts: string[], existing: Rule[]): Rule[] {
+  if (existing.length > 0) return existing; // entities already exist — nothing to migrate
+  const out: Rule[] = [];
+  for (let i = 0; i < texts.length; i++) {
+    const text = texts[i].trim();
+    if (!text) continue;
+    out.push({
+      // Deterministic id from the text so re-running never duplicates.
+      id: `rule_m${hash(text)}`,
+      text,
+      active: true,
+      fromDay: 1,
+      createdAt: new Date().toISOString(),
+      order: i + 1,
+    });
+  }
+  return out;
+}
+
+function hash(s: string): number {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) {
+    h = (Math.imul(31, h) + s.charCodeAt(i)) | 0;
+  }
+  return h >>> 0;
+}
+
+/* ---------- Coerce unknown data into a valid AppData (load + import) ---------- */
+
 export function normalizeAppData(input: unknown): AppData {
   const src = isRecord(input) ? input : {};
 
@@ -100,7 +158,16 @@ export function normalizeAppData(input: unknown): AppData {
     });
   }
 
-  // --- Daily records ---
+  // --- Rules: stored entities first, else migrate from arc.rules text ---
+  const ruleArr = Array.isArray(src.rules) ? src.rules : [];
+  let rules = parseRules(ruleArr);
+  rules = migrateTextRules(arc?.rules ?? [], rules);
+  if (arc && rules.length > 0) {
+    // Keep arc.rules as the canonical text mirror (back-compat for exports).
+    arc.rules = rules.map((r) => r.text);
+  }
+
+  // --- Daily records (now include per-day rule statuses) ---
   const dailyRecords: Record<string, DailyRecord> = {};
   if (isRecord(src.dailyRecords)) {
     for (const [date, rec] of Object.entries(src.dailyRecords)) {
@@ -113,9 +180,18 @@ export function normalizeAppData(input: unknown): AppData {
           habits[hid] = { value, completed: hr.completed === true || value > 0 };
         }
       }
+      const ruleRecs: Record<string, { status: 'followed' | 'not_followed' }> = {};
+      if (isRecord(rec.rules)) {
+        for (const [rid, rr] of Object.entries(rec.rules)) {
+          if (!isRecord(rr)) continue;
+          const status = rr.status === 'not_followed' ? 'not_followed' : 'followed';
+          ruleRecs[rid] = { status };
+        }
+      }
       dailyRecords[date] = {
         date,
         habits,
+        rules: ruleRecs,
         note: str(rec.note),
         updatedAt: str(rec.updatedAt, new Date().toISOString()),
       };
@@ -144,6 +220,7 @@ export function normalizeAppData(input: unknown): AppData {
     settings,
     arc,
     habits: Array.from(habitMap.values()).sort((a, b) => a.order - b.order),
+    rules,
     dailyRecords,
     reflections,
     version: SCHEMA_VERSION,
@@ -158,6 +235,7 @@ export function loadAppData(): AppData {
     settings: readJSON(KEYS.settings),
     arc: readJSON(KEYS.arc),
     habits: readJSON(KEYS.habits),
+    rules: readJSON(KEYS.rules),
     dailyRecords: readJSON(KEYS.dailyRecords),
     reflections: readJSON(KEYS.reflections),
     version,
@@ -171,6 +249,7 @@ export function saveAppData(data: AppData): void {
   writeJSON(KEYS.settings, data.settings);
   writeJSON(KEYS.arc, data.arc);
   writeJSON(KEYS.habits, data.habits);
+  writeJSON(KEYS.rules, data.rules);
   writeJSON(KEYS.dailyRecords, data.dailyRecords);
   writeJSON(KEYS.reflections, data.reflections);
   writeJSON(KEYS.version, SCHEMA_VERSION);

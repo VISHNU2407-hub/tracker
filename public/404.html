@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex" />
+    <title>Page not found · Winter Arc Tracker</title>
+    <!-- JS-free fallback for root deployments; works even with scripts disabled.
+         The inline script below handles subpath (project-page) deployments too
+         and fires first, so this meta refresh is only a last resort. -->
+    <meta http-equiv="refresh" content="3; url=/" />
+    <style>
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        background: #f8f9fc;
+        color: #17223b;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        text-align: center;
+        padding: 24px;
+      }
+      .flake {
+        width: 44px;
+        height: 44px;
+        margin: 0 auto 14px;
+      }
+      h1 { font-size: 20px; margin: 0 0 6px; letter-spacing: -0.01em; }
+      p { color: #4a5a74; font-size: 14px; margin: 0 0 16px; line-height: 1.5; }
+      a {
+        display: inline-block;
+        background: #4f6ef7;
+        color: #fff;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 14px;
+        padding: 10px 18px;
+        border-radius: 9px;
+      }
+      a:hover { background: #3d5bf0; }
+      .hint { font-size: 12px; color: #8894ab; margin-top: 12px; }
+    </style>
+  </head>
+  <body>
+    <div>
+      <svg class="flake" viewBox="0 0 24 24" fill="none" stroke="#4f6ef7" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+        <path d="M12 2v20M2 12h20M4.9 4.9l14.2 14.2M19.1 4.9L4.9 19.1" />
+      </svg>
+      <h1>This day doesn't exist</h1>
+      <p>The page you're looking for isn't part of your Arc.</p>
+      <a id="home-link" href="/">Open the tracker</a>
+      <p class="hint">Redirecting automatically…</p>
+    </div>
+    <script>
+      // Root deploy → "/" · subpath deploy (e.g. /my-app/) → "/my-app/"
+      (function () {
+        var base = location.pathname.replace(/\/[^/]*$/, '/');
+        var link = document.getElementById('home-link');
+        if (base !== '/' && link) link.setAttribute('href', base);
+        setTimeout(function () { location.replace(base); }, 1200);
+      })();
+    </script>
+  </body>
+</html>

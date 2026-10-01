@@ -2,23 +2,24 @@ import React, { useState } from 'react';
 import type { Habit } from '../types';
 import { useAppData, type AppDataApi } from '../hooks/useAppData';
 import { useAnalytics } from '../hooks/useArc';
-import { PageHeader } from '../components/layout/PageHeader';
+import { PageHeader } from '../app/layout/PageHeader';
 import { HabitForm, type HabitFormValues } from '../components/habits/HabitForm';
-import { HabitInsights } from '../components/habits/HabitInsights';
-import { DayDetail } from '../components/calendar/DayDetail';
+import { HabitHeatmap } from '../components/habits/HabitHeatmap';
 import { ConfirmModal } from '../components/ui/Modal';
-import { ProgressRing } from '../components/ui/ProgressRing';
 import { todayISO } from '../services/date';
 import {
   IconPlus, IconEdit, IconArchive, IconTrash, IconRestore, IconUp, IconDown, IconDumbbell,
   IconClock, IconHash, IconCheck, IconTarget, IconFlame, IconSpark, IconNote, IconBook,
+  IconTrophy,
 } from '../components/icons';
 
 /* ============================================================
-   Habits page (spec §3): add / edit / archive / reorder.
-   Archived habits preserve history. Each habit card also shows
-   richer performance insights (streaks, rate, recent activity)
-   derived from existing analytics — nothing new is stored.
+   Habits page: add / edit / archive / reorder.
+   Archived habits preserve history. Each habit gets its own
+   compact card — icon, name, target, rate, streaks, controls —
+   with an independent 90-day heatmap built only from that
+   habit's stored records. All metrics come from the existing
+   analytics; nothing new is stored.
    ============================================================ */
 
 const ICON_MAP: Record<string, React.FC<{ size?: number }>> = {
@@ -37,10 +38,15 @@ export function IconFor(key: string) {
   return ICON_MAP[key] ?? IconTarget;
 }
 
+function targetLabel(habit: Habit): string {
+  return habit.type === 'checkbox' ? 'Done when checked'
+    : habit.type === 'duration' ? `Duration · ${habit.target} min/day`
+    : `Numeric · ${habit.target} ${habit.unit || ''}/day`;
+}
+
 export function HabitsPage({ api }: { api: AppDataApi }) {
   const { data } = api;
   const { habitStats } = useAnalytics(data);
-  const arc = data.arc!;
   const today = todayISO();
   const statMap = new Map(habitStats.map((s) => [s.habit.id, s]));
 
@@ -48,7 +54,6 @@ export function HabitsPage({ api }: { api: AppDataApi }) {
   const [editing, setEditing] = useState<Habit | null>(null);
   const [confirmArchive, setConfirmArchive] = useState<Habit | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<Habit | null>(null);
-  const [detailDate, setDetailDate] = useState<string | null>(null);
 
   const active = data.habits.filter((h) => h.active).sort((a, b) => a.order - b.order);
   const archived = data.habits.filter((h) => !h.active).sort((a, b) => a.order - b.order);
@@ -78,7 +83,7 @@ export function HabitsPage({ api }: { api: AppDataApi }) {
     <div>
       <PageHeader
         title="Habits"
-        sub="Your reusable habit definitions. Editing never rewrites history."
+        sub="Your reusable habit definitions · editing never rewrites history"
         actions={
           <button type="button" className="btn btn-primary" onClick={() => { setEditing(null); setFormOpen(true); }}>
             <IconPlus size={15} /> Add habit
@@ -87,7 +92,7 @@ export function HabitsPage({ api }: { api: AppDataApi }) {
       />
 
       {/* Active habits */}
-      <div className="stack">
+      <div className="stack" style={{ gap: 16 }}>
         {active.length === 0 && (
           <div className="card empty-state">
             <div className="big">No active habits</div>
@@ -95,7 +100,6 @@ export function HabitsPage({ api }: { api: AppDataApi }) {
           </div>
         )}
         {active.map((habit, idx) => {
-          const rate = rateFor(habit);
           const Icon = IconFor(habit.icon);
           const stat = statMap.get(habit.id);
           return (
@@ -104,13 +108,11 @@ export function HabitsPage({ api }: { api: AppDataApi }) {
                 <span className="task-icon"><Icon size={16} /></span>
                 <div className="task-body">
                   <div className="task-name truncate">{habit.name}</div>
-                  <div className="task-meta">
-                    {habit.type === 'checkbox' ? 'Checkbox · done when checked'
-                      : habit.type === 'duration' ? `Duration · ${habit.target} min/day`
-                      : `Numeric · ${habit.target} ${habit.unit || ''}/day`}
-                  </div>
+                  <div className="task-meta">{targetLabel(habit)}</div>
                 </div>
-                {rate !== null && <span className="habit-rate" title="Completion rate over eligible days">{rate}%</span>}
+                {stat && stat.rate !== null && (
+                  <span className="habit-rate" title="Completion rate over eligible days">{stat.rate}%</span>
+                )}
                 <div className="habit-actions">
                   <button type="button" className="btn btn-ghost btn-icon" disabled={idx === 0} onClick={() => move(habit, -1)} aria-label={`Move ${habit.name} up`}>
                     <IconUp size={15} />
@@ -128,14 +130,27 @@ export function HabitsPage({ api }: { api: AppDataApi }) {
               </div>
 
               {stat && (
-                <HabitInsights
-                  habit={habit}
-                  stat={stat}
-                  arc={arc}
-                  records={data.dailyRecords}
-                  now={today}
-                  onDayClick={setDetailDate}
-                />
+                <>
+                  <div className="habit-stat-strip">
+                    <span className="hss-item">
+                      <IconFlame size={14} style={{ color: 'var(--warning)' }} />
+                      <span className="hss-k">Current streak</span>
+                      <strong>{stat.currentStreak} <span className="hss-unit">days</span></strong>
+                    </span>
+                    <span className="hss-item">
+                      <IconTrophy size={14} style={{ color: 'var(--success)' }} />
+                      <span className="hss-k">Best streak</span>
+                      <strong>{stat.bestStreak} <span className="hss-unit">days</span></strong>
+                    </span>
+                    <span className="hss-item">
+                      <IconTarget size={14} style={{ color: 'var(--accent)' }} />
+                      <span className="hss-k">Completion</span>
+                      <strong>{stat.rate === null ? '—' : `${stat.rate}%`}</strong>
+                    </span>
+                  </div>
+
+                  <HabitHeatmap habit={habit} arc={data.arc!} records={data.dailyRecords} now={today} />
+                </>
               )}
             </div>
           );
@@ -144,12 +159,11 @@ export function HabitsPage({ api }: { api: AppDataApi }) {
 
       {/* Archived habits */}
       {archived.length > 0 && (
-        <div style={{ marginTop: 28 }}>
+        <div style={{ marginTop: 30 }}>
           <div className="card-title">Archived — history preserved</div>
-          <div className="stack">
+          <div className="stack" style={{ gap: 14 }}>
             {archived.map((habit) => {
               const Icon = IconFor(habit.icon);
-              const rate = rateFor(habit);
               const stat = statMap.get(habit.id);
               return (
                 <div className="habit-card archived" key={habit.id}>
@@ -162,7 +176,7 @@ export function HabitsPage({ api }: { api: AppDataApi }) {
                       </div>
                       <div className="task-meta">Archived · still counted in past days &amp; analytics</div>
                     </div>
-                    {rate !== null && <span className="habit-rate">{rate}%</span>}
+                    {stat && stat.rate !== null && <span className="habit-rate">{stat.rate}%</span>}
                     <div className="habit-actions">
                       <button type="button" className="btn btn-ghost btn-icon" onClick={() => api.restoreHabit(habit.id)} aria-label={`Restore ${habit.name}`}>
                         <IconRestore size={15} />
@@ -174,15 +188,27 @@ export function HabitsPage({ api }: { api: AppDataApi }) {
                   </div>
 
                   {stat && (
-                    <HabitInsights
-                      habit={habit}
-                      stat={stat}
-                      arc={arc}
-                      records={data.dailyRecords}
-                      now={today}
-                      defaultOpen={false}
-                      onDayClick={setDetailDate}
-                    />
+                    <>
+                      <div className="habit-stat-strip">
+                        <span className="hss-item">
+                          <IconFlame size={14} style={{ color: 'var(--warning)' }} />
+                          <span className="hss-k">Current streak</span>
+                          <strong>{stat.currentStreak} <span className="hss-unit">days</span></strong>
+                        </span>
+                        <span className="hss-item">
+                          <IconTrophy size={14} style={{ color: 'var(--success)' }} />
+                          <span className="hss-k">Best streak</span>
+                          <strong>{stat.bestStreak} <span className="hss-unit">days</span></strong>
+                        </span>
+                        <span className="hss-item">
+                          <IconTarget size={14} style={{ color: 'var(--accent)' }} />
+                          <span className="hss-k">Completion</span>
+                          <strong>{stat.rate === null ? '—' : `${stat.rate}%`}</strong>
+                        </span>
+                      </div>
+
+                      <HabitHeatmap habit={habit} arc={data.arc!} records={data.dailyRecords} now={today} />
+                    </>
                   )}
                 </div>
               );
@@ -194,6 +220,16 @@ export function HabitsPage({ api }: { api: AppDataApi }) {
       {formOpen && (
         <HabitForm initial={editing} onSave={saveForm} onCancel={() => { setFormOpen(false); setEditing(null); }} />
       )}
+
+      {/* Mobile FAB — primary action in thumb reach (desktop uses the header button) */}
+      <button
+        type="button"
+        className="fab"
+        onClick={() => { setEditing(null); setFormOpen(true); }}
+        aria-label="Add habit"
+      >
+        <IconPlus size={24} />
+      </button>
 
       {confirmArchive && (
         <ConfirmModal
@@ -226,8 +262,6 @@ export function HabitsPage({ api }: { api: AppDataApi }) {
           onClose={() => setConfirmDelete(null)}
         />
       )}
-
-      {detailDate && <DayDetail date={detailDate} api={api} onClose={() => setDetailDate(null)} />}
     </div>
   );
 }

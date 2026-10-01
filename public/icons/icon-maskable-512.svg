@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Maskable: full-bleed background; snowflake inside the 66% safe zone -->
+  <rect width="512" height="512" fill="#4f6ef7"/>
+  <g transform="translate(256,256) scale(0.66)" stroke="#ffffff" stroke-width="26" stroke-linecap="round" fill="none">
+    <path d="M0 -206V206M-206 0H206M-146 -146L146 146M146 -146L-146 146"/>
+    <path d="M0 -146l-63 -63M0 -146l63 -63M0 146l-63 63M0 146l63 63" stroke-width="20"/>
+    <path d="M-146 0l-63 -63M-146 0l-63 63M146 0l63 -63M146 0l63 63" stroke-width="20"/>
+    <path d="M-104 -104l-12 -78M-104 -104l-78 -12M104 104l12 78M104 104l78 12" stroke-width="16"/>
+    <path d="M104 -104l78 -12M104 -104l12 -78M-104 104l-78 12M-104 104l-12 78" stroke-width="16"/>
+  </g>
+</svg>

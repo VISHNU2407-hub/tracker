@@ -1,7 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <!-- Maskable icon: snowflake centered in the safe zone on the app background -->
-  <rect width="512" height="512" fill="#f6f8fb"/>
-  <g transform="translate(256,256) scale(13)" stroke="#4f7ce8" stroke-width="2" stroke-linecap="round" fill="none">
-    <path d="M0,-8.5V8.5M-8.5,0H8.5M-6,-6L6,6M6,-6L-6,6" />
-  </g>
-</svg>

@@ -5,8 +5,18 @@
    Data stays in localStorage — nothing to cache there.
    ============================================================ */
 
-const VERSION = 'winter-arc-v1';
-const PRECACHE = ['./', './index.html', './manifest.webmanifest', './icon.svg', './icon-maskable.svg'];
+const VERSION = 'winter-arc-v3';
+const PRECACHE = [
+  './',
+  './index.html',
+  './404.html',
+  './manifest.webmanifest',
+  './icon.svg',
+  './icons/icon-192.png',
+  './icons/icon-512.png',
+  './icons/icon-maskable-192.png',
+  './icons/icon-maskable-512.png',
+];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(

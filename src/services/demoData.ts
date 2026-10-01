@@ -1,9 +1,10 @@
 /* ============================================================
    Demo data — optional preview mode only (spec §12).
    The normal dashboard is ALWAYS driven by stored user data.
+   v2: includes trackable rules with followed/broken history.
    ============================================================ */
 
-import type { AppData, Habit, DailyRecord } from '../types';
+import type { AppData, Habit, Rule, DailyRecord } from '../types';
 import { addDays, todayISO } from './date';
 
 /** Deterministic pseudo-random so the preview is stable across renders. */
@@ -30,6 +31,12 @@ export function buildDemoData(real: AppData): AppData {
     { id: 'demo_h4', name: 'Read', icon: 'book', type: 'duration', target: 20, unit: 'min', active: true, createdAt: `${startDate}T08:00:00.000Z`, order: 4 },
   ];
 
+  const rules: Rule[] = [
+    { id: 'demo_r1', text: 'No phone in bed', active: true, fromDay: 1, createdAt: `${startDate}T08:00:00.000Z`, order: 1 },
+    { id: 'demo_r2', text: 'No sugar', active: true, fromDay: 1, createdAt: `${startDate}T08:00:00.000Z`, order: 2 },
+    { id: 'demo_r3', text: 'Lights out by 11 PM', active: true, fromDay: 1, createdAt: `${startDate}T08:00:00.000Z`, order: 3 },
+  ];
+
   const dailyRecords: Record<string, DailyRecord> = {};
   for (let i = 0; i <= 34; i++) {
     const date = addDays(startDate, i);
@@ -49,9 +56,16 @@ export function buildDemoData(real: AppData): AppData {
         habitsRec[h.id] = { value, completed: false };
       }
     }
+    const rulesRec: DailyRecord['rules'] = {};
+    for (const rule of rules) {
+      if (skipAll) continue; // unmarked day → counts as not followed
+      const followChance = allDone ? 0.9 : 0.7;
+      rulesRec[rule.id] = { status: rand() < followChance ? 'followed' : 'not_followed' };
+    }
     dailyRecords[date] = {
       date,
       habits: habitsRec,
+      rules: rulesRec,
       note: i === 20 ? 'Tough day, still got the workout in.' : '',
       updatedAt: new Date().toISOString(),
     };
@@ -67,12 +81,13 @@ export function buildDemoData(real: AppData): AppData {
       durationDays,
       goal: 'Demo: build unbreakable morning discipline',
       why: 'Preview mode — none of this is your data.',
-      rules: ['Demo rule: up at 6:00', 'Demo rule: phone stays outside the bedroom'],
+      rules: rules.map((r) => r.text),
       status: 'active',
       createdAt: `${startDate}T08:00:00.000Z`,
       updatedAt: new Date().toISOString(),
     },
     habits,
+    rules,
     dailyRecords,
     reflections: {},
   };

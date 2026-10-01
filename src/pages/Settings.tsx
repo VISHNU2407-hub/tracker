@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import type { AppDataApi } from '../hooks/useAppData';
-import { PageHeader } from '../components/layout/PageHeader';
+import { PageHeader } from '../app/layout/PageHeader';
 import { ConfirmModal } from '../components/ui/Modal';
 import { downloadBackup, pickBackupFile, importFromFile } from '../services/exportImport';
 import { IconDownload, IconUpload, IconAlert } from '../components/icons';
@@ -74,7 +74,7 @@ export function SettingsPage({ api }: { api: AppDataApi }) {
                 marginTop: 14,
                 padding: '10px 14px',
                 borderRadius: 9,
-                border: `1px solid ${importMsg.ok ? 'var(--success-border)' : 'rgba(220, 38, 38, 0.35)'}`,
+                border: `1px solid ${importMsg.ok ? 'var(--success-border)' : 'var(--danger-border)'}`,
                 background: importMsg.ok ? 'var(--success-dim)' : 'var(--danger-dim)',
                 color: importMsg.ok ? 'var(--success)' : 'var(--danger)',
               }}

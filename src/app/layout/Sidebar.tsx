@@ -1,5 +1,5 @@
 import React from 'react';
-import { IconSnowflake } from '../icons';
+import { IconSnowflake } from '../../components/icons';
 import { NAV_ENTRIES } from './nav';
 import type { PageId } from '../../hooks/useArc';
 

@@ -1,12 +1,12 @@
 import React, { useMemo, useRef, useState } from 'react';
-import type { Arc, DailyRecord, Habit } from '../../types';
+import type { Arc, DailyRecord, Habit, Rule } from '../../types';
 import { evaluateDay } from '../../services/analytics';
 import { addDays, formatShort, fromISO, todayISO, isWeekend } from '../../services/date';
 
 /* ============================================================
    ArcHeatmap — LeetCode/GitHub-style contribution graph:
    columns = weeks, rows = weekdays (Mon..Sun), color intensity
-   = daily completion %.
+   = daily completion % (habits + rules combined).
 
    range="arc"  → the 90-day Arc window only.
    range="year" → rolling 365 days ending today (full-year
@@ -26,6 +26,7 @@ export function heatLevel(pct: number | null): HeatLevel {
 interface ArcHeatmapProps {
   arc: Arc;
   habits: Habit[];
+  rules: Rule[];
   records: Record<string, DailyRecord>;
   onDayClick?: (date: string) => void;
   showMonthLabels?: boolean;
@@ -50,7 +51,7 @@ interface HeatColumn {
 }
 
 export function ArcHeatmap({
-  arc, habits, records, onDayClick, showMonthLabels = true, showLegend = true, cellSize = 13,
+  arc, habits, rules, records, onDayClick, showMonthLabels = true, showLegend = true, cellSize = 13,
   range = 'arc',
 }: ArcHeatmapProps) {
   const now = todayISO();
@@ -155,7 +156,7 @@ export function ArcHeatmap({
     let tracked = 0;
     let perfect = 0;
     for (let i = 0; i < elapsed; i++) {
-      const ev = evaluateDay(arc, habits, records, addDays(arc.startDate, i), now);
+      const ev = evaluateDay(arc, habits, rules, records, addDays(arc.startDate, i), now);
       if (ev.pct !== null && ev.completedCount > 0) tracked++;
       if (ev.isPerfect) perfect++;
     }
@@ -163,7 +164,7 @@ export function ArcHeatmap({
     if (elapsed === 0) return `Your Arc hasn't started yet.${yearNote}`;
     if (tracked === 0) return `Day 1–${elapsed}: no progress logged yet — the grid fills in as you complete habits.${yearNote}`;
     return `${perfect} perfect · ${tracked} active · ${elapsed - tracked} missed of the first ${elapsed} day${elapsed === 1 ? '' : 's'}${yearNote}`;
-  }, [arc, habits, records, now, range]);
+  }, [arc, habits, rules, records, now, range]);
 
   return (
     <div className="heatmap-wrap">
@@ -218,7 +219,7 @@ export function ArcHeatmap({
                       );
                     }
 
-                    const ev = evaluateDay(arc, habits, records, date, now);
+                    const ev = evaluateDay(arc, habits, rules, records, date, now);
                     const lvl = heatLevel(ev.pct);
                     const isToday = date === now;
                     const weekend = isWeekend(date);

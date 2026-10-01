@@ -33,6 +33,13 @@ export const IconSnowflake = (p: IconProps) => (
   </svg>
 );
 
+export const IconShield = (p: IconProps) => (
+  <svg {...base(p)}>
+    <path d="M12 3l7 3v5c0 4.4-2.9 8.2-7 10-4.1-1.8-7-5.6-7-10V6l7-3Z" />
+    <path d="M9 11.5l2 2 4-4.5" />
+  </svg>
+);
+
 export const IconGrid = (p: IconProps) => (
   <svg {...base(p)}>
     <rect x="3" y="3" width="7" height="7" rx="1.5" />
@@ -225,5 +232,13 @@ export const IconArrowLeft = (p: IconProps) => (
 export const IconX = (p: IconProps) => (
   <svg {...base(p)}>
     <path d="M6 6l12 12M18 6L6 18" />
+  </svg>
+);
+
+export const IconDots = (p: IconProps) => (
+  <svg {...base(p)}>
+    <circle cx="5" cy="12" r="1.6" fill="currentColor" stroke="none" />
+    <circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none" />
+    <circle cx="19" cy="12" r="1.6" fill="currentColor" stroke="none" />
   </svg>
 );

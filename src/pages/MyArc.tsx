@@ -1,17 +1,19 @@
 import React, { useState } from 'react';
 import type { AppDataApi } from '../hooks/useAppData';
-import { PageHeader } from '../components/layout/PageHeader';
+import { PageHeader } from '../app/layout/PageHeader';
 import { ConfirmModal } from '../components/ui/Modal';
 import { ProgressRing } from '../components/ui/ProgressRing';
 import {
   addDays, formatDateRange, formatLong, isValidISO, todayISO,
 } from '../services/date';
 import { isArcComplete } from '../services/analytics';
-import { IconPlus, IconTrash, IconCheck } from '../components/icons';
+import { IconPlus, IconTrash, IconCheck, IconRestore, IconShield, IconDown, IconUp } from '../components/icons';
 
 /* ============================================================
-   My Winter Arc (spec §3): goal, why, rules, dates, status.
-   Edits never erase daily history. Date changes need confirmation.
+   My Winter Arc (spec §3): goal, why, trackable rules, dates,
+   status. Edits never erase daily history. Date changes need
+   confirmation. Rules here are DAILY TRACKABLE items — they
+   appear in every day's checklist alongside habits.
    ============================================================ */
 
 export function MyArcPage({ api }: { api: AppDataApi }) {
@@ -20,26 +22,24 @@ export function MyArcPage({ api }: { api: AppDataApi }) {
 
   const [goal, setGoal] = useState(arc.goal);
   const [why, setWhy] = useState(arc.why);
-  const [rules, setRules] = useState<string[]>(arc.rules.length ? arc.rules : ['']);
+  const [newRuleText, setNewRuleText] = useState('');
   const [startDate, setStartDate] = useState(arc.startDate);
   const [duration, setDuration] = useState(arc.durationDays);
   const [pendingDates, setPendingDates] = useState<null | { startDate: string; durationDays: number }>(null);
+  const [confirmDeleteRule, setConfirmDeleteRule] = useState<string | null>(null);
 
   const today = todayISO();
   const lastArcDay = addDays(arc.startDate, arc.durationDays - 1);
   const hasProgress = Object.keys(data.dailyRecords).length > 0;
   const arcComplete = isArcComplete(arc, today);
 
-  const identityDirty =
-    goal !== arc.goal || why !== arc.why ||
-    JSON.stringify(rules.map((r) => r.trim()).filter(Boolean)) !== JSON.stringify(arc.rules);
+  const identityDirty = goal !== arc.goal || why !== arc.why;
   const datesDirty = startDate !== arc.startDate || duration !== arc.durationDays;
 
   const saveIdentity = () => {
     api.updateArc({
       goal: goal.trim(),
       why: why.trim(),
-      rules: rules.map((r) => r.trim()).filter(Boolean),
     });
   };
 
@@ -71,6 +71,25 @@ export function MyArcPage({ api }: { api: AppDataApi }) {
     Math.round((new Date(today).getTime() - new Date(arc.startDate).getTime()) / 86_400_000) + 1,
     arc.durationDays
   ));
+
+  const activeRules = data.rules.filter((r) => r.active).sort((a, b) => a.order - b.order);
+  const archivedRules = data.rules.filter((r) => !r.active).sort((a, b) => a.order - b.order);
+
+  const addRule = () => {
+    const text = newRuleText.trim();
+    if (!text) return;
+    api.addRule(text);
+    setNewRuleText('');
+  };
+
+  const moveRule = (id: string, dir: -1 | 1) => {
+    const ids = activeRules.map((r) => r.id);
+    const i = ids.indexOf(id);
+    const j = i + dir;
+    if (i < 0 || j < 0 || j >= ids.length) return;
+    [ids[i], ids[j]] = [ids[j], ids[i]];
+    api.reorderRules(ids);
+  };
 
   return (
     <div>
@@ -105,11 +124,12 @@ export function MyArcPage({ api }: { api: AppDataApi }) {
             <div className="kv-row"><span className="kv-key">Dates</span><span className="kv-val">{formatDateRange(arc.startDate, lastArcDay)}</span></div>
             <div className="kv-row"><span className="kv-key">Duration</span><span className="kv-val">{arc.durationDays} days</span></div>
             <div className="kv-row"><span className="kv-key">Habits</span><span className="kv-val">{data.habits.filter((h) => h.active).length} active · {data.habits.filter((h) => !h.active).length} archived</span></div>
+            <div className="kv-row"><span className="kv-key">Rules</span><span className="kv-val">{activeRules.length} active · {archivedRules.length} archived</span></div>
             <div className="kv-row"><span className="kv-key">Recorded days</span><span className="kv-val">{Object.keys(data.dailyRecords).length}</span></div>
           </div>
         </div>
 
-        {/* Editable identity */}
+        {/* Editable identity + trackable rules */}
         <div className="stack">
           <div className="card">
             <div className="card-title">Goal & Why</div>
@@ -123,30 +143,86 @@ export function MyArcPage({ api }: { api: AppDataApi }) {
             </div>
           </div>
 
+          {/* ---------- Trackable rules ---------- */}
           <div className="card">
-            <div className="card-title">Personal rules</div>
+            <div className="card-title">
+              <span className="row" style={{ gap: 6 }}><IconShield size={13} /> Rules — daily trackable</span>
+            </div>
+            <p className="small muted" style={{ marginBottom: 14 }}>
+              Rules are things you want to <strong>follow, avoid or control</strong> — they appear in every
+              day's checklist next to your habits and count toward your day's completion. Existing rules are
+              already trackable from Arc Day 1.
+            </p>
+
             <div className="rules-editor">
-              {rules.map((r, i) => (
-                <div className="rule-row" key={i}>
-                  <span className="muted small" style={{ width: 18, textAlign: 'right' }}>{i + 1}.</span>
+              {activeRules.length === 0 && (
+                <p className="small muted">No active rules yet — add your first below.</p>
+              )}
+              {activeRules.map((rule, idx) => (
+                <div className="rule-row" key={rule.id}>
+                  <span className="mg-icon mg-rule-icon" title="Rule">R</span>
                   <input
                     className="input"
                     style={{ minHeight: 40 }}
-                    value={r}
+                    value={rule.text}
                     maxLength={120}
-                    onChange={(e) => setRules(rules.map((x, idx) => (idx === i ? e.target.value : x)))}
-                    aria-label={`Rule ${i + 1}`}
+                    onChange={(e) => api.updateRule(rule.id, { text: e.target.value })}
+                    aria-label={`Rule ${idx + 1}`}
                   />
-                  <button type="button" className="btn btn-ghost btn-icon" onClick={() => setRules(rules.filter((_, idx) => idx !== i))} aria-label={`Remove rule ${i + 1}`}>
+                  <button type="button" className="btn btn-ghost btn-icon" disabled={idx === 0} onClick={() => moveRule(rule.id, -1)} aria-label={`Move rule ${idx + 1} up`}>
+                    <IconUp size={14} />
+                  </button>
+                  <button type="button" className="btn btn-ghost btn-icon" disabled={idx === activeRules.length - 1} onClick={() => moveRule(rule.id, 1)} aria-label={`Move rule ${idx + 1} down`}>
+                    <IconDown size={14} />
+                  </button>
+                  <button type="button" className="btn btn-ghost btn-icon" onClick={() => api.archiveRule(rule.id)} aria-label={`Archive rule ${idx + 1}`} title="Archive — past records stay intact">
                     <IconTrash size={15} />
                   </button>
                 </div>
               ))}
             </div>
-            {rules.length < 10 && (
-              <button type="button" className="btn btn-sm" style={{ marginTop: 10 }} onClick={() => setRules([...rules, ''])}>
+
+            <div className="row" style={{ marginTop: 12 }}>
+              <input
+                className="input"
+                style={{ minHeight: 40 }}
+                placeholder='e.g. No Instagram after 10 PM'
+                value={newRuleText}
+                maxLength={120}
+                onChange={(e) => setNewRuleText(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter') addRule(); }}
+                aria-label="New rule text"
+              />
+              <button type="button" className="btn btn-primary" onClick={addRule} disabled={!newRuleText.trim()}>
                 <IconPlus size={14} /> Add rule
               </button>
+            </div>
+            {activeRules.length >= 10 && (
+              <p className="small muted" style={{ marginTop: 8 }}>Ten rules is plenty — consider archiving one first.</p>
+            )}
+
+            {archivedRules.length > 0 && (
+              <div style={{ marginTop: 18 }}>
+                <div className="section-label"><span>Archived rules — history preserved</span></div>
+                {archivedRules.map((rule) => (
+                  <div className="rule-row" key={rule.id} style={{ opacity: 0.65 }}>
+                    <input
+                      className="input"
+                      style={{ minHeight: 36 }}
+                      value={rule.text}
+                      maxLength={120}
+                      disabled
+                      aria-label={`Archived rule ${rule.text}`}
+                    />
+                    <button type="button" className="btn btn-ghost btn-icon" onClick={() => api.restoreRule(rule.id)} aria-label={`Restore rule`} title="Restore to daily tracking">
+                      <IconRestore size={14} />
+                    </button>
+                    <button type="button" className="btn btn-ghost btn-icon" onClick={() => setConfirmDeleteRule(rule.id)} aria-label={`Delete rule permanently`}>
+                      <IconTrash size={14} />
+                    </button>
+                  </div>
+                ))}
+              </div>
             )}
           </div>
 
@@ -221,6 +297,23 @@ export function MyArcPage({ api }: { api: AppDataApi }) {
           confirmLabel="Update dates"
           onConfirm={applyDateChange}
           onClose={() => setPendingDates(null)}
+        />
+      )}
+
+      {confirmDeleteRule && (
+        <ConfirmModal
+          title="Delete rule permanently?"
+          danger
+          requireText="DELETE"
+          message={
+            <>
+              This removes the rule <strong>and every followed/not-followed record</strong> for it.
+              If you only want it off your daily checklist, archive it instead — archiving keeps history.
+            </>
+          }
+          confirmLabel="Delete forever"
+          onConfirm={() => api.deleteRulePermanently(confirmDeleteRule)}
+          onClose={() => setConfirmDeleteRule(null)}
         />
       )}
     </div>

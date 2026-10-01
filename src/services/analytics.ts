@@ -1,19 +1,32 @@
 /* ============================================================
    Analytics service — pure, testable functions (spec §6).
    Every metric is derived from real records; nothing hard-coded.
+
+   v2: Rules (what you CONTROLLED) count toward the daily
+   evaluation alongside habits (what you DID) — the user chose
+   "combined" scoring. Legacy rules are eligible from Arc Day 1.
    ============================================================ */
 
-import type { Arc, DailyRecord, DayState, Habit } from '../types';
+import type { Arc, DailyRecord, DayState, Habit, Rule, RuleStatus } from '../types';
 import { addDays, daysBetween, todayISO } from './date';
 
 export interface DayEvaluation {
   state: DayState;
-  /** Percentage 0..100, null when no habits are eligible that day. */
+  /** Percentage 0..100, null when no habits or rules are eligible that day. */
   pct: number | null;
   completedCount: number;
   eligibleCount: number;
   isPerfect: boolean;
+  /** Breakdown so the UI can show what you DID vs what you CONTROLLED. */
+  habitDone: number;
+  habitEligible: number;
+  ruleFollowed: number;
+  ruleEligible: number;
 }
+
+/* ============================================================
+   Habits
+   ============================================================ */
 
 /** Habits that count toward a given date: created on/before it and not archived before it.
  *  Archived habits keep counting for days up to (and including) their archive date. */
@@ -41,30 +54,73 @@ function recordFor(records: Record<string, DailyRecord>, date: string): DailyRec
   return rec && Object.keys(rec.habits).length >= 0 ? rec : undefined;
 }
 
+/* ============================================================
+   Rules — daily follow/not-follow check-ins
+   ============================================================ */
+
+/** Rules that count toward a given date: the rule exists (createdAt day ≤ date),
+ *  is active, and the Arc day number has reached its fromDay. */
+export function eligibleRulesForDate(
+  arc: Arc,
+  rules: Rule[],
+  date: string,
+  now: string = todayISO()
+): Rule[] {
+  const dayNum = daysBetween(arc.startDate, date) + 1;
+  if (dayNum < 1) return [];
+  return rules.filter((r) => {
+    if (!r.active) {
+      // Archived rules keep counting on days before they were archived,
+      // mirroring habit behavior.
+      return date <= now && dayNum >= r.fromDay;
+    }
+    return dayNum >= r.fromDay;
+  });
+}
+
+/** A rule counts as followed when an explicit status was stored for that day.
+ *  Unmarked past days = not followed (backfill from Arc Day 1 semantics). */
+export function ruleFollowed(rule: Rule, rec: { status: RuleStatus } | undefined): boolean {
+  return rec?.status === 'followed';
+}
+
+/* ============================================================
+   Day evaluation — habits + rules combined
+   ============================================================ */
+
 /** Core per-day evaluation used by dashboard, calendar, grid and stats. */
 export function evaluateDay(
   arc: Arc,
   habits: Habit[],
+  rules: Rule[],
   records: Record<string, DailyRecord>,
   date: string,
   now: string = todayISO()
 ): DayEvaluation {
   if (date < arc.startDate) {
-    return { state: 'before-start', pct: null, completedCount: 0, eligibleCount: 0, isPerfect: false };
+    return { state: 'before-start', pct: null, completedCount: 0, eligibleCount: 0, habitDone: 0, habitEligible: 0, ruleFollowed: 0, ruleEligible: 0, isPerfect: false };
   }
   const dayIndex = daysBetween(arc.startDate, date);
   if (dayIndex >= arc.durationDays) {
-    return { state: 'future', pct: null, completedCount: 0, eligibleCount: 0, isPerfect: false };
+    return { state: 'future', pct: null, completedCount: 0, eligibleCount: 0, habitDone: 0, habitEligible: 0, ruleFollowed: 0, ruleEligible: 0, isPerfect: false };
   }
   if (date > now) {
-    return { state: 'future', pct: null, completedCount: 0, eligibleCount: 0, isPerfect: false };
+    return { state: 'future', pct: null, completedCount: 0, eligibleCount: 0, habitDone: 0, habitEligible: 0, ruleFollowed: 0, ruleEligible: 0, isPerfect: false };
   }
 
   const eligible = eligibleHabitsForDate(habits, date, now);
   const rec = recordFor(records, date);
   const done = eligible.filter((h) => habitValueDone(h, rec?.habits[h.id]));
-  const eligibleCount = eligible.length;
-  const completedCount = done.length;
+  const habitEligible = eligible.length;
+  const habitDone = done.length;
+
+  const elRules = eligibleRulesForDate(arc, rules, date, now);
+  const followed = elRules.filter((r) => ruleFollowed(r, rec?.rules?.[r.id]));
+  const ruleEligible = elRules.length;
+  const ruleFollowedCount = followed.length;
+
+  const eligibleCount = habitEligible + ruleEligible;
+  const completedCount = habitDone + ruleFollowedCount;
   const pct = eligibleCount === 0 ? null : Math.round((completedCount / eligibleCount) * 100);
   const isPerfect = eligibleCount > 0 && completedCount === eligibleCount;
 
@@ -75,7 +131,7 @@ export function evaluateDay(
   else if (completedCount > 0) state = 'partial';
   else state = 'empty';
 
-  return { state, pct, completedCount, eligibleCount, isPerfect };
+  return { state, pct, completedCount, eligibleCount, isPerfect, habitDone, habitEligible, ruleFollowed: ruleFollowedCount, ruleEligible };
 }
 
 /** "Qualifying day": all active habits for that day completed (perfect day), per spec §6. */
@@ -93,6 +149,7 @@ export interface Streaks {
 export function computeStreaks(
   arc: Arc,
   habits: Habit[],
+  rules: Rule[],
   records: Record<string, DailyRecord>,
   now: string = todayISO()
 ): Streaks {
@@ -105,7 +162,7 @@ export function computeStreaks(
   const qualifying = new Set<string>();
   let cursor = start;
   while (cursor <= end) {
-    const evaln = evaluateDay(arc, habits, records, cursor, now);
+    const evaln = evaluateDay(arc, habits, rules, records, cursor, now);
     if (isQualifyingDay(evaln)) qualifying.add(cursor);
     cursor = addDays(cursor, 1);
   }
@@ -156,6 +213,7 @@ export interface OverallStats {
 export function computeOverallStats(
   arc: Arc,
   habits: Habit[],
+  rules: Rule[],
   records: Record<string, DailyRecord>,
   now: string = todayISO()
 ): OverallStats {
@@ -171,7 +229,7 @@ export function computeOverallStats(
   let cursor = arc.startDate;
   const end = today;
   while (cursor <= end) {
-    const evaln = evaluateDay(arc, habits, records, cursor, now);
+    const evaln = evaluateDay(arc, habits, rules, records, cursor, now);
     if (evaln.isPerfect) { perfectDays += 1; qualifyingDays += 1; }
     else if (evaln.pct !== null && evaln.completedCount > 0) qualifyingDays += 1;
     if (evaln.pct !== null) { pctSum += evaln.pct; pctDays += 1; }
@@ -184,7 +242,7 @@ export function computeOverallStats(
     perfectDays,
     elapsedDays,
     qualifyingDays,
-    streaks: computeStreaks(arc, habits, records, now),
+    streaks: computeStreaks(arc, habits, rules, records, now),
   };
 }
 
@@ -256,6 +314,83 @@ export function computeHabitStats(
   });
 }
 
+/* ============================================================
+   Rule analytics — self-control over time
+   ============================================================ */
+
+export interface RuleStat {
+  rule: Rule;
+  /** followed / eligible days, null when the rule counts on no days yet */
+  rate: number | null;
+  followedCount: number;
+  /** Days where the rule counted and was NOT followed (explicit or unmarked) */
+  brokenCount: number;
+  eligibleCount: number;
+  currentStreak: number;
+  bestStreak: number;
+}
+
+/** Per-rule analytics: control rate, broken days and follow streaks. */
+export function computeRuleStats(
+  arc: Arc,
+  rules: Rule[],
+  records: Record<string, DailyRecord>,
+  now: string = todayISO()
+): RuleStat[] {
+  const today = now < arc.startDate ? arc.startDate : now;
+  return rules.map((rule) => {
+    let followedCount = 0;
+    let eligible = 0;
+    let best = 0;
+    let run = 0;
+
+    let cursor = arc.startDate;
+    while (cursor <= today) {
+      const el = eligibleRulesForDate(arc, [rule], cursor, now).length > 0;
+      const isFollowed = el && ruleFollowed(rule, records[cursor]?.rules?.[rule.id]);
+      if (el) {
+        eligible += 1;
+        if (isFollowed) {
+          followedCount += 1;
+          run += 1;
+          if (run > best) best = run;
+        } else {
+          run = 0;
+        }
+      }
+      cursor = addDays(cursor, 1);
+    }
+
+    // Current follow streak: count back from today.
+    let cur = 0;
+    let probe = today;
+    while (probe >= arc.startDate) {
+      const el = eligibleRulesForDate(arc, [rule], probe, now).length > 0;
+      if (el && ruleFollowed(rule, records[probe]?.rules?.[rule.id])) {
+        cur += 1;
+      } else if (el) {
+        break;
+      }
+      // not eligible (before fromDay): keep walking back
+      probe = addDays(probe, -1);
+    }
+
+    return {
+      rule,
+      rate: eligible === 0 ? null : Math.round((followedCount / eligible) * 100),
+      followedCount,
+      brokenCount: eligible - followedCount,
+      eligibleCount: eligible,
+      currentStreak: cur,
+      bestStreak: Math.max(best, cur),
+    };
+  });
+}
+
+/* ============================================================
+   Trend
+   ============================================================ */
+
 export interface TrendPoint {
   date: string;
   pct: number | null;
@@ -265,6 +400,7 @@ export interface TrendPoint {
 export function computeTrend(
   arc: Arc,
   habits: Habit[],
+  rules: Rule[],
   records: Record<string, DailyRecord>,
   days: number,
   now: string = todayISO()
@@ -278,7 +414,7 @@ export function computeTrend(
   const points: TrendPoint[] = [];
   let cursor = from;
   while (cursor <= today) {
-    const evaln = evaluateDay(arc, habits, records, cursor, now);
+    const evaln = evaluateDay(arc, habits, rules, records, cursor, now);
     points.push({ date: cursor, pct: evaln.pct });
     cursor = addDays(cursor, 1);
   }
@@ -289,11 +425,12 @@ export function computeTrend(
 export function computeWeeklyTrend(
   arc: Arc,
   habits: Habit[],
+  rules: Rule[],
   records: Record<string, DailyRecord>,
   weeks: number,
   now: string = todayISO()
 ): TrendPoint[] {
-  const daily = computeTrend(arc, habits, records, arc.durationDays, now);
+  const daily = computeTrend(arc, habits, rules, records, arc.durationDays, now);
   const buckets = new Map<string, { sum: number; n: number; first: string }>();
   for (const p of daily) {
     if (p.pct === null) continue;
