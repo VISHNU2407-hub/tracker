@@ -1,7 +1,6 @@
 import React from 'react';
 import type { Arc, DailyRecord, Habit } from '../../types';
 import { eligibleHabitsForDate, habitValueDone } from '../../services/analytics';
-import { toggleHabitForDate, setHabitValueForDate } from '../habits/dayActions';
 import { HabitProgressInput } from '../habits/HabitProgressInput';
 import { IconCheck, IconLock } from '../icons';
 import { IconFor } from '../../pages/Habits';
@@ -94,12 +93,4 @@ export function DayTasks({ arc, habits, records, date, now, onToggle, onSetValue
       })}
     </div>
   );
-}
-
-/* Convenience wrappers so callers can pass the api functions directly. */
-export function DayTasksWithApi(props: Omit<DayTasksProps, 'onToggle' | 'onSetValue'> & {
-  toggle: (date: string, habitId: string) => void;
-  setValue: (date: string, habitId: string, value: number) => void;
-}) {
-  return <DayTasks {...props} onToggle={props.toggle} onSetValue={props.setValue} />;
 }

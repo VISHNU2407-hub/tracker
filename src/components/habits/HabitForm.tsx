@@ -107,6 +107,7 @@ export function HabitForm({ initial, onSave, onCancel }: HabitFormProps) {
               key={t}
               type="button"
               className={type === t ? 'active' : ''}
+              aria-pressed={type === t}
               onClick={() => setType(t)}
               title={
                 t === 'checkbox'

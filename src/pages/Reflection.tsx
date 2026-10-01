@@ -16,8 +16,16 @@ export function ReflectionPage({ api }: { api: AppDataApi }) {
   const arc = data.arc!;
   const today = todayISO();
 
-  // The week being edited
-  const [weekStart, setWeekStart] = useState<string>(() => weekStartOf(today));
+  // The week being edited — clamped to the Arc window so the picker's value
+  // is always one of the listed arc weeks (no default/state mismatch).
+  const arcFirstWeek = weekStartOf(arc.startDate);
+  const arcLastWeek = weekStartOf(addDays(arc.startDate, arc.durationDays - 1));
+  const [weekStart, setWeekStart] = useState<string>(() => {
+    const cur = weekStartOf(today);
+    if (cur < arcFirstWeek) return arcFirstWeek;
+    if (cur > arcLastWeek) return arcLastWeek;
+    return cur;
+  });
   const weekKey = weekKeyOf(weekStart);
   const existing = data.reflections[weekKey];
 
