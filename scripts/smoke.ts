@@ -2,7 +2,7 @@
 import {
   evaluateDay, computeStreaks, computeOverallStats, computeHabitStats, computeTrend,
 } from '../src/services/analytics';
-import { addDays, daysBetween, weekKeyOf, isValidISO } from '../src/services/date';
+import { addDays, daysBetween, weekKeyOf, isValidISO, monthGroups } from '../src/services/date';
 import { importState, exportState, normalizeAppData } from '../src/services/storage';
 import type { Arc, Habit, DailyRecord } from '../src/types';
 
@@ -42,6 +42,12 @@ assert(daysBetween('2025-12-30', '2026-01-02') === 3, 'month/year boundary diff 
 assert(addDays('2026-10-31', 1) === '2026-11-01', 'addDays across month boundary');
 assert(weekKeyOf('2026-10-05') === '2026-W41', 'ISO week key Oct 5 2026 = W41');
 assert(weekKeyOf('2026-01-01') === '2026-W01', 'ISO week Jan 1 2026 = W01');
+
+console.log('— month groups (habit grid) —');
+const mg = monthGroups('2026-10-25', '2026-11-30');
+assert(mg.length === 2, 'Oct 25 → Nov 30 splits into 2 month groups');
+assert(mg[0].label === 'October 2026' && mg[0].dates.length === 7, 'first group = Oct 25–31 (7 days)');
+assert(mg[1].dates[0] === '2026-11-01' && mg[1].dates[mg[1].dates.length - 1] === '2026-11-30', 'second group = Nov 1–30');
 
 console.log('— day evaluation —');
 const now = '2026-10-11';

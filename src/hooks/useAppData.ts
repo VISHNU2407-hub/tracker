@@ -57,6 +57,25 @@ function newId(prefix: string): string {
   return `${prefix}_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 7)}`;
 }
 
+/** Pure next-state update for one day's records — shared by mutateDay,
+ *  setHabitValue and toggleHabit so no caller has to re-enter apply(). */
+function withDay(d: AppData, date: string, fn: (rec: DailyRecord) => DailyRecord): AppData {
+  const existing: DailyRecord = d.dailyRecords[date] ?? {
+    date,
+    habits: {},
+    note: '',
+    updatedAt: new Date().toISOString(),
+  };
+  const next = fn(existing);
+  return {
+    ...d,
+    dailyRecords: {
+      ...d.dailyRecords,
+      [date]: { ...next, date, updatedAt: new Date().toISOString() },
+    },
+  };
+}
+
 function makeHabit(h: Omit<Habit, 'id' | 'createdAt' | 'order' | 'active'>, order: number): Habit {
   return {
     ...h,
@@ -206,22 +225,7 @@ export function useAppData(): AppDataApi {
 
   const mutateDay = useCallback(
     (date: string, fn: (rec: DailyRecord) => DailyRecord) => {
-      apply((d) => {
-        const existing: DailyRecord = d.dailyRecords[date] ?? {
-          date,
-          habits: {},
-          note: '',
-          updatedAt: new Date().toISOString(),
-        };
-        const next = fn(existing);
-        return {
-          ...d,
-          dailyRecords: {
-            ...d.dailyRecords,
-            [date]: { ...next, date, updatedAt: new Date().toISOString() },
-          },
-        };
-      });
+      apply((d) => withDay(d, date, fn));
     },
     [apply]
   );
@@ -232,20 +236,20 @@ export function useAppData(): AppDataApi {
         const habit = d.habits.find((h) => h.id === habitId);
         const completed =
           habit?.type === 'checkbox' ? value > 0 : habit ? value >= habit.target : value > 0;
-        return mutateDay(date, (rec) => ({
+        return withDay(d, date, (rec) => ({
           ...rec,
           habits: { ...rec.habits, [habitId]: { value, completed } },
-        }))(d);
+        }));
       });
     },
-    [apply, mutateDay]
+    [apply]
   );
 
   const toggleHabit = useCallback<AppDataApi['toggleHabit']>(
     (date, habitId) => {
       apply((d) => {
         const habit = d.habits.find((h) => h.id === habitId);
-        return mutateDay(date, (rec) => {
+        return withDay(d, date, (rec) => {
           const cur = rec.habits[habitId];
           const wasDone = habit
             ? habit.type === 'checkbox'
@@ -262,10 +266,10 @@ export function useAppData(): AppDataApi {
                 : (habit?.target ?? 1)
             : 0;
           return { ...rec, habits: { ...rec.habits, [habitId]: { value, completed } } };
-        })(d);
+        });
       });
     },
-    [apply, mutateDay]
+    [apply]
   );
 
   const setDayNote = useCallback<AppDataApi['setDayNote']>(

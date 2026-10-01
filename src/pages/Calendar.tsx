@@ -2,8 +2,9 @@ import React, { useMemo, useState } from 'react';
 import type { AppDataApi } from '../hooks/useAppData';
 import { PageHeader } from '../components/layout/PageHeader';
 import { ArcHeatmap } from '../components/calendar/ArcHeatmap';
+import { HabitGrid } from '../components/calendar/HabitGrid';
 import { DayDetail } from '../components/calendar/DayDetail';
-import { addDays, formatDateRange, fromISO, todayISO } from '../services/date';
+import { addDays, formatDateRange, fromISO, monthGroups, todayISO } from '../services/date';
 import { evaluateDay } from '../services/analytics';
 
 /* ============================================================
@@ -12,7 +13,7 @@ import { evaluateDay } from '../services/analytics';
    Click any arc day for details.
    ============================================================ */
 
-type View = 'year' | 'arc' | 'month';
+type View = 'year' | 'arc' | 'month' | 'grid';
 
 export function CalendarPage({ api }: { api: AppDataApi }) {
   const { data } = api;
@@ -24,23 +25,8 @@ export function CalendarPage({ api }: { api: AppDataApi }) {
 
   const lastArcDay = addDays(arc.startDate, arc.durationDays - 1);
 
-  // Build month groups from arc start.
-  const months = useMemo(() => {
-    const groups: { label: string; dates: string[] }[] = [];
-    let cursor = arc.startDate;
-    while (cursor <= lastArcDay) {
-      const d = fromISO(cursor);
-      const label = d.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
-      const daysInMonth = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
-      const dates: string[] = [];
-      for (let day = d.getDate(); day <= daysInMonth && cursor <= lastArcDay; day++) {
-        dates.push(cursor);
-        cursor = addDays(cursor, 1);
-      }
-      groups.push({ label, dates });
-    }
-    return groups;
-  }, [arc.startDate, lastArcDay]);
+  // Build month groups from arc start (shared with the habit grid view).
+  const months = useMemo(() => monthGroups(arc.startDate, lastArcDay), [arc.startDate, lastArcDay]);
 
   const month = months[Math.min(monthOffset, months.length - 1)];
   const padDays = month ? (fromISO(month.dates[0]).getDay() + 6) % 7 : 0; // Monday-first padding
@@ -61,11 +47,14 @@ export function CalendarPage({ api }: { api: AppDataApi }) {
             <button type="button" className={view === 'month' ? 'active' : ''} onClick={() => setView('month')}>
               Month
             </button>
+            <button type="button" className={view === 'grid' ? 'active' : ''} onClick={() => setView('grid')}>
+              Tracker
+            </button>
           </div>
         }
       />
 
-      {view !== 'month' && (
+      {(view === 'year' || view === 'arc') && (
         <div className="card">
           <div className="card-title">
             <span>{view === 'year' ? 'Last 365 days' : `${arc.durationDays}-day Arc`}</span>
@@ -81,10 +70,12 @@ export function CalendarPage({ api }: { api: AppDataApi }) {
         </div>
       )}
 
-      {view === 'month' && (
+      {(view === 'month' || view === 'grid') && (
         <div className="card">
           <div className="row-between" style={{ marginBottom: 14 }}>
-            <div className="card-title" style={{ marginBottom: 0 }}>{month?.label}</div>
+            <div className="card-title" style={{ marginBottom: 0 }}>
+              {view === 'grid' ? `Habit tracker · ${month?.label ?? ''}` : month?.label}
+            </div>
             <div className="row" style={{ gap: 6 }}>
               <button type="button" className="btn btn-icon" onClick={() => setMonthOffset((m) => Math.max(0, m - 1))} disabled={monthOffset === 0} aria-label="Previous month">
                 ‹
@@ -94,7 +85,19 @@ export function CalendarPage({ api }: { api: AppDataApi }) {
               </button>
             </div>
           </div>
-          {month && (
+
+          {view === 'grid' && month && (
+            <HabitGrid
+              arc={arc}
+              habits={data.habits}
+              records={data.dailyRecords}
+              dates={month.dates}
+              now={today}
+              onDayClick={setDetailDate}
+            />
+          )}
+
+          {view === 'month' && month && (
             <>
               <div className="day-grid">
                 {Array.from({ length: padDays }).map((_, i) => (

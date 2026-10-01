@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
-    "test": "esbuild scripts/smoke.ts --bundle --platform=node --outfile=scripts/.smoke.cjs --log-level=error && node scripts/.smoke.cjs"
+    "test": "esbuild scripts/smoke.ts --bundle --platform=node --outfile=scripts/.smoke.cjs --log-level=error && node scripts/.smoke.cjs && esbuild scripts/render-smoke.tsx --bundle --platform=node --jsx=automatic --outfile=scripts/.render-smoke.cjs --log-level=error && node scripts/.render-smoke.cjs"
   },
   "dependencies": {
     "react": "^18.3.1",

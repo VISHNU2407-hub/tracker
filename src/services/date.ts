@@ -94,6 +94,30 @@ export function weekKeyOf(iso: string): string {
   return `${year}-W${String(week).padStart(2, '0')}`;
 }
 
+/** Split a date range into calendar-month groups (label + list of dates).
+ *  Used by the Calendar month view and the monthly habit grid. */
+export interface MonthGroup {
+  label: string;
+  dates: string[];
+}
+
+export function monthGroups(startISO: string, endISO: string): MonthGroup[] {
+  const groups: MonthGroup[] = [];
+  let cursor = startISO;
+  while (cursor <= endISO) {
+    const d = fromISO(cursor);
+    const label = d.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
+    const daysInMonth = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
+    const dates: string[] = [];
+    for (let day = d.getDate(); day <= daysInMonth && cursor <= endISO; day++) {
+      dates.push(cursor);
+      cursor = addDays(cursor, 1);
+    }
+    groups.push({ label, dates });
+  }
+  return groups;
+}
+
 export function formatDateRange(startISO: string, endISO: string): string {
   const s = fromISO(startISO);
   const e = fromISO(endISO);

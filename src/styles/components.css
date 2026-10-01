@@ -892,3 +892,477 @@ button.heat-cell:disabled {
   color: var(--text);
   margin-bottom: 6px;
 }
+
+/* ---------- Monthly habit grid (Calendar → Tracker) ---------- */
+
+.mg-wrap {
+  min-width: 0;
+}
+
+.mg-summary {
+  margin-bottom: 12px;
+}
+
+.mg-scroll {
+  overflow-x: auto;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  background: var(--card);
+}
+
+.mg-table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 12px;
+}
+
+/* Sticky habit-name column (keeps context while scrolling days).
+   Inset shadow keeps the divider visible while sticky under
+   border-collapse, where collapsed borders can drop out. */
+.mg-table th.mg-name-col {
+  position: sticky;
+  left: 0;
+  background: var(--card);
+  border-right: 1px solid var(--border);
+  box-shadow: inset -1px 0 0 var(--border);
+  border-bottom: 1px solid var(--border-soft);
+  text-align: left;
+  font-weight: 600;
+  min-width: 172px;
+  max-width: 172px;
+  padding: 6px 10px;
+  z-index: 2;
+}
+
+.mg-table thead th.mg-name-col {
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  vertical-align: bottom;
+  z-index: 3;
+}
+
+.mg-name-inner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.mg-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 7px;
+  background: var(--accent-dim);
+  color: var(--accent);
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.mg-habit-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  flex: 1;
+  min-width: 0;
+}
+
+.mg-table tr.paused .mg-habit-name,
+.mg-table tr.paused .mg-icon {
+  opacity: 0.7;
+}
+
+/* Day-column headers (clickable → day details) */
+.mg-table th.mg-head {
+  border-bottom: 1px solid var(--border-soft);
+  border-left: 1px solid var(--border-soft);
+  padding: 0;
+  vertical-align: bottom;
+}
+
+.mg-head.weekend {
+  background: #f7f9fc;
+}
+
+.mg-head.today {
+  background: var(--accent-dim);
+}
+
+.mg-day-btn {
+  position: relative;
+  width: 34px;
+  height: 46px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  background: none;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  color: var(--text-muted);
+}
+
+.mg-day-btn:hover {
+  background: var(--card-hover);
+  color: var(--text);
+}
+
+.mg-wd {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.mg-num {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.mg-head.today .mg-num {
+  color: var(--accent);
+}
+
+.mg-note-dot {
+  position: absolute;
+  top: 4px;
+  right: 5px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--warning);
+}
+
+/* Status cells — glyph + color, never color alone */
+.mg-cell {
+  width: 34px;
+  min-width: 34px;
+  height: 34px;
+  text-align: center;
+  vertical-align: middle;
+  font-size: 13px;
+  font-weight: 700;
+  border: 1px solid var(--border-soft);
+  color: var(--text-muted);
+  background: transparent;
+}
+
+.mg-cell.done,
+.mg-legend-cell.done {
+  background: var(--success-dim);
+  color: var(--success);
+  border-color: var(--success-border);
+}
+
+.mg-cell.partial,
+.mg-legend-cell.partial {
+  background: var(--accent-dim);
+  color: var(--accent);
+  border-color: var(--accent-border);
+}
+
+.mg-cell.missed,
+.mg-legend-cell.missed {
+  background: var(--danger-dim);
+  color: var(--danger);
+  border-color: rgba(220, 38, 38, 0.2);
+}
+
+.mg-cell.pending,
+.mg-legend-cell.pending {
+  background: rgba(217, 119, 6, 0.1);
+  color: var(--warning);
+  border-color: rgba(217, 119, 6, 0.3);
+}
+
+.mg-cell.na,
+.mg-legend-cell.na {
+  background: var(--bg);
+  color: #c3cbdb;
+  border-color: var(--border-soft);
+}
+
+.mg-cell.future,
+.mg-legend-cell.future {
+  background: repeating-linear-gradient(45deg, var(--bg), var(--bg) 4px, #eaeef5 4px, #eaeef5 8px);
+  color: var(--text-muted);
+  opacity: 0.75;
+}
+
+.mg-cell.outside {
+  background: transparent;
+  color: transparent;
+  border-color: var(--border-soft);
+}
+
+/* Per-habit month summary column */
+.mg-table td.mg-sum-col,
+.mg-table th.mg-sum-col {
+  border-left: 1px solid var(--border);
+  text-align: center;
+  padding: 5px 8px;
+  background: var(--card);
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.mg-sum-pct {
+  display: block;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.mg-sum-sub {
+  display: block;
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.mg-legend-cell {
+  width: 18px;
+  height: 18px;
+  border-radius: 5px;
+  border: 1px solid var(--border-soft);
+  display: inline-grid;
+  place-items: center;
+  font-size: 10px;
+  font-weight: 700;
+  background: transparent;
+}
+
+.mg-legend-cell.note {
+  background: rgba(217, 119, 6, 0.1);
+  color: var(--warning);
+  border-color: rgba(217, 119, 6, 0.3);
+}
+
+@media (max-width: 560px) {
+  .mg-table th.mg-name-col {
+    min-width: 132px;
+    max-width: 132px;
+  }
+}
+
+/* ---------- Rich habit cards (per-habit insights) ---------- */
+
+.habit-card {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 14px;
+  padding: 16px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  background: var(--card);
+  transition: border-color 0.15s ease, opacity 0.15s ease;
+}
+
+.habit-card-top {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+
+.hc-chip {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 99px;
+  background: var(--accent-dim);
+  color: var(--accent);
+  border: 1px solid var(--accent-border);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.hc-chip.paused {
+  background: rgba(217, 119, 6, 0.1);
+  color: var(--warning);
+  border-color: rgba(217, 119, 6, 0.35);
+}
+
+.habit-insights {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.habit-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px 16px;
+  background: var(--bg-raised);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+}
+
+.hs-item {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.hs-k {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.hs-v {
+  font-size: 15px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text);
+}
+
+.hs-v.ok { color: var(--success); }
+.hs-v.warn { color: var(--warning); }
+.hs-v.muted { color: var(--text-muted); font-weight: 600; }
+
+.hs-unit {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.hs-sub {
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+
+.hs-rate {
+  grid-column: 1 / -1;
+}
+
+.hs-rate-pct {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.hi-history {
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  background: var(--card);
+}
+
+.hi-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.hi-range {
+  display: block;
+  margin-top: 2px;
+}
+
+.hi-strip {
+  display: flex;
+  gap: 3px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+}
+
+/* Compact per-day cells in the history strip (shares mg-cell states) */
+.mg-cell.hi-day {
+  width: 15px;
+  min-width: 15px;
+  height: 15px;
+  border-radius: 4px;
+  font-size: 9px;
+  line-height: 1;
+  padding: 0;
+  display: inline-grid;
+  place-items: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+button.mg-cell.hi-day:hover {
+  transform: scale(1.25);
+  border-color: var(--accent);
+}
+
+.hi-facts {
+  margin-top: 8px;
+}
+
+.habit-insights .grid-legend {
+  margin-top: 10px;
+}
+
+/* ---------- Dashboard: coming up / week / goal ---------- */
+
+.coming-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 11px 13px;
+  border-radius: var(--radius-sm);
+  background: var(--accent-dim);
+  border: 1px solid var(--accent-border);
+  color: var(--text-secondary);
+  font-size: 13.5px;
+  margin-bottom: 12px;
+}
+
+.coming-note.good {
+  background: var(--success-dim);
+  border-color: var(--success-border);
+}
+
+.delta {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.delta.up { color: var(--success); }
+.delta.down { color: var(--danger); }
+
+.goal-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+  gap: 24px;
+}
+
+.goal-text {
+  font-size: 16.5px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.goal-rules ul {
+  margin: 8px 0 0;
+  padding-left: 18px;
+  color: var(--text-secondary);
+  font-size: 13.5px;
+}
+
+.goal-rules li {
+  margin-bottom: 6px;
+}
+
+@media (max-width: 760px) {
+  .goal-layout {
+    grid-template-columns: 1fr;
+  }
+}

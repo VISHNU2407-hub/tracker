@@ -45,6 +45,22 @@ function weekKeyOf(iso) {
   const week = Math.round((monday.getTime() - week1Monday.getTime()) / 864e5 / 7) + 1;
   return `${year}-W${String(week).padStart(2, "0")}`;
 }
+function monthGroups(startISO, endISO) {
+  const groups = [];
+  let cursor = startISO;
+  while (cursor <= endISO) {
+    const d = fromISO(cursor);
+    const label = d.toLocaleDateString(void 0, { month: "long", year: "numeric" });
+    const daysInMonth = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
+    const dates = [];
+    for (let day = d.getDate(); day <= daysInMonth && cursor <= endISO; day++) {
+      dates.push(cursor);
+      cursor = addDays(cursor, 1);
+    }
+    groups.push({ label, dates });
+  }
+  return groups;
+}
 
 // src/services/analytics.ts
 function eligibleHabitsForDate(habits2, date, now2 = todayISO()) {
@@ -52,6 +68,10 @@ function eligibleHabitsForDate(habits2, date, now2 = todayISO()) {
     if (h.active) return h.createdAt.slice(0, 10) <= date;
     return h.createdAt.slice(0, 10) <= date && now2 >= date;
   });
+}
+function habitValueDone(habit, rec2) {
+  if (!rec2) return false;
+  return habit.type === "checkbox" ? rec2.completed === true : rec2.value >= habit.target;
 }
 function recordFor(records, date) {
   const rec2 = records[date];
@@ -70,7 +90,7 @@ function evaluateDay(arc2, habits2, records, date, now2 = todayISO()) {
   }
   const eligible = eligibleHabitsForDate(habits2, date, now2);
   const rec2 = recordFor(records, date);
-  const done = eligible.filter((h) => rec2?.habits[h.id]?.completed === true);
+  const done = eligible.filter((h) => habitValueDone(h, rec2?.habits[h.id]));
   const eligibleCount = eligible.length;
   const completedCount = done.length;
   const pct = eligibleCount === 0 ? null : Math.round(completedCount / eligibleCount * 100);
@@ -162,7 +182,7 @@ function computeHabitStats(arc2, habits2, records, now2 = todayISO()) {
     let cursor = arc2.startDate;
     while (cursor <= today) {
       const el = eligibleHabitsForDate([habit], cursor, now2).length > 0;
-      const isDone = records[cursor]?.habits[habit.id]?.completed === true;
+      const isDone = habitValueDone(habit, records[cursor]?.habits[habit.id]);
       if (el) {
         eligible += 1;
         if (isDone) completed += 1;
@@ -181,7 +201,7 @@ function computeHabitStats(arc2, habits2, records, now2 = todayISO()) {
     let probe = today;
     const lastEligible = (d) => eligibleHabitsForDate([habit], d, now2).length > 0;
     while (probe >= arc2.startDate) {
-      if (records[probe]?.habits[habit.id]?.completed === true) cur += 1;
+      if (habitValueDone(habit, records[probe]?.habits[habit.id])) cur += 1;
       else if (lastEligible(probe)) break;
       probe = addDays(probe, -1);
     }
@@ -373,6 +393,11 @@ assert(daysBetween("2025-12-30", "2026-01-02") === 3, "month/year boundary diff 
 assert(addDays("2026-10-31", 1) === "2026-11-01", "addDays across month boundary");
 assert(weekKeyOf("2026-10-05") === "2026-W41", "ISO week key Oct 5 2026 = W41");
 assert(weekKeyOf("2026-01-01") === "2026-W01", "ISO week Jan 1 2026 = W01");
+console.log("\u2014 month groups (habit grid) \u2014");
+var mg = monthGroups("2026-10-25", "2026-11-30");
+assert(mg.length === 2, "Oct 25 \u2192 Nov 30 splits into 2 month groups");
+assert(mg[0].label === "October 2026" && mg[0].dates.length === 7, "first group = Oct 25\u201331 (7 days)");
+assert(mg[1].dates[0] === "2026-11-01" && mg[1].dates[mg[1].dates.length - 1] === "2026-11-30", "second group = Nov 1\u201330");
 console.log("\u2014 day evaluation \u2014");
 var now = "2026-10-11";
 var r1 = rec({ h1: 1, h2: 8, h3: 75 });
