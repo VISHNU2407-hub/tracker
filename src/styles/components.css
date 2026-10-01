@@ -1,0 +1,894 @@
+/* ============================================================
+   Feature component styles
+   ============================================================ */
+
+/* ---------- 90-day grid ---------- */
+
+.day-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(34px, 1fr));
+  gap: 6px;
+}
+
+.day-grid.compact {
+  grid-template-columns: repeat(auto-fill, minmax(26px, 1fr));
+  gap: 5px;
+}
+
+.day-cell {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 8px;
+  border: 1px solid var(--border-soft);
+  background: var(--bg-raised);
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 600;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  transition: transform 0.1s ease, border-color 0.15s ease;
+  min-width: 0;
+}
+
+.day-cell:hover {
+  border-color: var(--accent-border);
+  transform: translateY(-1px);
+}
+
+.day-cell.weekend {
+  background: #f7f9fc;
+}
+
+.day-cell.complete {
+  background: var(--success-dim);
+  border-color: var(--success-border);
+  color: var(--success);
+}
+
+.day-cell.partial {
+  background: var(--accent-dim);
+  border-color: var(--accent-border);
+  color: var(--accent);
+}
+
+.day-cell.empty {
+  background: rgba(220, 38, 38, 0.04);
+  border-color: rgba(220, 38, 38, 0.18);
+  color: #c05c5c;
+}
+
+.day-cell.today {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent);
+  color: var(--text);
+  background: var(--bg-raised);
+}
+
+.day-cell.today.complete {
+  background: var(--success-dim);
+  border-color: var(--success);
+  box-shadow: 0 0 0 1px var(--success);
+  color: var(--success);
+}
+
+.day-cell.today.partial {
+  background: var(--accent-dim);
+}
+
+.day-cell.future {
+  opacity: 0.55;
+}
+
+.day-cell::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+/* Text marker for accessibility: a small dot indicates completion beyond color */
+.day-cell.complete::after {
+  background: radial-gradient(circle, var(--success) 0 2.5px, transparent 3px);
+  top: 3px;
+  right: 3px;
+  left: auto;
+  bottom: auto;
+  width: 6px;
+  height: 6px;
+}
+
+.grid-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 14px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legend-swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  background: var(--bg-raised);
+  display: inline-block;
+}
+
+.legend-swatch.complete {
+  background: var(--success-dim);
+  border-color: var(--success-border);
+}
+
+.legend-swatch.partial {
+  background: var(--accent-dim);
+  border-color: var(--accent-border);
+}
+
+.legend-swatch.empty {
+  background: rgba(220, 38, 38, 0.05);
+  border-color: rgba(220, 38, 38, 0.2);
+}
+
+.legend-swatch.today {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+
+/* ---------- Dashboard hero ---------- */
+
+.hero {
+  background:
+    radial-gradient(1200px 300px at 15% -40%, rgba(79, 124, 232, 0.07), transparent 60%),
+    radial-gradient(900px 260px at 90% -30%, rgba(79, 124, 232, 0.04), transparent 55%),
+    var(--card);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius);
+  padding: 26px 28px;
+  box-shadow: var(--shadow);
+}
+
+.hero-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.hero-kicker {
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.hero-title {
+  font-size: clamp(26px, 4vw, 38px);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin: 4px 0 2px;
+}
+
+.hero-dates {
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.hero-day-num {
+  font-size: 52px;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--text);
+}
+
+.hero-day-of {
+  color: var(--text-muted);
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.hero-progress-wrap {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.hero-bar {
+  height: 8px;
+  border-radius: 99px;
+  background: #eef1f7;
+  border: 1px solid var(--border-soft);
+  overflow: hidden;
+  margin-top: 18px;
+}
+
+.hero-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), #7ba0f0);
+  border-radius: 99px;
+  transition: width 0.4s ease;
+}
+
+.hero-goal {
+  margin-top: 14px;
+  color: var(--text-secondary);
+  font-size: 14px;
+  max-width: 640px;
+}
+
+/* ---------- Quick stats ---------- */
+
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 900px) {
+  .stats-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.stat-card {
+  background: var(--card);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  box-shadow: var(--shadow);
+}
+
+.stat-card .stat-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  display: grid;
+  place-items: center;
+  background: var(--accent-dim);
+  color: var(--accent);
+  margin-bottom: 10px;
+}
+
+.stat-card .stat-icon.green {
+  background: var(--success-dim);
+  color: var(--success);
+}
+
+.stat-value {
+  font-size: 26px;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.stat-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-top: 3px;
+}
+
+/* ---------- Task list ---------- */
+
+.task-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 13px 14px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  background: var(--bg-raised);
+  transition: border-color 0.15s ease;
+}
+
+.task-item:hover {
+  border-color: var(--border);
+}
+
+.task-item.done {
+  border-color: var(--success-border);
+  background: rgba(34, 165, 94, 0.05);
+}
+
+.task-check {
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  border: 1.5px solid var(--border);
+  background: var(--card);
+  display: grid;
+  place-items: center;
+  color: transparent;
+  flex-shrink: 0;
+  transition: background 0.15s ease, border-color 0.15s ease;
+  padding: 0;
+}
+
+.task-check.checked {
+  background: var(--success);
+  border-color: var(--success);
+  color: #ffffff;
+}
+
+.task-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  background: var(--card);
+  border: 1px solid var(--border-soft);
+  display: grid;
+  place-items: center;
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+.task-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.task-name {
+  font-weight: 600;
+  font-size: 14.5px;
+}
+
+.task-item.done .task-name {
+  color: var(--text-secondary);
+  text-decoration: line-through;
+  text-decoration-color: rgba(77, 90, 112, 0.45);
+}
+
+.task-meta {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.task-input {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.task-num-input {
+  width: 76px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  padding: 8px 10px;
+  font-size: 14px;
+  text-align: center;
+}
+
+.task-num-input:focus {
+  outline: none;
+  border-color: var(--accent-border);
+}
+
+/* ---------- Habit cards (Habits page) ---------- */
+
+.habit-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  background: var(--card);
+  transition: border-color 0.15s ease, opacity 0.15s ease;
+}
+
+.habit-card.archived {
+  opacity: 0.6;
+  border-style: dashed;
+}
+
+.habit-card .habit-rate {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent);
+  background: var(--accent-dim);
+  border-radius: 99px;
+  padding: 3px 10px;
+  flex-shrink: 0;
+}
+
+.habit-actions {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+/* ---------- Charts ---------- */
+
+.trend-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 130px;
+  padding-top: 8px;
+}
+
+.trend-bar {
+  flex: 1;
+  min-width: 4px;
+  max-width: 22px;
+  background: var(--accent-dim);
+  border: 1px solid var(--accent-border);
+  border-bottom: 2px solid var(--accent);
+  border-radius: 4px 4px 2px 2px;
+  position: relative;
+  min-height: 2px;
+  transition: background 0.15s ease;
+}
+
+.trend-bar:hover {
+  background: var(--accent-border);
+}
+
+.trend-bar.none {
+  background: var(--bg-raised);
+  border-color: var(--border-soft);
+  border-bottom-color: var(--border);
+}
+
+.trend-axis {
+  display: flex;
+  justify-content: space-between;
+  color: var(--text-muted);
+  font-size: 11px;
+  margin-top: 6px;
+}
+
+/* Habit analytics rows */
+.habit-stat-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 60px minmax(90px, 140px) 90px;
+  gap: 12px;
+  align-items: center;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.habit-stat-row:last-child {
+  border-bottom: none;
+}
+
+.rate-bar {
+  height: 7px;
+  border-radius: 99px;
+  background: var(--bg-raised);
+  border: 1px solid var(--border-soft);
+  overflow: hidden;
+}
+
+.rate-bar-fill {
+  height: 100%;
+  border-radius: 99px;
+  background: var(--accent);
+}
+
+.rate-bar-fill.good {
+  background: var(--success);
+}
+
+@media (max-width: 640px) {
+  .habit-stat-row {
+    grid-template-columns: minmax(0, 1fr) 52px;
+    grid-auto-rows: auto;
+    row-gap: 6px;
+  }
+  .habit-stat-row .hs-bar {
+    grid-column: 1 / -1;
+  }
+  .habit-stat-row .hs-streak {
+    display: none;
+  }
+}
+
+/* ---------- Arc heatmap (LeetCode-style) ---------- */
+
+.heatmap-wrap {
+  min-width: 0;
+}
+
+.heatmap-summary {
+  margin-bottom: 12px;
+}
+
+.heatmap-scroll {
+  overflow-x: auto;
+  padding-bottom: 6px;
+}
+
+.heatmap {
+  --cell: 13px;
+  --gap: 3px;
+  --month-gap: 8px;
+  --label-w: 30px;
+  display: inline-flex;
+  flex-direction: column;
+  min-width: 100%;
+}
+
+.heatmap-months {
+  display: flex;
+  gap: var(--gap);
+  margin-left: calc(var(--label-w) + 6px);
+  margin-bottom: 4px;
+  font-size: 10.5px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.heatmap-month {
+  width: var(--cell);
+  white-space: nowrap;
+  overflow: visible;
+  flex-shrink: 0;
+}
+
+/* Extra breathing room before a new month's column (both rows use the
+   identical slot model so labels stay aligned with columns). */
+.heatmap-month.month-start,
+.heatmap-col.month-start {
+  margin-left: var(--month-gap);
+}
+
+.heatmap-body {
+  display: flex;
+  gap: 6px;
+}
+
+.heatmap-weekdays {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+  width: var(--label-w);
+  flex-shrink: 0;
+}
+
+.heatmap-weekday {
+  height: var(--cell);
+  font-size: 10px;
+  color: var(--text-muted);
+  line-height: var(--cell);
+}
+
+.heatmap-grid {
+  display: flex;
+  gap: var(--gap);
+}
+
+.heatmap-col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+}
+
+.heat-cell {
+  width: var(--cell);
+  height: var(--cell);
+  border-radius: 3px;
+  border: 1px solid transparent;
+  background: var(--bg-raised);
+  padding: 0;
+  display: block;
+  overflow: hidden;
+  transition: transform 0.08s ease, border-color 0.12s ease;
+}
+
+button.heat-cell {
+  cursor: pointer;
+}
+
+button.heat-cell:hover:not(:disabled) {
+  transform: scale(1.18);
+  border-color: var(--accent);
+}
+
+button.heat-cell:disabled {
+  cursor: default;
+}
+
+.heat-cell.ghost {
+  visibility: hidden;
+}
+
+/* Intensity levels — red → amber → yellow → green ramp on light gray.
+   State is never color-only: cells carry tooltips/aria labels (spec §10). */
+.heat-cell.lvl-0 {
+  background: #eef1f6;
+  border-color: #e2e7f0;
+}
+
+.heat-cell.lvl-1 {
+  background: #e2695f;
+}
+
+.heat-cell.lvl-2 {
+  background: #eda53f;
+}
+
+.heat-cell.lvl-3 {
+  background: #e5c94a;
+}
+
+.heat-cell.lvl-4 {
+  background: #2fb567;
+  box-shadow: inset 0 0 0 1px rgba(27, 122, 71, 0.4);
+}
+
+/* Weekend cells get a slightly darker base tint */
+.heat-cell.weekend.lvl-0 {
+  background: #e9edf4;
+}
+
+/* Today ring */
+.heat-cell.today {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+
+.heat-cell.today.lvl-4 {
+  border-color: var(--success);
+  box-shadow: 0 0 0 1px var(--success);
+}
+
+/* Future arc days stay visibly locked */
+.heat-cell.future {
+  opacity: 0.55;
+}
+
+/* Days outside the Arc window (year view) — flat, non-interactive */
+.heat-cell.outside {
+  opacity: 0.5;
+  background: #eef1f6;
+  border-color: #e2e7f0;
+}
+
+.heat-cell.outside.weekend {
+  background: #e9edf4;
+}
+
+.legend-cell {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+}
+
+.heatmap-legend {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 12px;
+}
+
+.legend-today {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-left: auto;
+}
+
+@media (max-width: 900px) {
+  .heatmap {
+    --cell: 11px;
+    --gap: 2.5px;
+    --month-gap: 6px;
+    --label-w: 22px;
+  }
+}
+
+/* ---------- Onboarding ---------- */
+
+.onboard {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px 16px;
+  background:
+    radial-gradient(1000px 500px at 20% -10%, rgba(79, 124, 232, 0.06), transparent 60%),
+    var(--bg);
+}
+
+.onboard-card {
+  width: 100%;
+  max-width: 560px;
+  background: var(--card);
+  border: 1px solid var(--border-soft);
+  border-radius: 18px;
+  padding: 32px;
+  box-shadow: 0 12px 40px rgba(16, 24, 40, 0.08);
+}
+
+.onboard-kicker {
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.onboard h1 {
+  font-size: 26px;
+  margin-bottom: 8px;
+}
+
+.onboard .lead {
+  color: var(--text-secondary);
+  font-size: 14.5px;
+  margin-bottom: 22px;
+}
+
+.onboard-steps {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 26px;
+}
+
+.onboard-step-dot {
+  height: 4px;
+  flex: 1;
+  border-radius: 99px;
+  background: var(--border);
+}
+
+.onboard-step-dot.active {
+  background: var(--accent);
+}
+
+.onboard-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 26px;
+}
+
+.rules-editor {
+  display: grid;
+  gap: 8px;
+}
+
+.rule-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.example-habits {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.example-habit {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  background: var(--bg-raised);
+}
+
+.example-habit .name {
+  font-weight: 600;
+  font-size: 13.5px;
+  flex: 1;
+  min-width: 0;
+}
+
+/* ---------- Reflection ---------- */
+
+.refl-card {
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  background: var(--bg-raised);
+}
+
+.refl-week {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 10px;
+}
+
+.refl-field {
+  font-size: 13.5px;
+  color: var(--text-secondary);
+  margin-top: 6px;
+}
+
+.refl-field strong {
+  color: var(--text-muted);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 2px;
+}
+
+/* ---------- Settings ---------- */
+
+.danger-zone {
+  border: 1px solid rgba(220, 38, 38, 0.28);
+  background: rgba(220, 38, 38, 0.04);
+  border-radius: var(--radius);
+  padding: 20px;
+}
+
+.kv-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--border-soft);
+  font-size: 14px;
+}
+
+.kv-row:last-child {
+  border-bottom: none;
+}
+
+.kv-key {
+  color: var(--text-muted);
+}
+
+.kv-val {
+  font-weight: 600;
+  text-align: right;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+/* ---------- Toast ---------- */
+
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #ffffff;
+  border: 1px solid var(--accent-border);
+  color: var(--text);
+  padding: 11px 18px;
+  border-radius: 10px;
+  font-size: 14px;
+  box-shadow: 0 8px 24px rgba(16, 24, 40, 0.15);
+  z-index: 200;
+  animation: slideUp 0.2s ease;
+  max-width: calc(100vw - 32px);
+}
+
+/* ---------- Empty states ---------- */
+
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-secondary);
+}
+
+.empty-state .big {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 6px;
+}
