@@ -1,5 +1,5 @@
 import React from 'react';
-import { IconSnowflake } from '../../components/icons';
+import { IconLayers } from '../../components/icons';
 import { NAV_ENTRIES } from './nav';
 import type { PageId } from '../../hooks/useArc';
 
@@ -8,18 +8,19 @@ interface SidebarProps {
   onNavigate: (p: PageId) => void;
   dayNumber?: number;
   arcStatus?: string | null;
+  arcTitle?: string;
 }
 
-export function Sidebar({ page, onNavigate, dayNumber, arcStatus }: SidebarProps) {
+export function Sidebar({ page, onNavigate, dayNumber, arcStatus, arcTitle }: SidebarProps) {
   return (
     <aside className="sidebar">
       <div className="sidebar-brand">
         <div className="sidebar-brand-icon">
-          <IconSnowflake size={18} />
+          <IconLayers size={18} />
         </div>
         <div>
-          <div className="sidebar-brand-text">WINTER ARC</div>
-          <div className="sidebar-brand-sub">90-Day Tracker</div>
+          <div className="sidebar-brand-text">LIFE SYSTEM</div>
+          <div className="sidebar-brand-sub">{arcTitle?.trim() || 'Year-round life tracking'}</div>
         </div>
       </div>
 
@@ -44,7 +45,7 @@ export function Sidebar({ page, onNavigate, dayNumber, arcStatus }: SidebarProps
       <div className="sidebar-footer">
         <div className="sidebar-status">
           <span className="sidebar-status-dot" aria-hidden="true" />
-          <span>{arcStatus === 'active' ? 'Arc active' : arcStatus ? `Arc ${arcStatus}` : 'Local data'}</span>
+          <span>{arcStatus === 'active' ? 'Track active' : arcStatus ? `Track ${arcStatus}` : 'Local data'}</span>
         </div>
       </div>
     </aside>

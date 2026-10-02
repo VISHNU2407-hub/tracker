@@ -103,7 +103,7 @@ var require_react_production_min = __commonJS({
     function O(a) {
       return "object" === typeof a && null !== a && a.$$typeof === l;
     }
-    function escape(a) {
+    function escape2(a) {
       var b = { "=": "=0", ":": "=2" };
       return "$" + a.replace(/[=:]/g, function(a2) {
         return b[a2];
@@ -111,7 +111,7 @@ var require_react_production_min = __commonJS({
     }
     var P = /\/+/g;
     function Q(a, b) {
-      return "object" === typeof a && null !== a && null != a.key ? escape("" + a.key) : b.toString(36);
+      return "object" === typeof a && null !== a && null != a.key ? escape2("" + a.key) : b.toString(36);
     }
     function R(a, b, e, d, c) {
       var k = typeof a;
@@ -744,7 +744,7 @@ var require_react_development = __commonJS({
             }
           }
         }
-        var ReactElement = function(type, key, ref, self, source, owner, props) {
+        var ReactElement = function(type, key, ref, self2, source, owner, props) {
           var element = {
             // This tag allows us to uniquely identify this as a React Element
             $$typeof: REACT_ELEMENT_TYPE,
@@ -768,7 +768,7 @@ var require_react_development = __commonJS({
               configurable: false,
               enumerable: false,
               writable: false,
-              value: self
+              value: self2
             });
             Object.defineProperty(element, "_source", {
               configurable: false,
@@ -788,7 +788,7 @@ var require_react_development = __commonJS({
           var props = {};
           var key = null;
           var ref = null;
-          var self = null;
+          var self2 = null;
           var source = null;
           if (config != null) {
             if (hasValidRef(config)) {
@@ -803,7 +803,7 @@ var require_react_development = __commonJS({
               }
               key = "" + config.key;
             }
-            self = config.__self === void 0 ? null : config.__self;
+            self2 = config.__self === void 0 ? null : config.__self;
             source = config.__source === void 0 ? null : config.__source;
             for (propName in config) {
               if (hasOwnProperty.call(config, propName) && !RESERVED_PROPS.hasOwnProperty(propName)) {
@@ -845,7 +845,7 @@ var require_react_development = __commonJS({
               }
             }
           }
-          return ReactElement(type, key, ref, self, source, ReactCurrentOwner.current, props);
+          return ReactElement(type, key, ref, self2, source, ReactCurrentOwner.current, props);
         }
         function cloneAndReplaceKey(oldElement, newKey) {
           var newElement = ReactElement(oldElement.type, newKey, oldElement.ref, oldElement._self, oldElement._source, oldElement._owner, oldElement.props);
@@ -859,7 +859,7 @@ var require_react_development = __commonJS({
           var props = assign({}, element.props);
           var key = element.key;
           var ref = element.ref;
-          var self = element._self;
+          var self2 = element._self;
           var source = element._source;
           var owner = element._owner;
           if (config != null) {
@@ -897,14 +897,14 @@ var require_react_development = __commonJS({
             }
             props.children = childArray;
           }
-          return ReactElement(element.type, key, ref, self, source, owner, props);
+          return ReactElement(element.type, key, ref, self2, source, owner, props);
         }
         function isValidElement(object) {
           return typeof object === "object" && object !== null && object.$$typeof === REACT_ELEMENT_TYPE;
         }
         var SEPARATOR = ".";
         var SUBSEPARATOR = ":";
-        function escape(key) {
+        function escape2(key) {
           var escapeRegex = /[=:]/g;
           var escaperLookup = {
             "=": "=0",
@@ -925,7 +925,7 @@ var require_react_development = __commonJS({
             {
               checkKeyStringCoercion(element.key);
             }
-            return escape("" + element.key);
+            return escape2("" + element.key);
           }
           return index.toString(36);
         }
@@ -1357,7 +1357,7 @@ var require_react_development = __commonJS({
           }
           return dispatcher.useContext(Context);
         }
-        function useState11(initialState) {
+        function useState13(initialState) {
           var dispatcher = resolveDispatcher();
           return dispatcher.useState(initialState);
         }
@@ -1369,7 +1369,7 @@ var require_react_development = __commonJS({
           var dispatcher = resolveDispatcher();
           return dispatcher.useRef(initialValue);
         }
-        function useEffect5(create, deps) {
+        function useEffect6(create, deps) {
           var dispatcher = resolveDispatcher();
           return dispatcher.useEffect(create, deps);
         }
@@ -1385,7 +1385,7 @@ var require_react_development = __commonJS({
           var dispatcher = resolveDispatcher();
           return dispatcher.useCallback(callback, deps);
         }
-        function useMemo9(create, deps) {
+        function useMemo13(create, deps) {
           var dispatcher = resolveDispatcher();
           return dispatcher.useMemo(create, deps);
         }
@@ -1407,7 +1407,7 @@ var require_react_development = __commonJS({
           var dispatcher = resolveDispatcher();
           return dispatcher.useDeferredValue(value);
         }
-        function useId2() {
+        function useId3() {
           var dispatcher = resolveDispatcher();
           return dispatcher.useId();
         }
@@ -2152,15 +2152,15 @@ var require_react_development = __commonJS({
         exports2.useContext = useContext;
         exports2.useDebugValue = useDebugValue;
         exports2.useDeferredValue = useDeferredValue;
-        exports2.useEffect = useEffect5;
-        exports2.useId = useId2;
+        exports2.useEffect = useEffect6;
+        exports2.useId = useId3;
         exports2.useImperativeHandle = useImperativeHandle;
         exports2.useInsertionEffect = useInsertionEffect;
         exports2.useLayoutEffect = useLayoutEffect;
-        exports2.useMemo = useMemo9;
+        exports2.useMemo = useMemo13;
         exports2.useReducer = useReducer;
         exports2.useRef = useRef4;
-        exports2.useState = useState11;
+        exports2.useState = useState13;
         exports2.useSyncExternalStore = useSyncExternalStore;
         exports2.useTransition = useTransition;
         exports2.version = ReactVersion;
@@ -5427,10 +5427,10 @@ var require_react_dom_server_legacy_node_development = __commonJS({
     if (process.env.NODE_ENV !== "production") {
       (function() {
         "use strict";
-        var React13 = require_react();
+        var React16 = require_react();
         var stream = require("stream");
         var ReactVersion = "18.3.1";
-        var ReactSharedInternals = React13.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
+        var ReactSharedInternals = React16.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
         function warn(format) {
           {
             {
@@ -6917,26 +6917,26 @@ var require_react_dom_server_legacy_node_development = __commonJS({
           if (!match) {
             return str;
           }
-          var escape;
+          var escape2;
           var html = "";
           var index;
           var lastIndex = 0;
           for (index = match.index; index < str.length; index++) {
             switch (str.charCodeAt(index)) {
               case 34:
-                escape = "&quot;";
+                escape2 = "&quot;";
                 break;
               case 38:
-                escape = "&amp;";
+                escape2 = "&amp;";
                 break;
               case 39:
-                escape = "&#x27;";
+                escape2 = "&#x27;";
                 break;
               case 60:
-                escape = "&lt;";
+                escape2 = "&lt;";
                 break;
               case 62:
-                escape = "&gt;";
+                escape2 = "&gt;";
                 break;
               default:
                 continue;
@@ -6945,7 +6945,7 @@ var require_react_dom_server_legacy_node_development = __commonJS({
               html += str.substring(lastIndex, index);
             }
             lastIndex = index + 1;
-            html += escape;
+            html += escape2;
           }
           return lastIndex !== index ? html + str.substring(lastIndex, index) : html;
         }
@@ -7325,7 +7325,7 @@ var require_react_dom_server_legacy_node_development = __commonJS({
         }
         function flattenOptionChildren(children) {
           var content = "";
-          React13.Children.forEach(children, function(child) {
+          React16.Children.forEach(children, function(child) {
             if (child == null) {
               return;
             }
@@ -9318,7 +9318,7 @@ var require_react_dom_server_legacy_node_development = __commonJS({
         function basicStateReducer(state, action) {
           return typeof action === "function" ? action(state) : action;
         }
-        function useState11(initialState) {
+        function useState13(initialState) {
           {
             currentHookNameInDev = "useState";
           }
@@ -9383,7 +9383,7 @@ var require_react_dom_server_legacy_node_development = __commonJS({
             return [workInProgressHook.memoizedState, _dispatch];
           }
         }
-        function useMemo9(nextCreate, deps) {
+        function useMemo13(nextCreate, deps) {
           currentlyRenderingComponent = resolveCurrentlyRenderingComponent();
           workInProgressHook = createWorkInProgressHook();
           var nextDeps = deps === void 0 ? null : deps;
@@ -9457,7 +9457,7 @@ var require_react_dom_server_legacy_node_development = __commonJS({
           }
         }
         function useCallback(callback, deps) {
-          return useMemo9(function() {
+          return useMemo13(function() {
             return callback;
           }, deps);
         }
@@ -9482,7 +9482,7 @@ var require_react_dom_server_legacy_node_development = __commonJS({
           resolveCurrentlyRenderingComponent();
           return [false, unsupportedStartTransition];
         }
-        function useId2() {
+        function useId3() {
           var task = currentlyRenderingTask;
           var treeId = getTreeId(task.treeContext);
           var responseState = currentResponseState;
@@ -9497,10 +9497,10 @@ var require_react_dom_server_legacy_node_development = __commonJS({
         var Dispatcher = {
           readContext: readContext$1,
           useContext,
-          useMemo: useMemo9,
+          useMemo: useMemo13,
           useReducer,
           useRef: useRef4,
-          useState: useState11,
+          useState: useState13,
           useInsertionEffect: noop,
           useLayoutEffect,
           useCallback,
@@ -9512,7 +9512,7 @@ var require_react_dom_server_legacy_node_development = __commonJS({
           useDebugValue: noop,
           useDeferredValue,
           useTransition,
-          useId: useId2,
+          useId: useId3,
           // Subscriptions are not setup in a server environment.
           useMutableSource,
           useSyncExternalStore
@@ -10831,10 +10831,10 @@ var require_react_dom_server_node_development = __commonJS({
     if (process.env.NODE_ENV !== "production") {
       (function() {
         "use strict";
-        var React13 = require_react();
+        var React16 = require_react();
         var util = require("util");
         var ReactVersion = "18.3.1";
-        var ReactSharedInternals = React13.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
+        var ReactSharedInternals = React16.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
         function warn(format) {
           {
             {
@@ -12414,26 +12414,26 @@ var require_react_dom_server_node_development = __commonJS({
           if (!match) {
             return str;
           }
-          var escape;
+          var escape2;
           var html = "";
           var index;
           var lastIndex = 0;
           for (index = match.index; index < str.length; index++) {
             switch (str.charCodeAt(index)) {
               case 34:
-                escape = "&quot;";
+                escape2 = "&quot;";
                 break;
               case 38:
-                escape = "&amp;";
+                escape2 = "&amp;";
                 break;
               case 39:
-                escape = "&#x27;";
+                escape2 = "&#x27;";
                 break;
               case 60:
-                escape = "&lt;";
+                escape2 = "&lt;";
                 break;
               case 62:
-                escape = "&gt;";
+                escape2 = "&gt;";
                 break;
               default:
                 continue;
@@ -12442,7 +12442,7 @@ var require_react_dom_server_node_development = __commonJS({
               html += str.substring(lastIndex, index);
             }
             lastIndex = index + 1;
-            html += escape;
+            html += escape2;
           }
           return lastIndex !== index ? html + str.substring(lastIndex, index) : html;
         }
@@ -12826,7 +12826,7 @@ var require_react_dom_server_node_development = __commonJS({
         }
         function flattenOptionChildren(children) {
           var content = "";
-          React13.Children.forEach(children, function(child) {
+          React16.Children.forEach(children, function(child) {
             if (child == null) {
               return;
             }
@@ -14755,7 +14755,7 @@ var require_react_dom_server_node_development = __commonJS({
         function basicStateReducer(state, action) {
           return typeof action === "function" ? action(state) : action;
         }
-        function useState11(initialState) {
+        function useState13(initialState) {
           {
             currentHookNameInDev = "useState";
           }
@@ -14820,7 +14820,7 @@ var require_react_dom_server_node_development = __commonJS({
             return [workInProgressHook.memoizedState, _dispatch];
           }
         }
-        function useMemo9(nextCreate, deps) {
+        function useMemo13(nextCreate, deps) {
           currentlyRenderingComponent = resolveCurrentlyRenderingComponent();
           workInProgressHook = createWorkInProgressHook();
           var nextDeps = deps === void 0 ? null : deps;
@@ -14894,7 +14894,7 @@ var require_react_dom_server_node_development = __commonJS({
           }
         }
         function useCallback(callback, deps) {
-          return useMemo9(function() {
+          return useMemo13(function() {
             return callback;
           }, deps);
         }
@@ -14919,7 +14919,7 @@ var require_react_dom_server_node_development = __commonJS({
           resolveCurrentlyRenderingComponent();
           return [false, unsupportedStartTransition];
         }
-        function useId2() {
+        function useId3() {
           var task = currentlyRenderingTask;
           var treeId = getTreeId(task.treeContext);
           var responseState = currentResponseState;
@@ -14934,10 +14934,10 @@ var require_react_dom_server_node_development = __commonJS({
         var Dispatcher = {
           readContext: readContext$1,
           useContext,
-          useMemo: useMemo9,
+          useMemo: useMemo13,
           useReducer,
           useRef: useRef4,
-          useState: useState11,
+          useState: useState13,
           useInsertionEffect: noop,
           useLayoutEffect,
           useCallback,
@@ -14949,7 +14949,7 @@ var require_react_dom_server_node_development = __commonJS({
           useDebugValue: noop,
           useDeferredValue,
           useTransition,
-          useId: useId2,
+          useId: useId3,
           // Subscriptions are not setup in a server environment.
           useMutableSource,
           useSyncExternalStore
@@ -16266,7 +16266,7 @@ var require_react_jsx_runtime_development = __commonJS({
     if (process.env.NODE_ENV !== "production") {
       (function() {
         "use strict";
-        var React13 = require_react();
+        var React16 = require_react();
         var REACT_ELEMENT_TYPE = Symbol.for("react.element");
         var REACT_PORTAL_TYPE = Symbol.for("react.portal");
         var REACT_FRAGMENT_TYPE = Symbol.for("react.fragment");
@@ -16292,7 +16292,7 @@ var require_react_jsx_runtime_development = __commonJS({
           }
           return null;
         }
-        var ReactSharedInternals = React13.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
+        var ReactSharedInternals = React16.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
         function error(format) {
           {
             {
@@ -16776,9 +16776,9 @@ var require_react_jsx_runtime_development = __commonJS({
           }
           return config.key !== void 0;
         }
-        function warnIfStringRefCannotBeAutoConverted(config, self) {
+        function warnIfStringRefCannotBeAutoConverted(config, self2) {
           {
-            if (typeof config.ref === "string" && ReactCurrentOwner.current && self && ReactCurrentOwner.current.stateNode !== self) {
+            if (typeof config.ref === "string" && ReactCurrentOwner.current && self2 && ReactCurrentOwner.current.stateNode !== self2) {
               var componentName = getComponentNameFromType(ReactCurrentOwner.current.type);
               if (!didWarnAboutStringRefs[componentName]) {
                 error('Component "%s" contains the string ref "%s". Support for string refs will be removed in a future major release. This case cannot be automatically converted to an arrow function. We ask you to manually fix this case by using useRef() or createRef() instead. Learn more about using refs safely here: https://reactjs.org/link/strict-mode-string-ref', getComponentNameFromType(ReactCurrentOwner.current.type), config.ref);
@@ -16817,7 +16817,7 @@ var require_react_jsx_runtime_development = __commonJS({
             });
           }
         }
-        var ReactElement = function(type, key, ref, self, source, owner, props) {
+        var ReactElement = function(type, key, ref, self2, source, owner, props) {
           var element = {
             // This tag allows us to uniquely identify this as a React Element
             $$typeof: REACT_ELEMENT_TYPE,
@@ -16841,7 +16841,7 @@ var require_react_jsx_runtime_development = __commonJS({
               configurable: false,
               enumerable: false,
               writable: false,
-              value: self
+              value: self2
             });
             Object.defineProperty(element, "_source", {
               configurable: false,
@@ -16856,7 +16856,7 @@ var require_react_jsx_runtime_development = __commonJS({
           }
           return element;
         };
-        function jsxDEV(type, config, maybeKey, source, self) {
+        function jsxDEV(type, config, maybeKey, source, self2) {
           {
             var propName;
             var props = {};
@@ -16876,7 +16876,7 @@ var require_react_jsx_runtime_development = __commonJS({
             }
             if (hasValidRef(config)) {
               ref = config.ref;
-              warnIfStringRefCannotBeAutoConverted(config, self);
+              warnIfStringRefCannotBeAutoConverted(config, self2);
             }
             for (propName in config) {
               if (hasOwnProperty.call(config, propName) && !RESERVED_PROPS.hasOwnProperty(propName)) {
@@ -16900,7 +16900,7 @@ var require_react_jsx_runtime_development = __commonJS({
                 defineRefPropWarningGetter(props, displayName);
               }
             }
-            return ReactElement(type, key, ref, self, source, ReactCurrentOwner.current, props);
+            return ReactElement(type, key, ref, self2, source, ReactCurrentOwner.current, props);
           }
         }
         var ReactCurrentOwner$1 = ReactSharedInternals.ReactCurrentOwner;
@@ -17060,7 +17060,7 @@ var require_react_jsx_runtime_development = __commonJS({
           }
         }
         var didWarnAboutKeySpread = {};
-        function jsxWithValidation(type, props, key, isStaticChildren, source, self) {
+        function jsxWithValidation(type, props, key, isStaticChildren, source, self2) {
           {
             var validType = isValidElementType(type);
             if (!validType) {
@@ -17087,7 +17087,7 @@ var require_react_jsx_runtime_development = __commonJS({
               }
               error("React.jsx: type is invalid -- expected a string (for built-in components) or a class/function (for composite components) but got: %s.%s", typeString, info);
             }
-            var element = jsxDEV(type, props, key, source, self);
+            var element = jsxDEV(type, props, key, source, self2);
             if (element == null) {
               return element;
             }
@@ -17142,11 +17142,11 @@ var require_react_jsx_runtime_development = __commonJS({
             return jsxWithValidation(type, props, key, false);
           }
         }
-        var jsx20 = jsxWithValidationDynamic;
-        var jsxs19 = jsxWithValidationStatic;
+        var jsx22 = jsxWithValidationDynamic;
+        var jsxs21 = jsxWithValidationStatic;
         exports2.Fragment = REACT_FRAGMENT_TYPE;
-        exports2.jsx = jsx20;
-        exports2.jsxs = jsxs19;
+        exports2.jsx = jsx22;
+        exports2.jsxs = jsxs21;
       })();
     }
   }
@@ -17164,11 +17164,535 @@ var require_jsx_runtime = __commonJS({
   }
 });
 
+// node_modules/@capacitor/core/dist/index.cjs.js
+var require_index_cjs = __commonJS({
+  "node_modules/@capacitor/core/dist/index.cjs.js"(exports2) {
+    "use strict";
+    Object.defineProperty(exports2, "__esModule", { value: true });
+    exports2.ExceptionCode = void 0;
+    (function(ExceptionCode) {
+      ExceptionCode["Unimplemented"] = "UNIMPLEMENTED";
+      ExceptionCode["Unavailable"] = "UNAVAILABLE";
+    })(exports2.ExceptionCode || (exports2.ExceptionCode = {}));
+    var CapacitorException = class extends Error {
+      constructor(message, code, data2) {
+        super(message);
+        this.message = message;
+        this.code = code;
+        this.data = data2;
+      }
+    };
+    var getPlatformId = (win) => {
+      var _a, _b;
+      if (win === null || win === void 0 ? void 0 : win.androidBridge) {
+        return "android";
+      } else if ((_b = (_a = win === null || win === void 0 ? void 0 : win.webkit) === null || _a === void 0 ? void 0 : _a.messageHandlers) === null || _b === void 0 ? void 0 : _b.bridge) {
+        return "ios";
+      } else {
+        return "web";
+      }
+    };
+    var createCapacitor = (win) => {
+      const capCustomPlatform = win.CapacitorCustomPlatform || null;
+      const cap = win.Capacitor || {};
+      const Plugins = cap.Plugins = cap.Plugins || {};
+      const getPlatform = () => {
+        return capCustomPlatform !== null ? capCustomPlatform.name : getPlatformId(win);
+      };
+      const isNativePlatform = () => getPlatform() !== "web";
+      const isPluginAvailable = (pluginName) => {
+        const plugin = registeredPlugins.get(pluginName);
+        if (plugin === null || plugin === void 0 ? void 0 : plugin.platforms.has(getPlatform())) {
+          return true;
+        }
+        if (getPluginHeader(pluginName)) {
+          return true;
+        }
+        return false;
+      };
+      const getPluginHeader = (pluginName) => {
+        var _a;
+        return (_a = cap.PluginHeaders) === null || _a === void 0 ? void 0 : _a.find((h) => h.name === pluginName);
+      };
+      const handleError = (err) => win.console.error(err);
+      const registeredPlugins = /* @__PURE__ */ new Map();
+      const registerPlugin2 = (pluginName, jsImplementations = {}) => {
+        const registeredPlugin = registeredPlugins.get(pluginName);
+        if (registeredPlugin) {
+          console.warn(`Capacitor plugin "${pluginName}" already registered. Cannot register plugins twice.`);
+          return registeredPlugin.proxy;
+        }
+        const platform = getPlatform();
+        const pluginHeader = getPluginHeader(pluginName);
+        let jsImplementation;
+        const loadPluginImplementation = async () => {
+          if (!jsImplementation && platform in jsImplementations) {
+            jsImplementation = typeof jsImplementations[platform] === "function" ? jsImplementation = await jsImplementations[platform]() : jsImplementation = jsImplementations[platform];
+          } else if (capCustomPlatform !== null && !jsImplementation && "web" in jsImplementations) {
+            jsImplementation = typeof jsImplementations["web"] === "function" ? jsImplementation = await jsImplementations["web"]() : jsImplementation = jsImplementations["web"];
+          }
+          return jsImplementation;
+        };
+        const createPluginMethod = (impl, prop) => {
+          var _a, _b;
+          if (pluginHeader) {
+            const methodHeader = pluginHeader === null || pluginHeader === void 0 ? void 0 : pluginHeader.methods.find((m) => prop === m.name);
+            if (methodHeader) {
+              if (methodHeader.rtype === "promise") {
+                return (options) => cap.nativePromise(pluginName, prop.toString(), options);
+              } else {
+                return (options, callback) => cap.nativeCallback(pluginName, prop.toString(), options, callback);
+              }
+            } else if (impl) {
+              return (_a = impl[prop]) === null || _a === void 0 ? void 0 : _a.bind(impl);
+            }
+          } else if (impl) {
+            return (_b = impl[prop]) === null || _b === void 0 ? void 0 : _b.bind(impl);
+          } else {
+            throw new CapacitorException(`"${pluginName}" plugin is not implemented on ${platform}`, exports2.ExceptionCode.Unimplemented);
+          }
+        };
+        const createPluginMethodWrapper = (prop) => {
+          let remove;
+          const wrapper = (...args) => {
+            const p = loadPluginImplementation().then((impl) => {
+              const fn = createPluginMethod(impl, prop);
+              if (fn) {
+                const p2 = fn(...args);
+                remove = p2 === null || p2 === void 0 ? void 0 : p2.remove;
+                return p2;
+              } else {
+                throw new CapacitorException(`"${pluginName}.${prop}()" is not implemented on ${platform}`, exports2.ExceptionCode.Unimplemented);
+              }
+            });
+            if (prop === "addListener") {
+              p.remove = async () => remove();
+            }
+            return p;
+          };
+          wrapper.toString = () => `${prop.toString()}() { [capacitor code] }`;
+          Object.defineProperty(wrapper, "name", {
+            value: prop,
+            writable: false,
+            configurable: false
+          });
+          return wrapper;
+        };
+        const addListener = createPluginMethodWrapper("addListener");
+        const removeListener = createPluginMethodWrapper("removeListener");
+        const addListenerNative = (eventName, callback) => {
+          const call = addListener({ eventName }, callback);
+          const remove = async () => {
+            const callbackId = await call;
+            removeListener({
+              eventName,
+              callbackId
+            }, callback);
+          };
+          const p = new Promise((resolve) => call.then(() => resolve({ remove })));
+          p.remove = async () => {
+            console.warn(`Using addListener() without 'await' is deprecated.`);
+            await remove();
+          };
+          return p;
+        };
+        const proxy = new Proxy({}, {
+          get(_, prop) {
+            switch (prop) {
+              case "$$typeof":
+                return void 0;
+              case "toJSON":
+                return () => ({});
+              case "addListener":
+                return pluginHeader ? addListenerNative : addListener;
+              case "removeListener":
+                return removeListener;
+              default:
+                return createPluginMethodWrapper(prop);
+            }
+          }
+        });
+        Plugins[pluginName] = proxy;
+        registeredPlugins.set(pluginName, {
+          name: pluginName,
+          proxy,
+          platforms: /* @__PURE__ */ new Set([...Object.keys(jsImplementations), ...pluginHeader ? [platform] : []])
+        });
+        return proxy;
+      };
+      if (!cap.convertFileSrc) {
+        cap.convertFileSrc = (filePath) => filePath;
+      }
+      cap.getPlatform = getPlatform;
+      cap.handleError = handleError;
+      cap.isNativePlatform = isNativePlatform;
+      cap.isPluginAvailable = isPluginAvailable;
+      cap.registerPlugin = registerPlugin2;
+      cap.Exception = CapacitorException;
+      cap.DEBUG = !!cap.DEBUG;
+      cap.isLoggingEnabled = !!cap.isLoggingEnabled;
+      return cap;
+    };
+    var initCapacitorGlobal = (win) => win.Capacitor = createCapacitor(win);
+    var Capacitor2 = /* @__PURE__ */ initCapacitorGlobal(typeof globalThis !== "undefined" ? globalThis : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : typeof global !== "undefined" ? global : {});
+    var registerPlugin = Capacitor2.registerPlugin;
+    var WebPlugin = class {
+      constructor() {
+        this.listeners = {};
+        this.retainedEventArguments = {};
+        this.windowListeners = {};
+      }
+      addListener(eventName, listenerFunc) {
+        let firstListener = false;
+        const listeners = this.listeners[eventName];
+        if (!listeners) {
+          this.listeners[eventName] = [];
+          firstListener = true;
+        }
+        this.listeners[eventName].push(listenerFunc);
+        const windowListener = this.windowListeners[eventName];
+        if (windowListener && !windowListener.registered) {
+          this.addWindowListener(windowListener);
+        }
+        if (firstListener) {
+          this.sendRetainedArgumentsForEvent(eventName);
+        }
+        const remove = async () => this.removeListener(eventName, listenerFunc);
+        const p = Promise.resolve({ remove });
+        return p;
+      }
+      async removeAllListeners() {
+        this.listeners = {};
+        for (const listener in this.windowListeners) {
+          this.removeWindowListener(this.windowListeners[listener]);
+        }
+        this.windowListeners = {};
+      }
+      notifyListeners(eventName, data2, retainUntilConsumed) {
+        const listeners = this.listeners[eventName];
+        if (!listeners) {
+          if (retainUntilConsumed) {
+            let args = this.retainedEventArguments[eventName];
+            if (!args) {
+              args = [];
+            }
+            args.push(data2);
+            this.retainedEventArguments[eventName] = args;
+          }
+          return;
+        }
+        listeners.forEach((listener) => listener(data2));
+      }
+      hasListeners(eventName) {
+        var _a;
+        return !!((_a = this.listeners[eventName]) === null || _a === void 0 ? void 0 : _a.length);
+      }
+      registerWindowListener(windowEventName, pluginEventName) {
+        this.windowListeners[pluginEventName] = {
+          registered: false,
+          windowEventName,
+          pluginEventName,
+          handler: (event) => {
+            this.notifyListeners(pluginEventName, event);
+          }
+        };
+      }
+      unimplemented(msg = "not implemented") {
+        return new Capacitor2.Exception(msg, exports2.ExceptionCode.Unimplemented);
+      }
+      unavailable(msg = "not available") {
+        return new Capacitor2.Exception(msg, exports2.ExceptionCode.Unavailable);
+      }
+      async removeListener(eventName, listenerFunc) {
+        const listeners = this.listeners[eventName];
+        if (!listeners) {
+          return;
+        }
+        const index = listeners.indexOf(listenerFunc);
+        if (index !== -1) {
+          this.listeners[eventName].splice(index, 1);
+        }
+        if (!this.listeners[eventName].length) {
+          this.removeWindowListener(this.windowListeners[eventName]);
+        }
+      }
+      addWindowListener(handle) {
+        window.addEventListener(handle.windowEventName, handle.handler);
+        handle.registered = true;
+      }
+      removeWindowListener(handle) {
+        if (!handle) {
+          return;
+        }
+        window.removeEventListener(handle.windowEventName, handle.handler);
+        handle.registered = false;
+      }
+      sendRetainedArgumentsForEvent(eventName) {
+        const args = this.retainedEventArguments[eventName];
+        if (!args) {
+          return;
+        }
+        delete this.retainedEventArguments[eventName];
+        args.forEach((arg) => {
+          this.notifyListeners(eventName, arg);
+        });
+      }
+    };
+    var WebView = /* @__PURE__ */ registerPlugin("WebView");
+    var encode = (str) => encodeURIComponent(str).replace(/%(2[346B]|5E|60|7C)/g, decodeURIComponent).replace(/[()]/g, escape);
+    var decode = (str) => str.replace(/(%[\dA-F]{2})+/gi, decodeURIComponent);
+    var CapacitorCookiesPluginWeb = class extends WebPlugin {
+      async getCookies() {
+        const cookies = document.cookie;
+        const cookieMap = {};
+        cookies.split(";").forEach((cookie) => {
+          if (cookie.length <= 0)
+            return;
+          let [key, value] = cookie.replace(/=/, "CAP_COOKIE").split("CAP_COOKIE");
+          key = decode(key).trim();
+          value = decode(value).trim();
+          cookieMap[key] = value;
+        });
+        return cookieMap;
+      }
+      async setCookie(options) {
+        try {
+          const encodedKey = encode(options.key);
+          const encodedValue = encode(options.value);
+          const expires = options.expires ? `; expires=${options.expires.replace("expires=", "")}` : "";
+          const path = (options.path || "/").replace("path=", "");
+          const domain = options.url != null && options.url.length > 0 ? `domain=${options.url}` : "";
+          document.cookie = `${encodedKey}=${encodedValue || ""}${expires}; path=${path}; ${domain};`;
+        } catch (error) {
+          return Promise.reject(error);
+        }
+      }
+      async deleteCookie(options) {
+        try {
+          document.cookie = `${options.key}=; Max-Age=0`;
+        } catch (error) {
+          return Promise.reject(error);
+        }
+      }
+      async clearCookies() {
+        try {
+          const cookies = document.cookie.split(";") || [];
+          for (const cookie of cookies) {
+            document.cookie = cookie.replace(/^ +/, "").replace(/=.*/, `=;expires=${(/* @__PURE__ */ new Date()).toUTCString()};path=/`);
+          }
+        } catch (error) {
+          return Promise.reject(error);
+        }
+      }
+      async clearAllCookies() {
+        try {
+          await this.clearCookies();
+        } catch (error) {
+          return Promise.reject(error);
+        }
+      }
+    };
+    var CapacitorCookies = registerPlugin("CapacitorCookies", {
+      web: () => new CapacitorCookiesPluginWeb()
+    });
+    var readBlobAsBase64 = async (blob) => new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const base64String = reader.result;
+        resolve(base64String.indexOf(",") >= 0 ? base64String.split(",")[1] : base64String);
+      };
+      reader.onerror = (error) => reject(error);
+      reader.readAsDataURL(blob);
+    });
+    var normalizeHttpHeaders = (headers = {}) => {
+      const originalKeys = Object.keys(headers);
+      const loweredKeys = Object.keys(headers).map((k) => k.toLocaleLowerCase());
+      const normalized = loweredKeys.reduce((acc, key, index) => {
+        acc[key] = headers[originalKeys[index]];
+        return acc;
+      }, {});
+      return normalized;
+    };
+    var buildUrlParams = (params, shouldEncode = true) => {
+      if (!params)
+        return null;
+      const output = Object.entries(params).reduce((accumulator, entry) => {
+        const [key, value] = entry;
+        let encodedValue;
+        let item;
+        if (Array.isArray(value)) {
+          item = "";
+          value.forEach((str) => {
+            encodedValue = shouldEncode ? encodeURIComponent(str) : str;
+            item += `${key}=${encodedValue}&`;
+          });
+          item.slice(0, -1);
+        } else {
+          encodedValue = shouldEncode ? encodeURIComponent(value) : value;
+          item = `${key}=${encodedValue}`;
+        }
+        return `${accumulator}&${item}`;
+      }, "");
+      return output.substr(1);
+    };
+    var buildRequestInit = (options, extra = {}) => {
+      const output = Object.assign({ method: options.method || "GET", headers: options.headers }, extra);
+      const headers = normalizeHttpHeaders(options.headers);
+      const type = headers["content-type"] || "";
+      if (typeof options.data === "string") {
+        output.body = options.data;
+      } else if (type.includes("application/x-www-form-urlencoded")) {
+        const params = new URLSearchParams();
+        for (const [key, value] of Object.entries(options.data || {})) {
+          params.set(key, value);
+        }
+        output.body = params.toString();
+      } else if (type.includes("multipart/form-data") || options.data instanceof FormData) {
+        const form = new FormData();
+        if (options.data instanceof FormData) {
+          options.data.forEach((value, key) => {
+            form.append(key, value);
+          });
+        } else {
+          for (const key of Object.keys(options.data)) {
+            form.append(key, options.data[key]);
+          }
+        }
+        output.body = form;
+        const headers2 = new Headers(output.headers);
+        headers2.delete("content-type");
+        output.headers = headers2;
+      } else if (type.includes("application/json") || typeof options.data === "object") {
+        output.body = JSON.stringify(options.data);
+      }
+      return output;
+    };
+    var CapacitorHttpPluginWeb = class extends WebPlugin {
+      /**
+       * Perform an Http request given a set of options
+       * @param options Options to build the HTTP request
+       */
+      async request(options) {
+        const requestInit = buildRequestInit(options, options.webFetchExtra);
+        const urlParams = buildUrlParams(options.params, options.shouldEncodeUrlParams);
+        const url = urlParams ? `${options.url}?${urlParams}` : options.url;
+        const response = await fetch(url, requestInit);
+        const contentType = response.headers.get("content-type") || "";
+        let { responseType = "text" } = response.ok ? options : {};
+        if (contentType.includes("application/json")) {
+          responseType = "json";
+        }
+        let data2;
+        let blob;
+        switch (responseType) {
+          case "arraybuffer":
+          case "blob":
+            blob = await response.blob();
+            data2 = await readBlobAsBase64(blob);
+            break;
+          case "json":
+            data2 = await response.json();
+            break;
+          case "document":
+          case "text":
+          default:
+            data2 = await response.text();
+        }
+        const headers = {};
+        response.headers.forEach((value, key) => {
+          headers[key] = value;
+        });
+        return {
+          data: data2,
+          headers,
+          status: response.status,
+          url: response.url
+        };
+      }
+      /**
+       * Perform an Http GET request given a set of options
+       * @param options Options to build the HTTP request
+       */
+      async get(options) {
+        return this.request(Object.assign(Object.assign({}, options), { method: "GET" }));
+      }
+      /**
+       * Perform an Http POST request given a set of options
+       * @param options Options to build the HTTP request
+       */
+      async post(options) {
+        return this.request(Object.assign(Object.assign({}, options), { method: "POST" }));
+      }
+      /**
+       * Perform an Http PUT request given a set of options
+       * @param options Options to build the HTTP request
+       */
+      async put(options) {
+        return this.request(Object.assign(Object.assign({}, options), { method: "PUT" }));
+      }
+      /**
+       * Perform an Http PATCH request given a set of options
+       * @param options Options to build the HTTP request
+       */
+      async patch(options) {
+        return this.request(Object.assign(Object.assign({}, options), { method: "PATCH" }));
+      }
+      /**
+       * Perform an Http DELETE request given a set of options
+       * @param options Options to build the HTTP request
+       */
+      async delete(options) {
+        return this.request(Object.assign(Object.assign({}, options), { method: "DELETE" }));
+      }
+    };
+    var CapacitorHttp = registerPlugin("CapacitorHttp", {
+      web: () => new CapacitorHttpPluginWeb()
+    });
+    exports2.SystemBarsStyle = void 0;
+    (function(SystemBarsStyle) {
+      SystemBarsStyle["Dark"] = "DARK";
+      SystemBarsStyle["Light"] = "LIGHT";
+      SystemBarsStyle["Default"] = "DEFAULT";
+    })(exports2.SystemBarsStyle || (exports2.SystemBarsStyle = {}));
+    exports2.SystemBarType = void 0;
+    (function(SystemBarType) {
+      SystemBarType["StatusBar"] = "StatusBar";
+      SystemBarType["NavigationBar"] = "NavigationBar";
+    })(exports2.SystemBarType || (exports2.SystemBarType = {}));
+    var SystemBarsPluginWeb = class extends WebPlugin {
+      async setStyle() {
+        this.unavailable("not available for web");
+      }
+      async setAnimation() {
+        this.unavailable("not available for web");
+      }
+      async show() {
+        this.unavailable("not available for web");
+      }
+      async hide() {
+        this.unavailable("not available for web");
+      }
+    };
+    var SystemBars = registerPlugin("SystemBars", {
+      web: () => new SystemBarsPluginWeb()
+    });
+    exports2.Capacitor = Capacitor2;
+    exports2.CapacitorCookies = CapacitorCookies;
+    exports2.CapacitorException = CapacitorException;
+    exports2.CapacitorHttp = CapacitorHttp;
+    exports2.SystemBars = SystemBars;
+    exports2.WebPlugin = WebPlugin;
+    exports2.WebView = WebView;
+    exports2.buildRequestInit = buildRequestInit;
+    exports2.registerPlugin = registerPlugin;
+  }
+});
+
 // scripts/render-smoke.tsx
 var import_server = __toESM(require_server_node(), 1);
 
 // src/pages/Dashboard.tsx
-var import_react9 = __toESM(require_react(), 1);
+var import_react10 = __toESM(require_react(), 1);
 
 // src/hooks/useArc.ts
 var import_react = __toESM(require_react(), 1);
@@ -17296,7 +17820,7 @@ function eligibleRulesForDate(arc2, rules, date, now = todayISO()) {
     return dayNum >= r.fromDay;
   });
 }
-function ruleFollowed(rule, rec) {
+function ruleFollowed(_rule, rec) {
   return rec?.status === "followed";
 }
 function evaluateDay(arc2, habits, rules, records, date, now = todayISO()) {
@@ -17372,8 +17896,8 @@ function isArcComplete(arc2, now = todayISO()) {
 }
 function computeOverallStats(arc2, habits, rules, records, now = todayISO()) {
   const today2 = now < arc2.startDate ? arc2.startDate : now;
-  const dayNumber3 = Math.min(Math.max(daysBetween(arc2.startDate, today2) + 1, 1), arc2.durationDays);
-  const elapsedDays = dayNumber3;
+  const dayNumber2 = Math.min(Math.max(daysBetween(arc2.startDate, today2) + 1, 1), arc2.durationDays);
+  const elapsedDays = dayNumber2;
   let perfectDays = 0;
   let pctSum = 0;
   let pctDays = 0;
@@ -17393,7 +17917,7 @@ function computeOverallStats(arc2, habits, rules, records, now = todayISO()) {
     cursor = addDays(cursor, 1);
   }
   return {
-    dayNumber: dayNumber3,
+    dayNumber: dayNumber2,
     totalPct: pctDays === 0 ? null : Math.round(pctSum / pctDays),
     perfectDays,
     elapsedDays,
@@ -17523,26 +18047,47 @@ function computeWeeklyTrend(arc2, habits, rules, records, weeks, now = todayISO(
   return out.slice(-weeks);
 }
 
+// src/services/storage.ts
+function belongsToTrack(trackIds, trackId) {
+  return trackIds === void 0 || trackIds.includes(trackId);
+}
+
 // src/hooks/useArc.ts
+function scopedToTrack(items, trackId) {
+  if (!trackId) return items;
+  return items.filter((item) => belongsToTrack(item.trackIds, trackId));
+}
+function trackScope(data2) {
+  const track = data2.arc;
+  return {
+    track,
+    habits: scopedToTrack(data2.habits, track?.id),
+    rules: scopedToTrack(data2.rules, track?.id)
+  };
+}
 function useAnalytics(data2) {
-  const { arc: arc2, habits, rules, dailyRecords } = data2;
+  const { habits, rules, dailyRecords } = data2;
+  const arc2 = data2.arc;
   const today2 = todayISO();
+  const scope = (0, import_react.useMemo)(() => trackScope(data2), [data2]);
+  const scopedHabits = scope.habits;
+  const scopedRules = scope.rules;
   const stats2 = (0, import_react.useMemo)(
-    () => arc2 ? computeOverallStats(arc2, habits, rules, dailyRecords, today2) : null,
-    [arc2, habits, rules, dailyRecords, today2]
+    () => arc2 ? computeOverallStats(arc2, scopedHabits, scopedRules, dailyRecords, today2) : null,
+    [arc2, scopedHabits, scopedRules, dailyRecords, today2]
   );
   const habitStats = (0, import_react.useMemo)(
-    () => arc2 ? computeHabitStats(arc2, habits, dailyRecords, today2) : [],
-    [arc2, habits, dailyRecords, today2]
+    () => arc2 ? computeHabitStats(arc2, scopedHabits, dailyRecords, today2) : [],
+    [arc2, scopedHabits, dailyRecords, today2]
   );
   const ruleStats = (0, import_react.useMemo)(
-    () => arc2 ? computeRuleStats(arc2, rules, dailyRecords, today2) : [],
-    [arc2, rules, dailyRecords, today2]
+    () => arc2 ? computeRuleStats(arc2, scopedRules, dailyRecords, today2) : [],
+    [arc2, scopedRules, dailyRecords, today2]
   );
   const evaluate = (0, import_react.useMemo)(() => {
     if (!arc2) return () => null;
-    return (date) => evaluateDay(arc2, habits, rules, dailyRecords, date, today2);
-  }, [arc2, habits, rules, dailyRecords, today2]);
+    return (date) => evaluateDay(arc2, scopedHabits, scopedRules, dailyRecords, date, today2);
+  }, [arc2, scopedHabits, scopedRules, dailyRecords, today2]);
   return { stats: stats2, habitStats, ruleStats, evaluate };
 }
 
@@ -17627,9 +18172,18 @@ function base(props) {
     "aria-hidden": true
   };
 }
+var IconLayers = (p) => /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("svg", { ...base(p), children: [
+  /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("path", { d: "M12 3l9 5-9 5-9-5 9-5Z" }),
+  /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("path", { d: "M3 12l9 5 9-5" }),
+  /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("path", { d: "M3 16l9 5 9-5" })
+] });
 var IconShield = (p) => /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("svg", { ...base(p), children: [
   /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("path", { d: "M12 3l7 3v5c0 4.4-2.9 8.2-7 10-4.1-1.8-7-5.6-7-10V6l7-3Z" }),
   /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("path", { d: "M9 11.5l2 2 4-4.5" })
+] });
+var IconCheckCircle = (p) => /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("svg", { ...base(p), children: [
+  /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("circle", { cx: "12", cy: "12", r: "9" }),
+  /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("path", { d: "M8.5 12.2l2.4 2.4 4.6-5.2" })
 ] });
 var IconCheck = (p) => /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("svg", { ...base(p), children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("path", { d: "M5 12.5l4.5 4.5L19 7" }) });
 var IconCalendar = (p) => /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("svg", { ...base(p), children: [
@@ -17647,6 +18201,10 @@ var IconTarget = (p) => /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("svg", { .
   /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("circle", { cx: "12", cy: "12", r: "5" }),
   /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("circle", { cx: "12", cy: "12", r: "1.2", fill: "currentColor", stroke: "none" })
 ] });
+var IconSettings = (p) => /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("svg", { ...base(p), children: [
+  /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("circle", { cx: "12", cy: "12", r: "3" }),
+  /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("path", { d: "M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1 1.55V21a2 2 0 1 1-4 0v-.09a1.7 1.7 0 0 0-1-1.55 1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.7 1.7 0 0 0 .34-1.87 1.7 1.7 0 0 0-1.55-1H3a2 2 0 1 1 0-4h.09a1.7 1.7 0 0 0 1.55-1 1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.7 1.7 0 0 0 1.87.34h.09a1.7 1.7 0 0 0 1-1.55V3a2 2 0 1 1 4 0v.09a1.7 1.7 0 0 0 1 1.55 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87v.09a1.7 1.7 0 0 0 1.55 1H21a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.55 1Z" })
+] });
 var IconPlus = (p) => /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("svg", { ...base(p), children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("path", { d: "M12 5v14M5 12h14" }) });
 var IconEdit = (p) => /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("svg", { ...base(p), children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("path", { d: "M17 3a2.8 2.8 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" }) });
 var IconArchive = (p) => /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("svg", { ...base(p), children: [
@@ -17657,6 +18215,8 @@ var IconRestore = (p) => /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("svg", { .
 var IconTrash = (p) => /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("svg", { ...base(p), children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("path", { d: "M4 7h16M9 7V4h6v3M6 7l1 14h10l1-14M10 11v6M14 11v6" }) });
 var IconUp = (p) => /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("svg", { ...base(p), children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("path", { d: "M12 19V5M5 12l7-7 7 7" }) });
 var IconDown = (p) => /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("svg", { ...base(p), children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("path", { d: "M12 5v14M19 12l-7 7-7-7" }) });
+var IconChevronLeft = (p) => /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("svg", { ...base(p), children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("path", { d: "M15 5l-7 7 7 7" }) });
+var IconChevronRight = (p) => /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("svg", { ...base(p), children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("path", { d: "M9 5l7 7-7 7" }) });
 var IconFlame = (p) => /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("svg", { ...base(p), children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("path", { d: "M12 22c4.4 0 7-2.8 7-6.5 0-4.8-4.5-6.3-3.5-11.5C13 5 12.5 7.5 10.5 9 9 10.2 8 8.8 8 7c-2 1.7-3 4.3-3 6.5C5 19.2 7.6 22 12 22Z" }) });
 var IconTrophy = (p) => /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("svg", { ...base(p), children: [
   /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("path", { d: "M8 21h8M12 17v4M7 4h10v6a5 5 0 0 1-10 0Z" }),
@@ -17678,6 +18238,21 @@ var IconLock = (p) => /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("svg", { ...
 ] });
 var IconArrowLeft = (p) => /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("svg", { ...base(p), children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("path", { d: "M19 12H5M12 19l-7-7 7-7" }) });
 var IconX = (p) => /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("svg", { ...base(p), children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("path", { d: "M6 6l12 12M18 6L6 18" }) });
+var IconDesktop = (p) => /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("svg", { ...base(p), children: [
+  /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("rect", { x: "3", y: "4", width: "18", height: "12.5", rx: "2" }),
+  /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("path", { d: "M12 16.5V20M8.5 20h7" }),
+  /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("path", { d: "M6.5 8h5" })
+] });
+var IconPhone = (p) => /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("svg", { ...base(p), children: [
+  /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("rect", { x: "7", y: "2.5", width: "10", height: "19", rx: "2.6" }),
+  /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("path", { d: "M10.8 18.6h2.4" }),
+  /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("path", { d: "M10 6.2h4" })
+] });
+var IconGlobe = (p) => /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("svg", { ...base(p), children: [
+  /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("circle", { cx: "12", cy: "12", r: "9" }),
+  /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("path", { d: "M3 12h18" }),
+  /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("ellipse", { cx: "12", cy: "12", rx: "4.1", ry: "9" })
+] });
 
 // src/pages/Habits.tsx
 var import_react6 = __toESM(require_react(), 1);
@@ -17971,7 +18546,7 @@ function arcLastDay(arc2) {
 function habitCellFor(habit, date, records, now, arc2) {
   const arcEnd = arcLastDay(arc2);
   if (date < arc2.startDate || date > arcEnd) {
-    return { state: "outside", glyph: "", label: "Outside your Arc" };
+    return { state: "outside", glyph: "", label: "Outside your track" };
   }
   if (date > now) {
     if (!habit.active) {
@@ -18002,7 +18577,7 @@ function habitCellFor(habit, date, records, now, arc2) {
 function ruleCellFor(arc2, rule, date, records, now) {
   const arcEnd = addDays(arc2.startDate, arc2.durationDays - 1);
   if (date < arc2.startDate || date > arcEnd) {
-    return { state: "outside", glyph: "", label: "Outside your Arc" };
+    return { state: "outside", glyph: "", label: "Outside your track" };
   }
   if (date > now) {
     return { state: "future", glyph: "", label: "Locked \u2014 future day" };
@@ -18030,7 +18605,7 @@ var STATUS_TEXT = {
   pending: "In progress today",
   na: "Not applicable / paused",
   future: "Locked \u2014 future day",
-  outside: "Outside your Arc"
+  outside: "Outside your track"
 };
 function popoverStyle(rect) {
   const W = 248;
@@ -18096,7 +18671,7 @@ function HabitHeatmap({ habit, arc: arc2, records, now = todayISO() }) {
     };
   }, [pinned]);
   if (total === 0) {
-    return /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("div", { className: "hhm hhm-empty small muted", children: "Your Arc hasn\u2019t started yet \u2014 this habit\u2019s 90-day heatmap appears on day 1." });
+    return /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("div", { className: "hhm hhm-empty small muted", children: "Your track hasn\u2019t started yet \u2014 this habit\u2019s heatmap appears on day 1." });
   }
   const view = anchor ? cells.get(anchor.date) ?? null : null;
   const rec = anchor ? records[anchor.date]?.habits[habit.id] : void 0;
@@ -18224,8 +18799,12 @@ function targetLabel(habit) {
 }
 function HabitsPage({ api: api2 }) {
   const { data: data2 } = api2;
-  const { habitStats } = useAnalytics(data2);
   const today2 = todayISO();
+  const arc2 = data2.arc;
+  const habitStats = (0, import_react6.useMemo)(
+    () => arc2 ? computeHabitStats(arc2, data2.habits, data2.dailyRecords, today2) : [],
+    [arc2, data2.habits, data2.dailyRecords, today2]
+  );
   const statMap = new Map(habitStats.map((s) => [s.habit.id, s]));
   const [formOpen, setFormOpen] = (0, import_react6.useState)(false);
   const [editing, setEditing] = (0, import_react6.useState)(null);
@@ -18250,7 +18829,6 @@ function HabitsPage({ api: api2 }) {
     [ids[i], ids[j]] = [ids[j], ids[i]];
     api2.reorderHabits(ids);
   };
-  const rateFor = (habit) => habitStats.find((s) => s.habit.id === habit.id)?.rate ?? null;
   return /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { children: [
     /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(
       PageHeader,
@@ -18266,20 +18844,20 @@ function HabitsPage({ api: api2 }) {
         ] })
       }
     ),
-    /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "stack", style: { gap: 16 }, children: [
-      active.length === 0 && /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "card empty-state", children: [
+    /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "habits-grid", role: "list", children: [
+      active.length === 0 && /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "card empty-state habits-grid-empty", children: [
         /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", { className: "big", children: "No active habits" }),
         /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("p", { children: "Add at least one habit to start tracking your days." })
       ] }),
       active.map((habit, idx) => {
         const Icon = IconFor(habit.icon);
         const stat2 = statMap.get(habit.id);
-        return /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "habit-card", children: [
+        return /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "habit-card", role: "listitem", children: [
           /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "habit-card-top", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { className: "task-icon", children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(Icon, { size: 16 }) }),
+            /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { className: "task-icon", children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(Icon, { size: 15 }) }),
             /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "task-body", children: [
               /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", { className: "task-name truncate", children: habit.name }),
-              /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", { className: "task-meta", children: targetLabel(habit) })
+              /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", { className: "task-meta truncate", children: targetLabel(habit) })
             ] }),
             stat2 && stat2.rate !== null && /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("span", { className: "habit-rate", title: "Completion rate over eligible days", children: [
               stat2.rate,
@@ -18298,42 +18876,43 @@ function HabitsPage({ api: api2 }) {
           stat2 && /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(import_jsx_runtime7.Fragment, { children: [
             /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "habit-stat-strip", children: [
               /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("span", { className: "hss-item", children: [
-                /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(IconFlame, { size: 14, style: { color: "var(--warning)" } }),
+                /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(IconFlame, { size: 13, style: { color: "var(--warning-strong)" } }),
                 /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { className: "hss-k", children: "Current streak" }),
                 /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("strong", { children: [
                   stat2.currentStreak,
                   " ",
-                  /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { className: "hss-unit", children: "days" })
+                  /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { className: "hss-unit", children: "d" })
                 ] })
               ] }),
               /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("span", { className: "hss-item", children: [
-                /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(IconTrophy, { size: 14, style: { color: "var(--success)" } }),
+                /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(IconTrophy, { size: 13, style: { color: "var(--success-strong)" } }),
                 /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { className: "hss-k", children: "Best streak" }),
                 /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("strong", { children: [
                   stat2.bestStreak,
                   " ",
-                  /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { className: "hss-unit", children: "days" })
+                  /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { className: "hss-unit", children: "d" })
                 ] })
               ] }),
               /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("span", { className: "hss-item", children: [
-                /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(IconTarget, { size: 14, style: { color: "var(--accent)" } }),
+                /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(IconTarget, { size: 13, style: { color: "var(--habit-accent, var(--accent))" } }),
                 /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { className: "hss-k", children: "Completion" }),
                 /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("strong", { children: stat2.rate === null ? "\u2014" : `${stat2.rate}%` })
               ] })
             ] }),
-            /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(HabitHeatmap, { habit, arc: data2.arc, records: data2.dailyRecords, now: today2 })
+            /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", { className: "habit-ratebar", "aria-hidden": "true", children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { style: { width: `${stat2.rate ?? 0}%` } }) }),
+            /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(HabitHeatmap, { habit, arc: arc2, records: data2.dailyRecords, now: today2 })
           ] })
         ] }, habit.id);
       })
     ] }),
     archived.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { style: { marginTop: 30 }, children: [
       /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", { className: "card-title", children: "Archived \u2014 history preserved" }),
-      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", { className: "stack", style: { gap: 14 }, children: archived.map((habit) => {
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", { className: "habits-grid habits-grid-archived", children: archived.map((habit) => {
         const Icon = IconFor(habit.icon);
         const stat2 = statMap.get(habit.id);
         return /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "habit-card archived", children: [
           /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "habit-card-top", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { className: "task-icon", children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(Icon, { size: 16 }) }),
+            /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { className: "task-icon", children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(Icon, { size: 15 }) }),
             /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "task-body", children: [
               /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "row", style: { gap: 8, minWidth: 0 }, children: [
                 /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", { className: "task-name truncate", children: habit.name }),
@@ -18353,30 +18932,30 @@ function HabitsPage({ api: api2 }) {
           stat2 && /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(import_jsx_runtime7.Fragment, { children: [
             /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "habit-stat-strip", children: [
               /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("span", { className: "hss-item", children: [
-                /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(IconFlame, { size: 14, style: { color: "var(--warning)" } }),
+                /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(IconFlame, { size: 13, style: { color: "var(--warning-strong)" } }),
                 /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { className: "hss-k", children: "Current streak" }),
                 /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("strong", { children: [
                   stat2.currentStreak,
                   " ",
-                  /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { className: "hss-unit", children: "days" })
+                  /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { className: "hss-unit", children: "d" })
                 ] })
               ] }),
               /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("span", { className: "hss-item", children: [
-                /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(IconTrophy, { size: 14, style: { color: "var(--success)" } }),
+                /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(IconTrophy, { size: 13, style: { color: "var(--success-strong)" } }),
                 /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { className: "hss-k", children: "Best streak" }),
                 /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("strong", { children: [
                   stat2.bestStreak,
                   " ",
-                  /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { className: "hss-unit", children: "days" })
+                  /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { className: "hss-unit", children: "d" })
                 ] })
               ] }),
               /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("span", { className: "hss-item", children: [
-                /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(IconTarget, { size: 14, style: { color: "var(--accent)" } }),
+                /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(IconTarget, { size: 13, style: { color: "var(--habit-accent, var(--accent))" } }),
                 /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { className: "hss-k", children: "Completion" }),
                 /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("strong", { children: stat2.rate === null ? "\u2014" : `${stat2.rate}%` })
               ] })
             ] }),
-            /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(HabitHeatmap, { habit, arc: data2.arc, records: data2.dailyRecords, now: today2 })
+            /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(HabitHeatmap, { habit, arc: arc2, records: data2.dailyRecords, now: today2 })
           ] })
         ] }, habit.id);
       }) })
@@ -18435,6 +19014,11 @@ function HabitsPage({ api: api2 }) {
 
 // src/components/dashboard/DayTasks.tsx
 var import_jsx_runtime8 = __toESM(require_jsx_runtime(), 1);
+function targetLine(habit) {
+  if (habit.type === "checkbox") return "Simple check";
+  if (habit.type === "duration") return `${habit.target} min target`;
+  return `${habit.target} ${habit.unit || ""} target`.trim();
+}
 function DayTasks({
   arc: arc2,
   habits,
@@ -18448,133 +19032,166 @@ function DayTasks({
   compact
 }) {
   const isFuture = date > now;
+  const isPast = date < now;
+  const editable = date === now;
+  const lockLabel = isFuture ? "Locked" : "Read only";
+  const lockTitle = isFuture ? "Locked until this day arrives" : "Read only \u2014 only today can be updated";
   const eligible = eligibleHabitsForDate(habits, date, now);
   const elRules = eligibleRulesForDate(arc2, rules, date, now);
   if (eligible.length === 0 && elRules.length === 0) {
     return /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("div", { className: "empty-state", children: [
       /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("div", { className: "big", children: "Nothing to track on this day" }),
-      /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("p", { children: "Add habits on the Habits page or rules in My Winter Arc." })
+      /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("p", { children: "Add habits on the Habits page or rules in My Tracks." })
     ] });
   }
   const habitsDone = eligible.filter((h) => habitValueDone(h, records[date]?.habits[h.id])).length;
   const rulesFollowed = elRules.filter((r) => ruleFollowed(r, records[date]?.rules?.[r.id])).length;
-  return /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("div", { className: "stack", style: { gap: compact ? 10 : 14 }, children: [
+  return /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("div", { className: "stack", style: { gap: compact ? 12 : 16 }, children: [
     eligible.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("section", { children: [
       /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("div", { className: "section-label", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("span", { children: "Habits" }),
+        /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("span", { className: "section-label-habits", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(IconDumbbell, { size: 13 }),
+          " Habits",
+          /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("span", { className: "section-label-tag", children: "what you did" })
+        ] }),
         /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("span", { className: "section-label-hint", children: [
           habitsDone,
           "/",
           eligible.length,
-          " done \xB7 what you did"
+          " done"
         ] })
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("div", { className: "stack", style: { gap: compact ? 8 : 10 }, children: eligible.map((habit) => {
+      /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("div", { className: "tasks-grid", style: { gap: compact ? 8 : 10 }, children: eligible.map((habit) => {
         const rec = records[date]?.habits[habit.id];
         const done = habitValueDone(habit, rec);
         const Icon = IconFor(habit.icon);
+        const pct = habit.target > 0 && habit.type !== "checkbox" ? Math.min(100, Math.round((rec?.value ?? 0) / habit.target * 100)) : null;
         return /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("div", { className: `task-item${done ? " done" : ""}`, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(
-            "button",
-            {
-              type: "button",
-              className: `task-check${done ? " checked" : ""}`,
-              disabled: isFuture,
-              onClick: () => onToggle(date, habit.id),
-              "aria-pressed": done,
-              "aria-label": `${done ? "Mark incomplete" : "Mark complete"}: ${habit.name}`,
-              children: /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(IconCheck, { size: 15 })
-            }
-          ),
           /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("span", { className: "task-icon", children: /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(Icon, { size: 16 }) }),
           /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("div", { className: "task-body", children: [
             /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("div", { className: "task-name truncate", children: habit.name }),
-            /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("div", { className: "task-meta", children: habit.type === "checkbox" ? "Simple check" : habit.type === "duration" ? `${habit.target} min target` : `${habit.target} ${habit.unit || ""} target` })
+            /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("div", { className: "task-meta truncate", children: [
+              targetLine(habit),
+              editable && pct !== null && /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("span", { className: pct >= 100 ? " success-text" : "", children: [
+                " \xB7 ",
+                pct,
+                "%"
+              ] }),
+              !editable && habit.type !== "checkbox" && /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("span", { children: [
+                " \xB7 ",
+                rec?.value ?? 0,
+                "/",
+                habit.target,
+                habit.unit ? ` ${habit.unit}` : ""
+              ] }),
+              isPast && /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("span", { className: done ? " success-text" : "", children: [
+                " \xB7 ",
+                done ? "Done" : "Not done"
+              ] })
+            ] })
           ] }),
-          isFuture && /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("span", { className: "task-meta row", style: { gap: 6 }, children: [
+          editable ? /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)(import_jsx_runtime8.Fragment, { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(
+              "button",
+              {
+                type: "button",
+                className: `task-check${done ? " checked" : ""}`,
+                onClick: () => onToggle(date, habit.id),
+                "aria-pressed": done,
+                "aria-label": `${done ? "Mark incomplete" : "Mark complete"}: ${habit.name}`,
+                children: /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(IconCheck, { size: 15 })
+              }
+            ),
+            habit.type !== "checkbox" ? /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("div", { className: "task-input", children: /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(
+              HabitProgressInput,
+              {
+                value: rec?.value ?? 0,
+                target: habit.target,
+                unit: habit.unit,
+                onCommit: (v) => onSetValue(date, habit.id, v),
+                label: habit.name
+              }
+            ) }) : !done ? /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("span", { className: "task-meta task-hint", children: "tap to complete" }) : /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("span", { className: "task-done-mark", children: /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(IconCheckCircle, { size: 15 }) })
+          ] }) : /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("span", { className: "task-meta row task-lock", title: lockTitle, children: [
             /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(IconLock, { size: 13 }),
-            " Locked"
-          ] }),
-          !isFuture && habit.type !== "checkbox" && /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(
-            HabitProgressInput,
-            {
-              value: rec?.value ?? 0,
-              target: habit.target,
-              unit: habit.unit,
-              onCommit: (v) => onSetValue(date, habit.id, v),
-              label: habit.name
-            }
-          ),
-          !isFuture && habit.type === "checkbox" && !done && /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("span", { className: "task-meta", children: "tap to complete" })
+            " ",
+            lockLabel
+          ] })
         ] }, habit.id);
       }) })
     ] }),
     elRules.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("section", { children: [
       /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("div", { className: "section-label", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("span", { children: "Rules" }),
+        /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("span", { className: "section-label-rules", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(IconShield, { size: 13 }),
+          " Rules",
+          /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("span", { className: "section-label-tag", children: "what you control" })
+        ] }),
         /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("span", { className: "section-label-hint", children: [
           rulesFollowed,
           "/",
           elRules.length,
-          " followed \xB7 what you controlled"
+          " followed"
         ] })
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("div", { className: "stack", style: { gap: compact ? 8 : 10 }, children: elRules.map((rule) => {
+      /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("div", { className: "tasks-grid", style: { gap: compact ? 8 : 10 }, children: elRules.map((rule) => {
         const stored = records[date]?.rules?.[rule.id];
         const followed = ruleFollowed(rule, stored);
-        return /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("div", { className: `task-item rule-item${followed ? " done" : ""}`, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(
-            "button",
-            {
-              type: "button",
-              className: `task-check${followed ? " checked" : ""}`,
-              disabled: isFuture,
-              onClick: () => onRuleStatus(date, rule.id, followed ? null : "followed"),
-              "aria-pressed": followed,
-              "aria-label": `${followed ? "Unmark" : "Mark"} followed: ${rule.text}`,
-              children: /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(IconCheck, { size: 15 })
-            }
-          ),
-          /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("span", { className: "task-icon rule-icon", children: /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(IconShield, { size: 16 }) }),
-          /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("div", { className: "task-body", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("div", { className: "task-name truncate", children: rule.text }),
-            /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("div", { className: "task-meta", children: [
-              "Rule \xB7 ",
-              followed ? "followed today" : "kept yourself accountable?"
-            ] }),
-            /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("div", { className: "rule-status-row", role: "group", "aria-label": `Rule status: ${rule.text}`, children: [
-              /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(
+        const broken = stored?.status === "not_followed";
+        return /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)(
+          "div",
+          {
+            className: `task-item rule-item${followed ? " done" : ""}${broken ? " broken" : ""}`,
+            children: [
+              /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("span", { className: "task-icon rule-icon", children: /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(IconShield, { size: 16 }) }),
+              /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("div", { className: "task-body", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("div", { className: "task-name truncate", children: rule.text }),
+                /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("div", { className: "task-meta truncate", children: editable ? followed ? "Followed today" : broken ? "Not followed today" : "Rule - kept accountable?" : followed ? "Followed" : broken ? "Not followed" : "Not marked" }),
+                editable && /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("div", { className: "rule-status-row", role: "group", "aria-label": `Rule status: ${rule.text}`, children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(
+                    "button",
+                    {
+                      type: "button",
+                      className: `rule-status-btn followed${followed ? " active" : ""}`,
+                      onClick: () => onRuleStatus(date, rule.id, followed ? null : "followed"),
+                      "aria-pressed": followed,
+                      children: "Followed"
+                    }
+                  ),
+                  /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)(
+                    "button",
+                    {
+                      type: "button",
+                      className: `rule-status-btn broken${broken ? " active" : ""}`,
+                      onClick: () => onRuleStatus(date, rule.id, broken ? null : "not_followed"),
+                      "aria-pressed": broken,
+                      children: [
+                        /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(IconX, { size: 12 }),
+                        " Not followed"
+                      ]
+                    }
+                  )
+                ] })
+              ] }),
+              editable ? /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(
                 "button",
                 {
                   type: "button",
-                  className: `rule-status-btn followed${followed ? " active" : ""}`,
-                  disabled: isFuture,
+                  className: `task-check${followed ? " checked" : ""}`,
                   onClick: () => onRuleStatus(date, rule.id, followed ? null : "followed"),
                   "aria-pressed": followed,
-                  children: "Followed"
+                  "aria-label": `${followed ? "Unmark" : "Mark"} followed: ${rule.text}`,
+                  children: /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(IconCheck, { size: 15 })
                 }
-              ),
-              /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)(
-                "button",
-                {
-                  type: "button",
-                  className: `rule-status-btn broken${stored?.status === "not_followed" ? " active" : ""}`,
-                  disabled: isFuture,
-                  onClick: () => onRuleStatus(date, rule.id, stored?.status === "not_followed" ? null : "not_followed"),
-                  "aria-pressed": stored?.status === "not_followed",
-                  children: [
-                    /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(IconX, { size: 12 }),
-                    " Not followed"
-                  ]
-                }
-              )
-            ] })
-          ] }),
-          isFuture && /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("span", { className: "task-meta row", style: { gap: 6 }, children: [
-            /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(IconLock, { size: 13 }),
-            " Locked"
-          ] })
-        ] }, rule.id);
+              ) : /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("span", { className: "task-meta row task-lock", title: lockTitle, children: [
+                /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(IconLock, { size: 13 }),
+                " ",
+                lockLabel
+              ] })
+            ]
+          },
+          rule.id
+        );
       }) })
     ] })
   ] });
@@ -18708,7 +19325,7 @@ function ArcHeatmap({
       if (ev.isPerfect) perfect++;
     }
     const yearNote = range === "year" ? " \xB7 last 365 days shown" : "";
-    if (elapsed === 0) return `Your Arc hasn't started yet.${yearNote}`;
+    if (elapsed === 0) return `Your track hasn't started yet.${yearNote}`;
     if (tracked === 0) return `Day 1\u2013${elapsed}: no progress logged yet \u2014 the grid fills in as you complete habits.${yearNote}`;
     return `${perfect} perfect \xB7 ${tracked} active \xB7 ${elapsed - tracked} missed of the first ${elapsed} day${elapsed === 1 ? "" : "s"}${yearNote}`;
   }, [arc2, habits, rules, records, now, range]);
@@ -18724,7 +19341,7 @@ function ArcHeatmap({
             ref: gridRef,
             className: "heatmap-grid",
             role: "grid",
-            "aria-label": range === "year" ? "Last 365 days completion heatmap" : "90-day completion heatmap",
+            "aria-label": range === "year" ? "Last 365 days completion heatmap" : "Track completion heatmap",
             tabIndex: 0,
             onKeyDown: onGridKeyDown,
             children: columns.map((col) => /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("div", { className: `heatmap-col${col.monthStart ? " month-start" : ""}`, role: "row", children: col.days.map((date, ri) => {
@@ -18734,7 +19351,7 @@ function ArcHeatmap({
               const dayNum = Math.round((fromISO(date).getTime() - fromISO(arc2.startDate).getTime()) / 864e5) + 1;
               const inArc = dayNum >= 1 && dayNum <= arc2.durationDays;
               if (!inArc) {
-                const label2 = `${formatShort(date)} \xB7 outside your Arc`;
+                const label2 = `${formatShort(date)} \xB7 outside your track`;
                 return /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(
                   "div",
                   {
@@ -18786,54 +19403,88 @@ function ArcHeatmap({
 }
 
 // src/components/ui/ProgressRing.tsx
+var import_react8 = __toESM(require_react(), 1);
 var import_jsx_runtime10 = __toESM(require_jsx_runtime(), 1);
-function ProgressRing({ pct, size = 96, stroke = 8, label = "Today" }) {
+function ProgressRing({
+  pct,
+  size = 96,
+  stroke = 8,
+  label = "Today",
+  caption,
+  tone = "auto"
+}) {
   const radius = (size - stroke) / 2;
   const circ = 2 * Math.PI * radius;
   const p = pct ?? 0;
   const offset = circ * (1 - p / 100);
-  const color = pct === null ? "var(--text-muted)" : p >= 100 ? "var(--success)" : "var(--accent)";
-  return /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", { className: "progress-ring", role: "img", "aria-label": `${label}: ${pct === null ? "no habits yet" : `${p}% complete`}`, children: [
-    /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("svg", { width: size, height: size, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("circle", { className: "progress-ring-track", cx: size / 2, cy: size / 2, r: radius, strokeWidth: stroke, fill: "none" }),
-      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(
-        "circle",
-        {
-          className: "progress-ring-bar",
-          cx: size / 2,
-          cy: size / 2,
-          r: radius,
-          strokeWidth: stroke,
-          fill: "none",
-          stroke: color,
-          strokeDasharray: circ,
-          strokeDashoffset: offset
-        }
-      )
-    ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", { className: "progress-ring-label", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("div", { className: "pct", style: { color }, children: pct === null ? "\u2014" : `${p}%` }),
-      /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("div", { className: "lbl", children: label })
-    ] })
-  ] });
+  const color = pct === null ? "var(--text-faint)" : tone === "mint" ? "var(--success)" : tone === "violet" ? "var(--accent-2)" : tone === "warm" ? "var(--warning)" : p >= 100 ? "var(--success)" : "var(--accent)";
+  const gid = `ring-${import_react8.default.useId().replace(/:/g, "")}`;
+  return /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)(
+    "div",
+    {
+      className: "progress-ring",
+      role: "img",
+      "aria-label": `${label}: ${pct === null ? "no habits yet" : `${p}% complete`}`,
+      children: [
+        /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("svg", { width: size, height: size, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("defs", { children: /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("linearGradient", { id: gid, x1: "0", y1: "0", x2: "1", y2: "1", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("stop", { offset: "0%", stopColor: "#7cbcff" }),
+            /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("stop", { offset: "55%", stopColor: color }),
+            /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("stop", { offset: "100%", stopColor: tone === "mint" ? "#27b587" : "var(--accent-2)" })
+          ] }) }),
+          /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(
+            "circle",
+            {
+              className: "progress-ring-track",
+              cx: size / 2,
+              cy: size / 2,
+              r: radius,
+              strokeWidth: stroke,
+              fill: "none"
+            }
+          ),
+          pct !== null && pct > 0 && /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(
+            "circle",
+            {
+              className: "progress-ring-bar",
+              cx: size / 2,
+              cy: size / 2,
+              r: radius,
+              strokeWidth: stroke,
+              fill: "none",
+              stroke: `url(#${gid})`,
+              strokeDasharray: circ,
+              strokeDashoffset: offset
+            }
+          )
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime10.jsxs)("div", { className: "progress-ring-label", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("div", { className: "pct", style: { color }, children: pct === null ? "\u2014" : `${p}%` }),
+          /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("div", { className: "lbl", children: label }),
+          caption && /* @__PURE__ */ (0, import_jsx_runtime10.jsx)("div", { className: "cap", children: caption })
+        ] })
+      ]
+    }
+  );
 }
 
 // src/components/ui/Charts.tsx
-var import_react8 = __toESM(require_react(), 1);
+var import_react9 = __toESM(require_react(), 1);
 var import_jsx_runtime11 = __toESM(require_jsx_runtime(), 1);
-var ACCENT = "#4f6ef7";
-var ACCENT_SOFT = "#c7d3fd";
-var GRID = "#e9edf5";
-var MUTED = "#8894ab";
+var ACCENT = "#3f8ef7";
+var ACCENT_SOFT = "#8b7cf6";
+var GRID = "#e2eaf6";
+var MUTED = "#6f819f";
 function LineChart({
   points,
   height = 190,
   suffix = "%",
   ariaLabel
 }) {
-  const wrapRef = (0, import_react8.useRef)(null);
-  const [tip, setTip] = (0, import_react8.useState)(null);
-  const [hoverIdx, setHoverIdx] = (0, import_react8.useState)(null);
+  const wrapRef = (0, import_react9.useRef)(null);
+  const [tip, setTip] = (0, import_react9.useState)(null);
+  const [hoverIdx, setHoverIdx] = (0, import_react9.useState)(null);
+  const gradId = (0, import_react9.useId)().replace(/:/g, "");
   const W = 720;
   const H = height;
   const PAD_L = 34;
@@ -18841,7 +19492,7 @@ function LineChart({
   const PAD_T = 12;
   const PAD_B = 24;
   const hasData = points.some((p) => p.value !== null);
-  const geo = (0, import_react8.useMemo)(() => {
+  const geo = (0, import_react9.useMemo)(() => {
     const innerW = W - PAD_L - PAD_R;
     const innerH = H - PAD_T - PAD_B;
     const x = (i) => PAD_L + (points.length <= 1 ? innerW / 2 : i / (points.length - 1) * innerW);
@@ -18901,11 +19552,15 @@ function LineChart({
           setHoverIdx(null);
         },
         children: [
+          /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("defs", { children: /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("linearGradient", { id: `fill-${gradId}`, x1: "0", y1: "0", x2: "0", y2: "1", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("stop", { offset: "0%", stopColor: "#5aa2fb", stopOpacity: "0.26" }),
+            /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("stop", { offset: "100%", stopColor: "#8b7cf6", stopOpacity: "0.02" })
+          ] }) }),
           [0, 50, 100].map((v) => /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("g", { children: [
             /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("line", { x1: PAD_L, x2: W - PAD_R, y1: geo.y(v), y2: geo.y(v), stroke: GRID, strokeWidth: 1 }),
             /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("text", { x: PAD_L - 7, y: geo.y(v) + 3.5, textAnchor: "end", fontSize: 10, fill: MUTED, children: v })
           ] }, v)),
-          geo.areaPaths.map((d, k) => /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("path", { d, fill: ACCENT, opacity: 0.07 }, k)),
+          geo.areaPaths.map((d, k) => /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("path", { d, fill: `url(#fill-${gradId})` }, k)),
           geo.linePaths.map((d, k) => /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(
             "path",
             {
@@ -18935,13 +19590,13 @@ function LineChart({
               cx: geo.x(p.i),
               cy: geo.y(p.v),
               r: hoverIdx === p.i ? 4.5 : 2.6,
-              fill: "#ffffff",
+              fill: "var(--card)",
               stroke: ACCENT,
               strokeWidth: 2
             },
             p.i
           )),
-          points.map((p, i) => /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(
+          points.map((_p, i) => /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(
             "rect",
             {
               x: geo.x(i) - (W - PAD_L - PAD_R) / (2 * Math.max(1, points.length - 1)),
@@ -18997,8 +19652,9 @@ function BarChart({
   suffix = "%",
   ariaLabel
 }) {
-  const wrapRef = (0, import_react8.useRef)(null);
-  const [tip, setTip] = (0, import_react8.useState)(null);
+  const wrapRef = (0, import_react9.useRef)(null);
+  const [tip, setTip] = (0, import_react9.useState)(null);
+  const gradId = (0, import_react9.useId)().replace(/:/g, "");
   const W = 720;
   const H = height;
   const PAD_L = 34;
@@ -19034,6 +19690,10 @@ function BarChart({
         "aria-label": ariaLabel,
         onMouseLeave: () => setTip(null),
         children: [
+          /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("defs", { children: /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("linearGradient", { id: `bar-${gradId}`, x1: "0", y1: "1", x2: "0", y2: "0", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("stop", { offset: "0%", stopColor: "#6cb0ff" }),
+            /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("stop", { offset: "100%", stopColor: "#3f8ef7" })
+          ] }) }),
           [0, 50, 100].map((v) => /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("g", { children: [
             /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("line", { x1: PAD_L, x2: W - PAD_R, y1: y(v), y2: y(v), stroke: GRID, strokeWidth: 1 }),
             /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("text", { x: PAD_L - 7, y: y(v) + 3.5, textAnchor: "end", fontSize: 10, fill: MUTED, children: v })
@@ -19061,9 +19721,9 @@ function BarChart({
                   y: PAD_T + innerH - barH,
                   width: barW,
                   height: barH,
-                  rx: Math.min(5, barW / 2),
-                  fill: ACCENT,
-                  opacity: 0.88,
+                  rx: Math.min(6, barW / 2),
+                  fill: `url(#bar-${gradId})`,
+                  opacity: 0.92,
                   style: { transition: "opacity 0.15s ease" }
                 }
               ) : /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(
@@ -19098,8 +19758,9 @@ var import_jsx_runtime12 = __toESM(require_jsx_runtime(), 1);
 function DayDetail({ date, api: api2, onClose }) {
   const { data: data2 } = api2;
   const arc2 = data2.arc;
+  const { habits: scopedHabits, rules: scopedRules } = trackScope(data2);
   const today2 = todayISO();
-  const ev = arc2 ? evaluateDay(arc2, data2.habits, data2.rules, data2.dailyRecords, date, todayISO()) : null;
+  const ev = arc2 ? evaluateDay(arc2, scopedHabits, scopedRules, data2.dailyRecords, date, todayISO()) : null;
   const rec = data2.dailyRecords[date];
   const dn = dayNumber(date, arc2.startDate, arc2.durationDays);
   const isFuture = date > today2;
@@ -19116,15 +19777,15 @@ function DayDetail({ date, api: api2, onClose }) {
           /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(ProgressRing, { pct: ev?.pct ?? null, size: 86, stroke: 8, label: `Day ${dayNum}` }),
           /* @__PURE__ */ (0, import_jsx_runtime12.jsxs)("div", { children: [
             /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("div", { style: { fontWeight: 700 }, children: ev?.pct === null ? "Nothing was trackable on this day" : ev?.isPerfect ? "Perfect day \u2014 everything done & every rule followed" : `${ev?.completedCount ?? 0} of ${ev?.eligibleCount ?? 0} done \xB7 ${ev?.habitDone ?? 0} habits + ${ev?.ruleFollowed ?? 0} rules` }),
-            /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("div", { className: "secondary small", style: { marginTop: 3 }, children: isFuture ? "Future day \u2014 view only." : date < today2 ? "Past day." : "Today." })
+            /* @__PURE__ */ (0, import_jsx_runtime12.jsx)("div", { className: "secondary small", style: { marginTop: 3 }, children: isFuture ? "Future day \u2014 view only." : date < today2 ? "Past day \u2014 read only. Only today can be updated." : "Today." })
           ] })
         ] }),
         !isFuture && /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(
           DayTasks,
           {
             arc: arc2,
-            habits: data2.habits,
-            rules: data2.rules,
+            habits: scopedHabits,
+            rules: scopedRules,
             records: data2.dailyRecords,
             date,
             now: today2,
@@ -19149,16 +19810,35 @@ function DayDetail({ date, api: api2, onClose }) {
 
 // src/pages/Dashboard.tsx
 var import_jsx_runtime13 = __toESM(require_jsx_runtime(), 1);
+var MOTIVATION = [
+  "Show up today - consistency rewards the patient.",
+  "One day at a time. They compound.",
+  "Discipline beats motivation.",
+  "Small daily wins beat rare heroic days.",
+  "The streak is built right now.",
+  "Future you is watching - make them proud.",
+  "Progress loves quiet, repeated effort.",
+  "Perfect days are built one habit at a time.",
+  "Consistency is the shortcut.",
+  "The Life System continues - today is one step."
+];
+function greetingFor(hour) {
+  if (hour < 5) return "Still up";
+  if (hour < 12) return "Good morning";
+  if (hour < 18) return "Good afternoon";
+  return "Good evening";
+}
 function DashboardPage({ api: api2, onNavigate }) {
   const { data: data2 } = api2;
   const arc2 = data2.arc;
   const today2 = todayISO();
   const { stats: stats2, habitStats, ruleStats, evaluate } = useAnalytics(data2);
-  const [detailDate, setDetailDate] = (0, import_react9.useState)(null);
+  const { habits: scopedHabits, rules: scopedRules } = trackScope(data2);
+  const [detailDate, setDetailDate] = (0, import_react10.useState)(null);
   const todayEv = evaluate(today2);
   const lastArcDay = addDays(arc2.startDate, arc2.durationDays - 1);
   const arcComplete = isArcComplete(arc2, today2);
-  const finale = (0, import_react9.useMemo)(() => {
+  const finale = (0, import_react10.useMemo)(() => {
     if (!arcComplete) return null;
     const days = stats2?.elapsedDays ?? 0;
     let totalValue = 0;
@@ -19167,12 +19847,12 @@ function DashboardPage({ api: api2, onNavigate }) {
       const d = addDays(arc2.startDate, i);
       const rec = data2.dailyRecords[d];
       if (rec && Object.keys(rec.habits).length > 0) loggedDays += 1;
-      for (const h of data2.habits) {
+      for (const h of scopedHabits) {
         const v = rec?.habits[h.id]?.value;
         if (typeof v === "number") totalValue += v;
       }
     }
-    const active = data2.habits.filter((h) => h.active).length;
+    const active = scopedHabits.filter((h) => h.active).length;
     return {
       perfectDays: stats2?.perfectDays ?? 0,
       bestStreak: stats2?.streaks.best ?? 0,
@@ -19184,12 +19864,12 @@ function DashboardPage({ api: api2, onNavigate }) {
       activeHabits: active,
       eligibleCount: todayEv.eligibleCount
     };
-  }, [arcComplete, stats2, data2.dailyRecords, data2.habits, arc2.startDate, todayEv.eligibleCount]);
-  const weekTrend = (0, import_react9.useMemo)(
-    () => computeTrend(arc2, data2.habits, data2.rules, data2.dailyRecords, 14),
-    [arc2, data2.habits, data2.rules, data2.dailyRecords]
+  }, [arcComplete, stats2, data2.dailyRecords, scopedHabits, arc2.startDate, todayEv.eligibleCount]);
+  const weekTrend = (0, import_react10.useMemo)(
+    () => computeTrend(arc2, scopedHabits, scopedRules, data2.dailyRecords, 14),
+    [arc2, scopedHabits, scopedRules, data2.dailyRecords]
   );
-  const week = (0, import_react9.useMemo)(() => {
+  const week = (0, import_react10.useMemo)(() => {
     const avg = (pts) => {
       const tracked2 = pts.filter((p) => p.pct !== null);
       if (tracked2.length === 0) return null;
@@ -19219,7 +19899,10 @@ function DashboardPage({ api: api2, onNavigate }) {
   const weekDelta = week.avg !== null && week.prevAvg !== null ? week.avg - week.prevAvg : null;
   const reflectionSaved = Boolean(data2.reflections[weekKeyOf(today2)]);
   const dayNum = stats2?.dayNumber ?? 1;
-  const daysLeft = Math.max(0, arc2.durationDays - dayNum);
+  const daysUntilStart = Math.max(0, daysBetween(today2, arc2.startDate));
+  const notStarted = daysUntilStart > 0 && !arcComplete;
+  const daysLeft = notStarted ? daysUntilStart : Math.max(0, arc2.durationDays - dayNum);
+  const arcPct = notStarted ? 0 : Math.min(100, Math.round(dayNum / arc2.durationDays * 100));
   const milestoneStep = arc2.durationDays >= 90 ? 30 : Math.max(1, Math.round(arc2.durationDays / 3));
   const milestoneList = [];
   for (let m = milestoneStep; m < arc2.durationDays; m += milestoneStep) milestoneList.push(m);
@@ -19228,149 +19911,214 @@ function DashboardPage({ api: api2, onNavigate }) {
   const nextMilestoneDate = nextMilestone ? addDays(arc2.startDate, nextMilestone - 1) : null;
   const nextMilestoneIn = nextMilestoneDate ? daysBetween(today2, nextMilestoneDate) : null;
   const tomorrow = addDays(today2, 1);
-  const tomorrowLabel = tomorrow < arc2.startDate ? `Arc starts ${formatShort(arc2.startDate)}` : arcComplete || tomorrow > lastArcDay ? `Arc ends ${formatShort(lastArcDay)}` : `Day ${Math.min(dayNum + 1, arc2.durationDays)} \xB7 ${formatShort(tomorrow)}`;
-  const guard = arcComplete ? null : todayEv.pct === null ? { good: false, text: "No habits or rules are eligible today \u2014 add one to keep tracking." } : todayEv.isPerfect ? {
+  const tomorrowLabel = tomorrow < arc2.startDate ? `Track starts ${formatShort(arc2.startDate)}` : arcComplete || tomorrow > lastArcDay ? `Track ends ${formatShort(lastArcDay)}` : `Day ${Math.min(dayNum + 1, arc2.durationDays)} - ${formatShort(tomorrow)}`;
+  const guard = arcComplete ? null : todayEv.pct === null ? { good: false, text: "No habits or rules are eligible today - add one to keep tracking." } : todayEv.isPerfect ? {
     good: true,
-    text: (stats2?.streaks.current ?? 0) > 0 ? `Perfect day \u2014 your ${stats2.streaks.current}-day streak is safe.` : "Perfect day \u2014 that's how a streak starts."
+    text: (stats2?.streaks.current ?? 0) > 0 ? `Perfect day - your ${stats2.streaks.current}-day streak is safe.` : "Perfect day - that is how a streak starts."
   } : (() => {
     const remaining = todayEv.eligibleCount - todayEv.completedCount;
     const streak = stats2?.streaks.current ?? 0;
     return {
       good: false,
-      text: streak > 0 ? `${remaining} item${remaining === 1 ? "" : "s"} left today to keep your ${streak}-day streak alive.` : `${remaining} item${remaining === 1 ? "" : "s"} left today \u2014 finish them all to start a streak.`
+      text: streak > 0 ? `${remaining} item${remaining === 1 ? "" : "s"} left today to keep your ${streak}-day streak alive.` : `${remaining} item${remaining === 1 ? "" : "s"} left today - finish them all to start a streak.`
     };
   })();
   const glance = habitStats.filter((s) => s.habit.active).sort((a, b) => a.habit.order - b.habit.order);
   const rulesGlance = ruleStats.filter((s) => s.rule.active).sort((a, b) => a.rule.order - b.rule.order);
-  const ruleAgg = (0, import_react9.useMemo)(() => {
+  const ruleAgg = (0, import_react10.useMemo)(() => {
     const followed = ruleStats.reduce((s, r) => s + r.followedCount, 0);
     const eligible = ruleStats.reduce((s, r) => s + r.eligibleCount, 0);
     return { followed, eligible, pct: eligible === 0 ? null : Math.round(followed / eligible * 100) };
   }, [ruleStats]);
-  return /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("div", { className: "stack", style: { gap: 20 }, children: [
+  return /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("div", { className: "stack", style: { gap: 12 }, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("section", { className: "dash-header", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("div", { className: "dash-greet-text", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("div", { className: "dash-hello", children: [
+          greetingFor((/* @__PURE__ */ new Date()).getHours()),
+          /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("span", { className: "dash-hello-dot", "aria-hidden": "true" }),
+          arcComplete ? "Track complete" : notStarted ? `Starts in ${daysLeft} day${daysLeft === 1 ? "" : "s"}` : `${daysLeft} day${daysLeft === 1 ? "" : "s"} to go`
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("h1", { className: "dash-title", children: [
+          "Day ",
+          dayNum,
+          " of ",
+          arc2.title
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("p", { className: "dash-motiv", children: MOTIVATION[(dayNum - 1) % MOTIVATION.length] })
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("div", { className: "dash-actions", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("button", { type: "button", className: "btn btn-icon", onClick: () => onNavigate("settings"), "aria-label": "Settings", children: /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(IconSettings, { size: 17 }) }),
+        /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("button", { type: "button", className: "btn btn-primary", onClick: () => onNavigate("today"), children: [
+          /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(IconPlus, { size: 15 }),
+          " Log today"
+        ] })
+      ] })
+    ] }),
     /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("section", { className: "hero", children: [
       /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("div", { className: "hero-top", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("div", { children: [
-          /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("div", { className: "hero-kicker", children: arc2.title }),
-          /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("h1", { className: "hero-title", children: "WINTER ARC" }),
+        /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("div", { className: "hero-copy", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("div", { className: "hero-kicker", children: "Active track" }),
+          /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("div", { className: "hero-title", children: arc2.title }),
           /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("p", { className: "hero-dates", children: [
             formatDateRange(arc2.startDate, lastArcDay),
             " \xB7 ",
             arc2.durationDays,
             " days"
-          ] })
-        ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("div", { className: "hero-progress-wrap", children: /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("div", { style: { textAlign: "right" }, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("div", { className: "hero-day-num", children: [
-            "Day ",
-            stats2?.dayNumber ?? 1,
-            /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("span", { className: "hero-day-of", children: [
-              " / ",
-              arc2.durationDays
-            ] })
           ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("div", { className: "muted small", style: { marginTop: 4 }, children: formatShort(today2) }),
-          arcComplete && /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("div", { className: "success-text small", style: { marginTop: 4 }, children: "\u2713 Arc complete" })
-        ] }) })
+          arc2.goal && /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("p", { className: "hero-goal", children: arc2.goal })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("div", { className: "hero-progress-wrap", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("div", { className: "hero-ring", children: /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(
+            ProgressRing,
+            {
+              pct: arcPct,
+              size: 110,
+              stroke: 9,
+              label: "Track progress",
+              caption: `of ${arc2.durationDays} days`
+            }
+          ) }),
+          /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("div", { className: "hero-dayblock", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("div", { className: "hero-day-num", children: [
+              dayNum,
+              /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("span", { className: "hero-day-of", children: [
+                " / ",
+                arc2.durationDays
+              ] })
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("div", { className: "hero-days-label", children: arcComplete ? "Track finished" : notStarted ? `Starts ${formatShort(arc2.startDate)}` : `${daysLeft} day${daysLeft === 1 ? "" : "s"} left` }),
+            /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("div", { className: "hero-days-date", children: formatShort(today2) })
+          ] })
+        ] })
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("div", { className: "hero-bar", role: "progressbar", "aria-valuenow": stats2?.dayNumber ?? 1, "aria-valuemin": 1, "aria-valuemax": arc2.durationDays, "aria-label": "Arc progress", children: /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(
+      /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(
         "div",
         {
-          className: "hero-bar-fill",
-          style: { width: `${((stats2?.dayNumber ?? 1) / arc2.durationDays * 100).toFixed(1)}%` }
+          className: "hero-bar",
+          role: "progressbar",
+          "aria-valuenow": dayNum,
+          "aria-valuemin": 1,
+          "aria-valuemax": arc2.durationDays,
+          "aria-label": "Track progress",
+          children: /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("div", { className: "hero-bar-fill", style: { width: `${arcPct}%` } })
         }
-      ) }),
-      arc2.goal && /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("p", { className: "hero-goal", children: [
-        "\u{1F3AF} ",
-        arc2.goal
+      ),
+      /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("div", { className: "hero-bar-meta", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("span", { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("strong", { children: [
+            arcPct,
+            "%"
+          ] }),
+          " of the way through your track"
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("span", { children: nextMilestone === null ? "Final day - today" : `Next milestone: Day ${nextMilestone}${nextMilestoneIn === 0 ? " (today)" : ` in ${nextMilestoneIn} day${nextMilestoneIn === 1 ? "" : "s"}`}` }),
+        /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("span", { children: [
+          "Track ends ",
+          /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("strong", { children: formatShort(lastArcDay) })
+        ] })
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("div", { className: "hero-streaks", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("span", { className: "hero-chip streak", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(IconFlame, { size: 14 }),
+          " ",
+          stats2?.streaks.current ?? 0,
+          "-day streak"
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("span", { className: "hero-chip best", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(IconTrophy, { size: 14 }),
+          " Best ",
+          stats2?.streaks.best ?? 0
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("span", { className: "hero-chip perfect", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(IconSpark, { size: 14 }),
+          " ",
+          stats2?.perfectDays ?? 0,
+          " perfect days"
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("span", { className: "hero-chip ring-note", children: todayEv.pct === null ? "Nothing eligible yet - add a habit or rule." : todayEv.isPerfect ? `Perfect day - all ${todayEv.eligibleCount} items complete.` : `${todayEv.completedCount} of ${todayEv.eligibleCount} done today \xB7 ${todayEv.eligibleCount - todayEv.completedCount} to go` })
       ] })
     ] }),
-    arcComplete && finale && /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("section", { className: "card", style: { borderColor: "var(--success-border)", background: "var(--success-dim)" }, role: "status", children: [
+    arcComplete && finale && /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("section", { className: "card card-finale", role: "status", children: [
       /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("div", { className: "card-title", children: [
         /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("span", { children: [
-          "Your ",
-          arc2.durationDays,
-          "-day Arc is complete"
+          arc2.title,
+          " \u2014 complete"
         ] }),
         /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(IconTrophy, { size: 16, style: { color: "var(--success)" } })
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("p", { className: "secondary small", style: { marginBottom: 14 }, children: finale.eligibleCount === 0 ? "No habits or rules were eligible during this Arc." : `${finale.days} days \xB7 ${finale.loggedDays} with logged progress \xB7 ${finale.activeHabits} active habit${finale.activeHabits === 1 ? "" : "s"}.` }),
+      /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("p", { className: "secondary small", style: { marginBottom: 14 }, children: finale.eligibleCount === 0 ? "No habits or rules were eligible during this track." : `${finale.days} days \xB7 ${finale.loggedDays} with logged progress \xB7 ${finale.activeHabits} active habit${finale.activeHabits === 1 ? "" : "s"}.` }),
       /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("div", { className: "stats-row", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(StatCard, { icon: /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(IconSpark, { size: 16 }), green: true, value: finale.perfectDays, label: "Perfect days" }),
-        /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(StatCard, { icon: /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(IconTrophy, { size: 16 }), green: true, value: finale.bestStreak, label: "Best streak", sub: "days" }),
+        /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(StatCard, { tone: "mint", icon: /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(IconSpark, { size: 16 }), value: finale.perfectDays, label: "Perfect days" }),
+        /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(StatCard, { tone: "mint", icon: /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(IconTrophy, { size: 16 }), value: finale.bestStreak, label: "Best streak", sub: "days" }),
         /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(
           StatCard,
           {
             icon: /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(IconChart, { size: 16 }),
-            value: finale.consistency === null ? "\u2014" : `${finale.consistency}%`,
+            value: finale.consistency === null ? "-" : `${finale.consistency}%`,
             label: "Consistency",
             sub: "avg daily"
           }
         ),
-        /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(StatCard, { icon: /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(IconShield, { size: 16 }), value: ruleAgg.pct === null ? "\u2014" : `${ruleAgg.pct}%`, label: "Rule control", sub: "days followed" })
+        /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(StatCard, { icon: /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(IconShield, { size: 16 }), value: ruleAgg.pct === null ? "-" : `${ruleAgg.pct}%`, label: "Rule control", sub: "days followed" })
       ] })
     ] }),
     /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("section", { className: "stats-row", "aria-label": "Quick stats", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(StatCard, { icon: /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(IconFlame, { size: 16 }), value: stats2?.streaks.current ?? 0, label: "Current streak", sub: "days" }),
-      /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(StatCard, { icon: /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(IconTrophy, { size: 16 }), green: true, value: stats2?.streaks.best ?? 0, label: "Best streak", sub: "days" }),
-      /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(StatCard, { icon: /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(IconSpark, { size: 16 }), green: true, value: stats2?.perfectDays ?? 0, label: "Perfect days" }),
+      /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(StatCard, { tone: "orange", icon: /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(IconFlame, { size: 16 }), value: stats2?.streaks.current ?? 0, label: "Current streak", sub: "days" }),
+      /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(StatCard, { tone: "mint", icon: /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(IconTrophy, { size: 16 }), value: stats2?.streaks.best ?? 0, label: "Best streak", sub: "days" }),
+      /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(StatCard, { tone: "blue", icon: /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(IconCheckCircle, { size: 16 }), value: `${todayEv.habitDone}/${todayEv.habitEligible}`, label: "Today's habits", sub: "done so far" }),
       /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(
         StatCard,
         {
+          tone: "violet",
+          icon: /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(IconChart, { size: 16 }),
+          value: stats2?.totalPct == null ? "-" : `${stats2.totalPct}%`,
+          label: "Overall completion",
+          sub: "all track days"
+        }
+      ),
+      /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(
+        StatCard,
+        {
+          tone: "pink",
           icon: /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(IconShield, { size: 16 }),
-          value: ruleAgg.pct === null ? "\u2014" : `${ruleAgg.pct}%`,
+          value: ruleAgg.pct === null ? "-" : `${ruleAgg.pct}%`,
           label: "Rule control",
           sub: `${ruleAgg.followed}/${ruleAgg.eligible} followed`
         }
       )
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("section", { className: "grid-2", style: { alignItems: "start" }, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("div", { className: "card", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("div", { className: "card-title", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("span", { children: "My Day \u2014 today's tracking" }),
-          /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("button", { type: "button", className: "btn btn-ghost btn-sm", onClick: () => onNavigate("today"), children: [
-            "Open day view ",
-            /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(IconArrowLeft, { size: 13, style: { transform: "rotate(180deg)" } })
-          ] })
+    /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("section", { className: "card card-today", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("div", { className: "card-title", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("span", { className: "card-title-main", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(IconCheckCircle, { size: 14 }),
+          " My Day"
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(
-          DayTasks,
-          {
-            arc: arc2,
-            habits: data2.habits,
-            rules: data2.rules,
-            records: data2.dailyRecords,
-            date: today2,
-            now: today2,
-            onToggle: api2.toggleHabit,
-            onSetValue: api2.setHabitValue,
-            onRuleStatus: api2.setRuleStatus
-          }
-        )
-      ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("div", { className: "stack", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("div", { className: "card", style: { display: "grid", placeItems: "center", padding: 26 }, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(ProgressRing, { pct: todayEv.pct, size: 140, stroke: 11, label: "Today" }),
-          /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("p", { className: "small muted", style: { marginTop: 12, textAlign: "center" }, children: todayEv.pct === null ? "No habits or rules yet \u2014 add your first one." : todayEv.isPerfect ? `Perfect day \u2014 all ${todayEv.eligibleCount} items complete.` : `${todayEv.completedCount} of ${todayEv.eligibleCount} done \xB7 ${todayEv.eligibleCount - todayEv.completedCount} to go` }),
-          todayEv.ruleEligible > 0 && /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("p", { className: "small secondary", style: { marginTop: 4, textAlign: "center" }, children: [
-            todayEv.habitDone,
-            "/",
-            todayEv.habitEligible,
-            " habits done \xB7 ",
-            todayEv.ruleFollowed,
-            "/",
-            todayEv.ruleEligible,
-            " rules followed"
-          ] })
-        ] }),
-        data2.dailyRecords[today2]?.note && /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("div", { className: "card", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("div", { className: "card-title", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("span", { children: "Today's note" }),
-            /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(IconNote, { size: 14 })
-          ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("p", { className: "secondary", style: { whiteSpace: "pre-wrap" }, children: data2.dailyRecords[today2].note })
+        /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("button", { type: "button", className: "btn btn-ghost btn-sm", onClick: () => onNavigate("today"), children: [
+          "Open day view ",
+          /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(IconArrowLeft, { size: 13, style: { transform: "rotate(180deg)" } })
         ] })
-      ] })
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(
+        DayTasks,
+        {
+          arc: arc2,
+          habits: scopedHabits,
+          rules: scopedRules,
+          records: data2.dailyRecords,
+          date: today2,
+          now: today2,
+          onToggle: api2.toggleHabit,
+          onSetValue: api2.setHabitValue,
+          onRuleStatus: api2.setRuleStatus
+        }
+      )
+    ] }),
+    data2.dailyRecords[today2]?.note && /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("div", { className: "card", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("div", { className: "card-title", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("span", { children: "Today's note" }),
+        /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(IconNote, { size: 14 })
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("p", { className: "secondary", style: { whiteSpace: "pre-wrap" }, children: data2.dailyRecords[today2].note })
     ] }),
     /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("section", { className: "grid-2", style: { alignItems: "start" }, children: [
       /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("div", { className: "card", children: [
@@ -19383,22 +20131,22 @@ function DashboardPage({ api: api2, onNavigate }) {
             IconFlame,
             {
               size: 15,
-              style: { color: guard.good ? "var(--success)" : "var(--warning)", flexShrink: 0, marginTop: 1 }
+              style: { color: guard.good ? "var(--success-strong)" : "var(--warning-strong)", flexShrink: 0, marginTop: 1 }
             }
           ),
           /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("span", { children: guard.text })
         ] }),
         /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("div", { className: "kv-row", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("span", { className: "kv-key", children: "Arc progress" }),
+          /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("span", { className: "kv-key", children: "Track progress" }),
           /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("span", { className: "kv-val", children: arcComplete ? `${arc2.durationDays} days \xB7 finished` : `Day ${dayNum} of ${arc2.durationDays} \xB7 ${daysLeft} day${daysLeft === 1 ? "" : "s"} left` })
         ] }),
         /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("div", { className: "kv-row", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("span", { className: "kv-key", children: "Arc ends" }),
+          /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("span", { className: "kv-key", children: "Track ends" }),
           /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("span", { className: "kv-val", children: formatShort(lastArcDay) })
         ] }),
         !arcComplete && /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("div", { className: "kv-row", children: [
           /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("span", { className: "kv-key", children: "Next milestone" }),
-          /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("span", { className: "kv-val", children: nextMilestone === null ? "Final day \u2014 today" : `Day ${nextMilestone} \xB7 ${nextMilestoneIn === 0 ? "today" : `in ${nextMilestoneIn} day${nextMilestoneIn === 1 ? "" : "s"}`}` })
+          /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("span", { className: "kv-val", children: nextMilestone === null ? "Final day - today" : `Day ${nextMilestone} \xB7 ${nextMilestoneIn === 0 ? "today" : `in ${nextMilestoneIn} day${nextMilestoneIn === 1 ? "" : "s"}`}` })
         ] }),
         /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("div", { className: "kv-row", children: [
           /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("span", { className: "kv-key", children: "Tomorrow" }),
@@ -19424,7 +20172,7 @@ function DashboardPage({ api: api2, onNavigate }) {
           ] })
         ] }),
         /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("div", { className: "row", style: { gap: 10, flexWrap: "wrap", alignItems: "baseline" }, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("span", { className: "stat-value", style: { fontSize: 30 }, children: week.avg === null ? "\u2014" : `${week.avg}%` }),
+          /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("span", { className: "stat-value", style: { fontSize: 30 }, children: week.avg === null ? "-" : `${week.avg}%` }),
           /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("span", { className: "small muted", children: "average \xB7 last 7 days" }),
           weekDelta !== null && /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("span", { className: `delta${weekDelta > 0 ? " up" : weekDelta < 0 ? " down" : ""}`, children: [
             weekDelta > 0 ? "\u25B2" : weekDelta < 0 ? "\u25BC" : "\u2022",
@@ -19433,7 +20181,7 @@ function DashboardPage({ api: api2, onNavigate }) {
             " vs previous 7 days"
           ] })
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("p", { className: "small secondary", style: { marginTop: 10 }, children: week.tracked === 0 ? "No tracked days yet \u2014 log habits and rules to build your weekly picture." : `${week.perfect} perfect \xB7 ${week.partialDays} partial \xB7 ${week.missed} missed of ${week.tracked} tracked day${week.tracked === 1 ? "" : "s"}.` }),
+        /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("p", { className: "small secondary", style: { marginTop: 10 }, children: week.tracked === 0 ? "No tracked days yet - log habits and rules to build your weekly picture." : `${week.perfect} perfect \xB7 ${week.partialDays} partial \xB7 ${week.missed} missed of ${week.tracked} tracked day${week.tracked === 1 ? "" : "s"}.` }),
         /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("div", { style: { marginTop: 12 }, children: [
           /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(
             LineChart,
@@ -19444,7 +20192,7 @@ function DashboardPage({ api: api2, onNavigate }) {
             }
           ),
           week.trend14.some((p) => p.sub !== null) && /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("div", { className: "row small muted", style: { gap: 6, marginTop: 6 }, children: [
-            /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("span", { style: { width: 16, height: 0, borderTop: "2px dashed #c7d3fd", display: "inline-block" } }),
+            /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("span", { style: { width: 16, height: 0, borderTop: "2px dashed var(--chart-avg)", display: "inline-block" } }),
             "7-day rolling average \xB7 solid line = daily completion"
           ] })
         ] })
@@ -19452,16 +20200,16 @@ function DashboardPage({ api: api2, onNavigate }) {
     ] }),
     /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("section", { className: "card", children: [
       /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("div", { className: "card-title", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("span", { className: "row", style: { gap: 6 }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("span", { className: "card-title-main", children: [
           /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(IconTarget, { size: 14 }),
           " Your goal"
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("button", { type: "button", className: "btn btn-ghost btn-sm", onClick: () => onNavigate("myarc"), children: "Edit in My Winter Arc" })
+        /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("button", { type: "button", className: "btn btn-ghost btn-sm", onClick: () => onNavigate("tracks"), children: "Edit in My Tracks" })
       ] }),
       /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("div", { className: "goal-layout", children: [
         /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("div", { children: [
           /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("p", { className: "goal-text", children: arc2.goal || "No goal set yet." }),
-          !arc2.goal && /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("p", { className: "small muted", style: { marginTop: 6 }, children: "Add a goal so every day of the Arc has a direction." }),
+          !arc2.goal && /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("p", { className: "small muted", style: { marginTop: 6 }, children: "Add a goal so every day of the track has a direction." }),
           arc2.why && /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("p", { className: "secondary small", style: { marginTop: 8 }, children: [
             /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("strong", { className: "muted", children: "Why:" }),
             " ",
@@ -19483,7 +20231,10 @@ function DashboardPage({ api: api2, onNavigate }) {
     ] }),
     /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("section", { className: "card", children: [
       /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("div", { className: "card-title", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("span", { children: "Habits at a glance" }),
+        /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("span", { className: "card-title-main", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(IconCheck, { size: 14 }),
+          " Habits at a glance"
+        ] }),
         /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("button", { type: "button", className: "btn btn-ghost btn-sm", onClick: () => onNavigate("habits"), children: [
           "Manage habits ",
           /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(IconArrowLeft, { size: 13, style: { transform: "rotate(180deg)" } })
@@ -19495,7 +20246,7 @@ function DashboardPage({ api: api2, onNavigate }) {
       ] }) : /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("div", { children: glance.map((s) => {
         const Icon = IconFor(s.habit.icon);
         const cellState = habitCellFor(s.habit, today2, data2.dailyRecords, today2, arc2).state;
-        const todayText = cellState === "done" ? "Done today" : cellState === "pending" || cellState === "partial" ? "In progress today" : cellState === "missed" ? "Missed today" : cellState === "outside" ? today2 > lastArcDay ? "Arc finished" : "Arc not started yet" : "Not active today";
+        const todayText = cellState === "done" ? "Done today" : cellState === "pending" || cellState === "partial" ? "In progress today" : cellState === "missed" ? "Missed today" : cellState === "outside" ? today2 > lastArcDay ? "Track finished" : "Track not started yet" : "Not active today";
         return /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("div", { className: "habit-stat-row", children: [
           /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("div", { className: "row", style: { minWidth: 0 }, children: [
             /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("span", { className: "task-icon", style: { width: 28, height: 28 }, children: /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(Icon, { size: 13 }) }),
@@ -19511,7 +20262,7 @@ function DashboardPage({ api: api2, onNavigate }) {
               ] })
             ] })
           ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("div", { className: "stat-value", style: { fontSize: 16 }, children: s.rate === null ? "\u2014" : `${s.rate}%` }),
+          /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("div", { className: "stat-value", style: { fontSize: 16 }, children: s.rate === null ? "-" : `${s.rate}%` }),
           /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("div", { className: "hs-bar", children: /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("div", { className: "rate-bar", children: /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(
             "div",
             {
@@ -19529,13 +20280,13 @@ function DashboardPage({ api: api2, onNavigate }) {
         ] }, s.habit.id);
       }) })
     ] }),
-    rulesGlance.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("section", { className: "card", children: [
+    rulesGlance.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("section", { className: "card card-rules", children: [
       /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("div", { className: "card-title", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("span", { className: "row", style: { gap: 6 }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("span", { className: "card-title-main rule", children: [
           /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(IconShield, { size: 13 }),
           " Rule control"
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("button", { type: "button", className: "btn btn-ghost btn-sm", onClick: () => onNavigate("myarc"), children: "Manage rules" })
+        /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("button", { type: "button", className: "btn btn-ghost btn-sm", onClick: () => onNavigate("tracks"), children: "Manage rules" })
       ] }),
       rulesGlance.map((s) => {
         const followedToday = data2.dailyRecords[today2]?.rules?.[s.rule.id]?.status === "followed";
@@ -19554,7 +20305,7 @@ function DashboardPage({ api: api2, onNavigate }) {
               ] })
             ] })
           ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("div", { className: "stat-value", style: { fontSize: 16 }, children: s.rate === null ? "\u2014" : `${s.rate}%` }),
+          /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("div", { className: "stat-value", style: { fontSize: 16 }, children: s.rate === null ? "-" : `${s.rate}%` }),
           /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("div", { className: "hs-bar", children: /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("div", { className: "rate-bar", children: /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(
             "div",
             {
@@ -19574,15 +20325,18 @@ function DashboardPage({ api: api2, onNavigate }) {
     ] }),
     /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("section", { className: "card", children: [
       /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("div", { className: "card-title", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("span", { children: "90-day overview" }),
+        /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("span", { className: "card-title-main", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(IconCalendar, { size: 14 }),
+          " Track overview"
+        ] }),
         /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("button", { type: "button", className: "btn btn-ghost btn-sm", onClick: () => onNavigate("calendar"), children: "Full calendar" })
       ] }),
       /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(
         ArcHeatmap,
         {
           arc: arc2,
-          habits: data2.habits,
-          rules: data2.rules,
+          habits: scopedHabits,
+          rules: scopedRules,
           records: data2.dailyRecords,
           onDayClick: setDetailDate,
           cellSize: 11,
@@ -19598,10 +20352,10 @@ function StatCard({
   value,
   label,
   sub,
-  green
+  tone
 }) {
   return /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("div", { className: "stat-card", children: [
-    /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("div", { className: `stat-icon${green ? " green" : ""}`, children: icon }),
+    /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("div", { className: `stat-icon${tone ? ` ${tone}` : ""}`, children: icon }),
     /* @__PURE__ */ (0, import_jsx_runtime13.jsx)("div", { className: "stat-value", children: value }),
     /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)("div", { className: "stat-label", children: [
       label,
@@ -19611,10 +20365,10 @@ function StatCard({
 }
 
 // src/pages/Calendar.tsx
-var import_react11 = __toESM(require_react(), 1);
+var import_react12 = __toESM(require_react(), 1);
 
 // src/components/calendar/HabitGrid.tsx
-var import_react10 = __toESM(require_react(), 1);
+var import_react11 = __toESM(require_react(), 1);
 
 // src/components/habits/HabitCellLegend.tsx
 var import_jsx_runtime14 = __toESM(require_jsx_runtime(), 1);
@@ -19645,20 +20399,20 @@ function HabitCellLegend({ only }) {
 // src/components/calendar/HabitGrid.tsx
 var import_jsx_runtime15 = __toESM(require_jsx_runtime(), 1);
 function HabitGrid({ arc: arc2, habits, rules, records, dates, now = todayISO(), onDayClick }) {
-  const label = (0, import_react10.useMemo)(
+  const label = (0, import_react11.useMemo)(
     () => dates[0] ? fromISO(dates[0]).toLocaleDateString(void 0, { month: "long", year: "numeric" }) : "",
     [dates]
   );
-  const activeRows = (0, import_react10.useMemo)(
+  const activeRows = (0, import_react11.useMemo)(
     () => [...habits].sort((a, b) => a.order - b.order).filter((h) => h.active),
     [habits]
   );
-  const archivedRows = (0, import_react10.useMemo)(
+  const archivedRows = (0, import_react11.useMemo)(
     () => [...habits].sort((a, b) => a.order - b.order).filter((h) => !h.active),
     [habits]
   );
-  const ruleRows = (0, import_react10.useMemo)(() => [...rules].sort((a, b) => a.order - b.order), [rules]);
-  const monthSummary = (0, import_react10.useMemo)(() => {
+  const ruleRows = (0, import_react11.useMemo)(() => [...rules].sort((a, b) => a.order - b.order), [rules]);
+  const monthSummary = (0, import_react11.useMemo)(() => {
     let elapsed = 0;
     let pctSum = 0;
     let perfect = 0;
@@ -19698,7 +20452,7 @@ function HabitGrid({ arc: arc2, habits, rules, records, dates, now = todayISO(),
   if (dates.length === 0 || activeRows.length === 0 && ruleRows.length === 0) {
     return /* @__PURE__ */ (0, import_jsx_runtime15.jsxs)("div", { className: "empty-state", children: [
       /* @__PURE__ */ (0, import_jsx_runtime15.jsx)("div", { className: "big", children: dates.length === 0 ? "No days in this month" : "No habits or rules yet" }),
-      /* @__PURE__ */ (0, import_jsx_runtime15.jsx)("p", { children: "Add habits on the Habits page or rules in My Winter Arc \u2014 the grid fills in as you track days." })
+      /* @__PURE__ */ (0, import_jsx_runtime15.jsx)("p", { children: "Add habits on the Habits page or rules in My Tracks \u2014 the grid fills in as you track days." })
     ] });
   }
   const renderHabitRow = (habit, paused) => {
@@ -19760,7 +20514,7 @@ function HabitGrid({ arc: arc2, habits, rules, records, dates, now = todayISO(),
     ] }, rule.id);
   };
   return /* @__PURE__ */ (0, import_jsx_runtime15.jsxs)("div", { className: "mg-wrap", children: [
-    /* @__PURE__ */ (0, import_jsx_runtime15.jsx)("div", { className: "mg-summary small secondary", children: monthSummary.avg === null ? "No elapsed Arc days in this month yet." : `${monthSummary.elapsed} elapsed day${monthSummary.elapsed === 1 ? "" : "s"} this month \xB7 ${monthSummary.avg}% average \xB7 ${monthSummary.perfect} perfect` }),
+    /* @__PURE__ */ (0, import_jsx_runtime15.jsx)("div", { className: "mg-summary small secondary", children: monthSummary.avg === null ? "No elapsed track days in this month yet." : `${monthSummary.elapsed} elapsed day${monthSummary.elapsed === 1 ? "" : "s"} this month \xB7 ${monthSummary.avg}% average \xB7 ${monthSummary.perfect} perfect` }),
     /* @__PURE__ */ (0, import_jsx_runtime15.jsx)("div", { className: "mg-scroll", children: /* @__PURE__ */ (0, import_jsx_runtime15.jsxs)("table", { className: "mg-table", children: [
       /* @__PURE__ */ (0, import_jsx_runtime15.jsx)("caption", { className: "sr-only", children: `Monthly habit and rule tracker for ${label}. Rows are habits and rules, columns are days of the month.` }),
       /* @__PURE__ */ (0, import_jsx_runtime15.jsx)("thead", { children: /* @__PURE__ */ (0, import_jsx_runtime15.jsxs)("tr", { children: [
@@ -19812,36 +20566,85 @@ var import_jsx_runtime16 = __toESM(require_jsx_runtime(), 1);
 function CalendarPage({ api: api2 }) {
   const { data: data2 } = api2;
   const arc2 = data2.arc;
+  const { habits: scopedHabits, rules: scopedRules } = trackScope(data2);
   const today2 = todayISO();
-  const [detailDate, setDetailDate] = (0, import_react11.useState)(null);
-  const [view, setView] = (0, import_react11.useState)("year");
-  const [monthOffset, setMonthOffset] = (0, import_react11.useState)(0);
+  const [detailDate, setDetailDate] = (0, import_react12.useState)(null);
+  const [view, setView] = (0, import_react12.useState)("year");
+  const [monthOffset, setMonthOffset] = (0, import_react12.useState)(0);
   const lastArcDay = addDays(arc2.startDate, arc2.durationDays - 1);
-  const months2 = (0, import_react11.useMemo)(() => monthGroups(arc2.startDate, lastArcDay), [arc2.startDate, lastArcDay]);
+  const months2 = (0, import_react12.useMemo)(() => monthGroups(arc2.startDate, lastArcDay), [arc2.startDate, lastArcDay]);
   const month = months2[Math.min(monthOffset, months2.length - 1)];
   const padDays = month ? (fromISO(month.dates[0]).getDay() + 6) % 7 : 0;
+  const summary = (0, import_react12.useMemo)(() => {
+    const dates = Array.from({ length: arc2.durationDays }, (_, i) => addDays(arc2.startDate, i));
+    let perfect = 0;
+    let partial = 0;
+    let logged = 0;
+    for (const d of dates) {
+      if (d > today2) continue;
+      const ev = evaluateDay(arc2, scopedHabits, scopedRules, data2.dailyRecords, d, today2);
+      if (ev.pct === null) continue;
+      logged += 1;
+      if (ev.pct >= 100) perfect += 1;
+      else if (ev.pct > 0) partial += 1;
+    }
+    return { perfect, partial, logged, elapsed: dates.filter((d) => d <= today2).length };
+  }, [arc2, scopedHabits, scopedRules, data2.dailyRecords, today2]);
   return /* @__PURE__ */ (0, import_jsx_runtime16.jsxs)("div", { children: [
     /* @__PURE__ */ (0, import_jsx_runtime16.jsx)(
       PageHeader,
       {
         title: "Calendar",
-        sub: `${formatDateRange(arc2.startDate, lastArcDay)} \xB7 click any arc day for details`,
+        sub: `${formatDateRange(arc2.startDate, lastArcDay)} \xB7 click any track day for details`,
         actions: /* @__PURE__ */ (0, import_jsx_runtime16.jsxs)("div", { className: "segmented", style: { width: "auto" }, role: "group", "aria-label": "Calendar view", children: [
           /* @__PURE__ */ (0, import_jsx_runtime16.jsx)("button", { type: "button", className: view === "year" ? "active" : "", onClick: () => setView("year"), children: "Year" }),
-          /* @__PURE__ */ (0, import_jsx_runtime16.jsx)("button", { type: "button", className: view === "arc" ? "active" : "", onClick: () => setView("arc"), children: "Arc" }),
+          /* @__PURE__ */ (0, import_jsx_runtime16.jsx)("button", { type: "button", className: view === "arc" ? "active" : "", onClick: () => setView("arc"), children: "Track" }),
           /* @__PURE__ */ (0, import_jsx_runtime16.jsx)("button", { type: "button", className: view === "month" ? "active" : "", onClick: () => setView("month"), children: "Month" }),
           /* @__PURE__ */ (0, import_jsx_runtime16.jsx)("button", { type: "button", className: view === "grid" ? "active" : "", onClick: () => setView("grid"), children: "Tracker" })
         ] })
       }
     ),
-    (view === "year" || view === "arc") && /* @__PURE__ */ (0, import_jsx_runtime16.jsxs)("div", { className: "card", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime16.jsx)("div", { className: "card-title", children: /* @__PURE__ */ (0, import_jsx_runtime16.jsx)("span", { children: view === "year" ? "Last 365 days" : `${arc2.durationDays}-day Arc` }) }),
+    (view === "year" || view === "arc") && /* @__PURE__ */ (0, import_jsx_runtime16.jsxs)("div", { className: "card card-summary", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime16.jsxs)("div", { className: "card-title", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime16.jsxs)("span", { className: "card-title-main", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime16.jsx)(IconCalendar, { size: 14 }),
+          " ",
+          view === "year" ? "Last 365 days" : `${arc2.durationDays}-day track`
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime16.jsx)("span", { className: "small muted", children: "click any track day for details" })
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime16.jsxs)("div", { className: "cal-summary", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime16.jsxs)("div", { className: "cal-summary-cell", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime16.jsx)("span", { className: "cal-summary-v", children: summary.elapsed }),
+          /* @__PURE__ */ (0, import_jsx_runtime16.jsx)("span", { className: "cal-summary-k", children: "Days elapsed" })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime16.jsxs)("div", { className: "cal-summary-cell", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime16.jsxs)("span", { className: "cal-summary-v success-text", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime16.jsx)(IconSpark, { size: 13 }),
+            " ",
+            summary.perfect
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime16.jsx)("span", { className: "cal-summary-k", children: "Perfect days" })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime16.jsxs)("div", { className: "cal-summary-cell", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime16.jsxs)("span", { className: "cal-summary-v", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime16.jsx)(IconFlame, { size: 13 }),
+            " ",
+            summary.partial
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime16.jsx)("span", { className: "cal-summary-k", children: "Partial days" })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime16.jsxs)("div", { className: "cal-summary-cell", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime16.jsx)("span", { className: "cal-summary-v", children: summary.logged }),
+          /* @__PURE__ */ (0, import_jsx_runtime16.jsx)("span", { className: "cal-summary-k", children: "Days with trackables" })
+        ] })
+      ] }),
       /* @__PURE__ */ (0, import_jsx_runtime16.jsx)(
         ArcHeatmap,
         {
           arc: arc2,
-          habits: data2.habits,
-          rules: data2.rules,
+          habits: scopedHabits,
+          rules: scopedRules,
           records: data2.dailyRecords,
           onDayClick: setDetailDate,
           cellSize: view === "year" ? 12 : 14,
@@ -19853,16 +20656,16 @@ function CalendarPage({ api: api2 }) {
       /* @__PURE__ */ (0, import_jsx_runtime16.jsxs)("div", { className: "row-between", style: { marginBottom: 14 }, children: [
         /* @__PURE__ */ (0, import_jsx_runtime16.jsx)("div", { className: "card-title", style: { marginBottom: 0 }, children: view === "grid" ? `Habit & rule tracker \xB7 ${month?.label ?? ""}` : month?.label }),
         /* @__PURE__ */ (0, import_jsx_runtime16.jsxs)("div", { className: "row", style: { gap: 6 }, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime16.jsx)("button", { type: "button", className: "btn btn-icon", onClick: () => setMonthOffset((m) => Math.max(0, m - 1)), disabled: monthOffset === 0, "aria-label": "Previous month", children: "\u2039" }),
-          /* @__PURE__ */ (0, import_jsx_runtime16.jsx)("button", { type: "button", className: "btn btn-icon", onClick: () => setMonthOffset((m) => Math.min(months2.length - 1, m + 1)), disabled: monthOffset >= months2.length - 1, "aria-label": "Next month", children: "\u203A" })
+          /* @__PURE__ */ (0, import_jsx_runtime16.jsx)("button", { type: "button", className: "btn btn-icon", onClick: () => setMonthOffset((m) => Math.max(0, m - 1)), disabled: monthOffset === 0, "aria-label": "Previous month", children: /* @__PURE__ */ (0, import_jsx_runtime16.jsx)(IconChevronLeft, { size: 16 }) }),
+          /* @__PURE__ */ (0, import_jsx_runtime16.jsx)("button", { type: "button", className: "btn btn-icon", onClick: () => setMonthOffset((m) => Math.min(months2.length - 1, m + 1)), disabled: monthOffset >= months2.length - 1, "aria-label": "Next month", children: /* @__PURE__ */ (0, import_jsx_runtime16.jsx)(IconChevronRight, { size: 16 }) })
         ] })
       ] }),
       view === "grid" && month && /* @__PURE__ */ (0, import_jsx_runtime16.jsx)(
         HabitGrid,
         {
           arc: arc2,
-          habits: data2.habits,
-          rules: data2.rules,
+          habits: scopedHabits,
+          rules: scopedRules,
           records: data2.dailyRecords,
           dates: month.dates,
           now: today2,
@@ -19873,7 +20676,7 @@ function CalendarPage({ api: api2 }) {
         /* @__PURE__ */ (0, import_jsx_runtime16.jsxs)("div", { className: "day-grid", children: [
           Array.from({ length: padDays }).map((_, i) => /* @__PURE__ */ (0, import_jsx_runtime16.jsx)("span", { className: "day-cell pad", "aria-hidden": "true" }, `pad-${i}`)),
           month.dates.map((date) => {
-            const ev = evaluateDay(arc2, data2.habits, data2.rules, data2.dailyRecords, date, today2);
+            const ev = evaluateDay(arc2, scopedHabits, scopedRules, data2.dailyRecords, date, today2);
             const cls = ["day-cell", ev.state, ev.state === "today" && ev.isPerfect ? "complete" : ""].filter(Boolean).join(" ");
             return /* @__PURE__ */ (0, import_jsx_runtime16.jsx)(
               "button",
@@ -19918,18 +20721,19 @@ function CalendarPage({ api: api2 }) {
 }
 
 // src/pages/Stats.tsx
-var import_react12 = __toESM(require_react(), 1);
+var import_react13 = __toESM(require_react(), 1);
 var import_jsx_runtime17 = __toESM(require_jsx_runtime(), 1);
 function StatsPage({ api: api2 }) {
   const { data: data2 } = api2;
   const arc2 = data2.arc;
   const { stats: stats2, habitStats, ruleStats } = useAnalytics(data2);
-  const [range, setRange] = import_react12.default.useState(30);
-  const trend = (0, import_react12.useMemo)(
-    () => computeTrend(arc2, data2.habits, data2.rules, data2.dailyRecords, range),
-    [arc2, data2.habits, data2.rules, data2.dailyRecords, range]
+  const { habits: scopedHabits, rules: scopedRules } = trackScope(data2);
+  const [range, setRange] = import_react13.default.useState(30);
+  const trend = (0, import_react13.useMemo)(
+    () => computeTrend(arc2, scopedHabits, scopedRules, data2.dailyRecords, range),
+    [arc2, scopedHabits, scopedRules, data2.dailyRecords, range]
   );
-  const trendPoints = (0, import_react12.useMemo)(() => {
+  const trendPoints = (0, import_react13.useMemo)(() => {
     return trend.map((p, i) => {
       const win = trend.slice(Math.max(0, i - 6), i + 1).filter((q) => q.pct !== null);
       return {
@@ -19939,19 +20743,19 @@ function StatsPage({ api: api2 }) {
       };
     });
   }, [trend]);
-  const weekly = (0, import_react12.useMemo)(
-    () => computeWeeklyTrend(arc2, data2.habits, data2.rules, data2.dailyRecords, 13),
-    [arc2, data2.habits, data2.rules, data2.dailyRecords]
+  const weekly = (0, import_react13.useMemo)(
+    () => computeWeeklyTrend(arc2, scopedHabits, scopedRules, data2.dailyRecords, 13),
+    [arc2, scopedHabits, scopedRules, data2.dailyRecords]
   );
-  const trendSummary = (0, import_react12.useMemo)(() => {
+  const trendSummary = (0, import_react13.useMemo)(() => {
     const pts = trend.filter((p) => p.pct !== null);
     if (pts.length === 0) return "No tracked days in this range yet.";
     const avg = Math.round(pts.reduce((s, p) => s + (p.pct ?? 0), 0) / pts.length);
     const perfect = trend.filter((p) => p.pct === 100).length;
     const active = trend.filter((p) => p.pct !== null && p.pct > 0).length;
-    return `Last ${range} arc days: ${pts.length} day${pts.length === 1 ? "" : "s"} with items, ${active} with progress, ${perfect} perfect, ${avg}% average completion.`;
+    return `Last ${range} track days: ${pts.length} day${pts.length === 1 ? "" : "s"} with items, ${active} with progress, ${perfect} perfect, ${avg}% average completion.`;
   }, [trend, range]);
-  const ruleAgg = (0, import_react12.useMemo)(() => {
+  const ruleAgg = (0, import_react13.useMemo)(() => {
     const followed = ruleStats.reduce((s, r) => s + r.followedCount, 0);
     const eligible = ruleStats.reduce((s, r) => s + r.eligibleCount, 0);
     return { followed, eligible, pct: eligible === 0 ? null : Math.round(followed / eligible * 100) };
@@ -19990,7 +20794,10 @@ function StatsPage({ api: api2 }) {
     ] }),
     /* @__PURE__ */ (0, import_jsx_runtime17.jsxs)("section", { className: "card", style: { marginBottom: 20 }, children: [
       /* @__PURE__ */ (0, import_jsx_runtime17.jsxs)("div", { className: "card-title", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime17.jsx)("span", { children: "Completion trend" }),
+        /* @__PURE__ */ (0, import_jsx_runtime17.jsxs)("span", { className: "card-title-main", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime17.jsx)(IconChart, { size: 14 }),
+          " Completion trend"
+        ] }),
         /* @__PURE__ */ (0, import_jsx_runtime17.jsx)("div", { className: "segmented", style: { width: "auto" }, role: "group", "aria-label": "Trend range", children: [7, 30, 90].map((r) => /* @__PURE__ */ (0, import_jsx_runtime17.jsxs)("button", { type: "button", className: range === r ? "active" : "", onClick: () => setRange(r), children: [
           r,
           "d"
@@ -20006,12 +20813,15 @@ function StatsPage({ api: api2 }) {
         }
       ),
       trendPoints.some((p) => p.sub !== null) && /* @__PURE__ */ (0, import_jsx_runtime17.jsxs)("div", { className: "row small muted", style: { gap: 6, marginTop: 8 }, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime17.jsx)("span", { style: { width: 18, height: 0, borderTop: "2px dashed #c7d3fd", display: "inline-block" } }),
+        /* @__PURE__ */ (0, import_jsx_runtime17.jsx)("span", { style: { width: 18, height: 0, borderTop: "2px dashed var(--chart-avg)", display: "inline-block" } }),
         "7-day rolling average \xB7 solid line = daily completion"
       ] })
     ] }),
     /* @__PURE__ */ (0, import_jsx_runtime17.jsxs)("section", { className: "card", style: { marginBottom: 20 }, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime17.jsx)("div", { className: "card-title", children: /* @__PURE__ */ (0, import_jsx_runtime17.jsx)("span", { children: "Weekly averages \u2014 full arc" }) }),
+      /* @__PURE__ */ (0, import_jsx_runtime17.jsx)("div", { className: "card-title", children: /* @__PURE__ */ (0, import_jsx_runtime17.jsxs)("span", { className: "card-title-main", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime17.jsx)(IconChart, { size: 14 }),
+        " Weekly averages \u2014 full arc"
+      ] }) }),
       weekly.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime17.jsx)("p", { className: "secondary small", children: "No data yet \u2014 your weekly averages appear after your first tracked day." }) : /* @__PURE__ */ (0, import_jsx_runtime17.jsxs)(import_jsx_runtime17.Fragment, { children: [
         /* @__PURE__ */ (0, import_jsx_runtime17.jsx)(
           BarChart,
@@ -20074,12 +20884,12 @@ function StatsPage({ api: api2 }) {
         })
       ] })
     ] }),
-    /* @__PURE__ */ (0, import_jsx_runtime17.jsxs)("section", { className: "card", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime17.jsx)("div", { className: "card-title", children: /* @__PURE__ */ (0, import_jsx_runtime17.jsxs)("span", { className: "row", style: { gap: 6 }, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime17.jsx)(IconShield, { size: 13 }),
-        " Rule control \u2014 what you controlled"
+    /* @__PURE__ */ (0, import_jsx_runtime17.jsxs)("section", { className: "card card-rules", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime17.jsx)("div", { className: "card-title", children: /* @__PURE__ */ (0, import_jsx_runtime17.jsxs)("span", { className: "card-title-main rule", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime17.jsx)(IconShield, { size: 14 }),
+        " Rule control - what you controlled"
       ] }) }),
-      ruleStats.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime17.jsx)("p", { className: "secondary small", children: "No rules yet \u2014 add them in My Winter Arc to track your self-control." }) : /* @__PURE__ */ (0, import_jsx_runtime17.jsxs)(import_jsx_runtime17.Fragment, { children: [
+      ruleStats.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime17.jsx)("p", { className: "secondary small", children: "No rules yet \u2014 add them in My Tracks to track your self-control." }) : /* @__PURE__ */ (0, import_jsx_runtime17.jsxs)(import_jsx_runtime17.Fragment, { children: [
         /* @__PURE__ */ (0, import_jsx_runtime17.jsxs)("div", { className: "habit-stat-row", style: { borderBottom: "1px solid var(--border)" }, children: [
           /* @__PURE__ */ (0, import_jsx_runtime17.jsx)("span", { className: "small muted", children: "Rule" }),
           /* @__PURE__ */ (0, import_jsx_runtime17.jsx)("span", { className: "small muted", children: "Rate" }),
@@ -20121,56 +20931,607 @@ function StatsPage({ api: api2 }) {
   ] });
 }
 
-// src/pages/MyArc.tsx
-var import_react13 = __toESM(require_react(), 1);
+// src/pages/MyTracks.tsx
+var import_react15 = __toESM(require_react(), 1);
+
+// src/components/tracks/TrackForm.tsx
+var import_react14 = __toESM(require_react(), 1);
 var import_jsx_runtime18 = __toESM(require_jsx_runtime(), 1);
-function MyArcPage({ api: api2 }) {
-  const { data: data2 } = api2;
-  const arc2 = data2.arc;
-  const [goal, setGoal] = (0, import_react13.useState)(arc2.goal);
-  const [why, setWhy] = (0, import_react13.useState)(arc2.why);
-  const [newRuleText, setNewRuleText] = (0, import_react13.useState)("");
-  const [startDate, setStartDate] = (0, import_react13.useState)(arc2.startDate);
-  const [duration, setDuration] = (0, import_react13.useState)(arc2.durationDays);
-  const [pendingDates, setPendingDates] = (0, import_react13.useState)(null);
-  const [confirmDeleteRule, setConfirmDeleteRule] = (0, import_react13.useState)(null);
-  const today2 = todayISO();
-  const lastArcDay = addDays(arc2.startDate, arc2.durationDays - 1);
-  const hasProgress = Object.keys(data2.dailyRecords).length > 0;
-  const arcComplete = isArcComplete(arc2, today2);
-  const identityDirty = goal !== arc2.goal || why !== arc2.why;
-  const datesDirty = startDate !== arc2.startDate || duration !== arc2.durationDays;
-  const saveIdentity = () => {
-    api2.updateArc({
-      goal: goal.trim(),
-      why: why.trim()
-    });
-  };
-  const requestDateChange = () => {
-    const newEnd = addDays(startDate, duration - 1);
-    if (!isValidISO(startDate)) return;
-    const changesHistory = hasProgress && (startDate !== arc2.startDate || duration < arc2.durationDays);
-    if (changesHistory) {
-      setPendingDates({ startDate, durationDays: duration });
-    } else {
-      api2.updateArc({ startDate, durationDays: duration, endDate: newEnd });
+var DURATIONS = [30, 60, 90, 180, 365];
+var EMOJI = ["\u2744\uFE0F", "\u{1F525}", "\u{1F4AA}", "\u{1F4DA}", "\u{1F9E0}", "\u{1F3C3}", "\u{1F331}", "\u{1F3AF}", "\u26A1", "\u{1F4C8}"];
+function TrackForm({
+  initial,
+  habits,
+  rules,
+  includedHabitIds,
+  includedRuleIds,
+  allowNewRules = true,
+  onSave,
+  onCancel
+}) {
+  const [title, setTitle] = (0, import_react14.useState)(initial?.title ?? "");
+  const [description, setDescription] = (0, import_react14.useState)(initial?.description ?? "");
+  const [icon, setIcon] = (0, import_react14.useState)(initial?.icon ?? "");
+  const [goal, setGoal] = (0, import_react14.useState)(initial?.goal ?? "");
+  const [why, setWhy] = (0, import_react14.useState)(initial?.why ?? "");
+  const [startDate, setStartDate] = (0, import_react14.useState)(initial?.startDate ?? todayISO());
+  const [duration, setDuration] = (0, import_react14.useState)(initial?.durationDays ?? 90);
+  const [customDuration, setCustomDuration] = (0, import_react14.useState)(
+    initial && !DURATIONS.includes(initial.durationDays) ? String(initial.durationDays) : ""
+  );
+  const [habitIds, setHabitIds] = (0, import_react14.useState)(
+    () => includedHabitIds ?? new Set(habits.filter((h) => h.active).map((h) => h.id))
+  );
+  const [ruleIds, setRuleIds] = (0, import_react14.useState)(
+    () => includedRuleIds ?? new Set(rules.filter((r) => r.active).map((r) => r.id))
+  );
+  const [newRules, setNewRules] = (0, import_react14.useState)([]);
+  const [newRuleText, setNewRuleText] = (0, import_react14.useState)("");
+  (0, import_react14.useEffect)(() => {
+    if (!initial) return;
+    setTitle(initial.title);
+    setDescription(initial.description);
+    setIcon(initial.icon);
+    setGoal(initial.goal);
+    setWhy(initial.why);
+    setStartDate(initial.startDate);
+    setDuration(initial.durationDays);
+    setCustomDuration(DURATIONS.includes(initial.durationDays) ? "" : String(initial.durationDays));
+  }, [initial]);
+  const isCustom = customDuration.trim().length > 0;
+  const effectiveDuration = (0, import_react14.useMemo)(() => {
+    if (isCustom) {
+      const n = Math.floor(Number(customDuration));
+      return Number.isFinite(n) && n >= 1 ? n : 0;
     }
+    return duration;
+  }, [isCustom, customDuration, duration]);
+  const endDate = startDate && effectiveDuration > 0 ? addDays(startDate, effectiveDuration - 1) : "";
+  const titleOk = title.trim().length > 0;
+  const dateOk = isValidISO(startDate);
+  const durationOk = effectiveDuration >= 1 && effectiveDuration <= 3650;
+  const canSave = titleOk && dateOk && durationOk;
+  const toggle = (set, id) => {
+    const next = new Set(set);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    return next;
   };
-  const applyDateChange = () => {
-    if (!pendingDates) return;
-    api2.updateArc({
-      startDate: pendingDates.startDate,
-      durationDays: pendingDates.durationDays,
-      endDate: addDays(pendingDates.startDate, pendingDates.durationDays - 1)
+  const addNewRule = () => {
+    const text = newRuleText.trim();
+    if (!text) return;
+    setNewRules((prev) => [...prev, text]);
+    setNewRuleText("");
+  };
+  const submit = () => {
+    if (!canSave) return;
+    onSave({
+      draft: {
+        title: title.trim(),
+        description: description.trim(),
+        icon: icon.trim(),
+        startDate,
+        durationDays: effectiveDuration,
+        goal: goal.trim(),
+        why: why.trim()
+      },
+      habitIds: Array.from(habitIds),
+      ruleIds: Array.from(ruleIds),
+      newRuleTexts: newRules
     });
-    setPendingDates(null);
   };
-  const daysElapsed = Math.max(0, Math.min(
-    Math.round((new Date(today2).getTime() - new Date(arc2.startDate).getTime()) / 864e5) + 1,
-    arc2.durationDays
-  ));
-  const activeRules = data2.rules.filter((r) => r.active).sort((a, b) => a.order - b.order);
-  const archivedRules = data2.rules.filter((r) => !r.active).sort((a, b) => a.order - b.order);
+  return /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)(
+    Modal,
+    {
+      title: initial ? "Edit track" : "Create track",
+      onClose: onCancel,
+      wide: true,
+      footer: /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)(import_jsx_runtime18.Fragment, { children: [
+        /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("button", { type: "button", className: "btn", onClick: onCancel, children: "Cancel" }),
+        /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("button", { type: "button", className: "btn btn-primary", disabled: !canSave, onClick: submit, children: initial ? "Save track" : "Create track" })
+      ] }),
+      children: [
+        /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("div", { className: "field", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("label", { htmlFor: "tf-title", children: "Track name *" }),
+          /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(
+            "input",
+            {
+              id: "tf-title",
+              className: "input",
+              placeholder: "e.g. Winter Arc, Fitness Journey, DSA Mastery",
+              value: title,
+              maxLength: 60,
+              onChange: (e) => setTitle(e.target.value),
+              autoFocus: true
+            }
+          )
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("div", { className: "field", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("label", { htmlFor: "tf-desc", children: "Description / purpose" }),
+          /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(
+            "textarea",
+            {
+              id: "tf-desc",
+              className: "textarea",
+              placeholder: "What is this track about? (optional)",
+              value: description,
+              maxLength: 240,
+              onChange: (e) => setDescription(e.target.value)
+            }
+          )
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("div", { className: "field", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("label", { htmlFor: "tf-icon", children: "Icon / emoji (optional)" }),
+          /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("div", { className: "row", style: { gap: 6, flexWrap: "wrap", marginBottom: 8 }, children: EMOJI.map((e) => /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(
+            "button",
+            {
+              type: "button",
+              className: `btn btn-icon${icon === e ? " btn-primary" : ""}`,
+              onClick: () => setIcon(icon === e ? "" : e),
+              "aria-pressed": icon === e,
+              "aria-label": `Track emoji ${e}`,
+              children: /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("span", { style: { fontSize: 16 }, children: e })
+            },
+            e
+          )) }),
+          /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(
+            "input",
+            {
+              id: "tf-icon",
+              className: "input",
+              placeholder: "Or type any emoji",
+              value: icon,
+              maxLength: 4,
+              onChange: (e) => setIcon(e.target.value)
+            }
+          )
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("div", { className: "grid-2", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("div", { className: "field", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("label", { htmlFor: "tf-start", children: "Start date *" }),
+            /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(
+              "input",
+              {
+                id: "tf-start",
+                type: "date",
+                className: "input",
+                value: startDate,
+                onChange: (e) => isValidISO(e.target.value) && setStartDate(e.target.value)
+              }
+            )
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("div", { className: "field", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("label", { htmlFor: "tf-custom", children: "Custom duration (days)" }),
+            /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(
+              "input",
+              {
+                id: "tf-custom",
+                type: "number",
+                className: "input",
+                min: 1,
+                max: 3650,
+                placeholder: "e.g. 45",
+                value: customDuration,
+                onChange: (e) => setCustomDuration(e.target.value)
+              }
+            )
+          ] })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("div", { className: "field", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("label", { children: "Duration" }),
+          /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("div", { className: "segmented", role: "group", "aria-label": "Track duration", children: DURATIONS.map((d) => /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)(
+            "button",
+            {
+              type: "button",
+              className: !isCustom && duration === d ? "active" : "",
+              onClick: () => {
+                setDuration(d);
+                setCustomDuration("");
+              },
+              children: [
+                d,
+                "d"
+              ]
+            },
+            d
+          )) })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("p", { className: "small muted", children: endDate ? /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)(import_jsx_runtime18.Fragment, { children: [
+          "Runs ",
+          /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("strong", { style: { color: "var(--text)" }, children: formatLong(startDate) }),
+          " \u2192",
+          " ",
+          /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("strong", { style: { color: "var(--text)" }, children: formatLong(endDate) }),
+          " \xB7 ",
+          effectiveDuration,
+          " days."
+        ] }) : "Choose a start date and a valid duration." }),
+        /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("div", { className: "field", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("label", { htmlFor: "tf-goal", children: "Goal" }),
+          /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(
+            "input",
+            {
+              id: "tf-goal",
+              className: "input",
+              placeholder: "What does finishing this track look like? (optional)",
+              value: goal,
+              maxLength: 140,
+              onChange: (e) => setGoal(e.target.value)
+            }
+          )
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("div", { className: "field", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("label", { htmlFor: "tf-why", children: "Why" }),
+          /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(
+            "textarea",
+            {
+              id: "tf-why",
+              className: "textarea",
+              placeholder: "Why does it matter? (optional)",
+              value: why,
+              onChange: (e) => setWhy(e.target.value)
+            }
+          )
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("div", { className: "field", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("label", { className: "row", style: { gap: 6 }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(IconDumbbell, { size: 14 }),
+            " Habits in this track"
+          ] }),
+          habits.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("p", { className: "small muted", children: "No habits yet \u2014 add some from the Habits page." }) : /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("div", { className: "track-picks", children: habits.map((h) => {
+            const Icon = IconFor(h.icon);
+            const on = habitIds.has(h.id);
+            return /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("label", { className: `track-pick${on ? " on" : ""}`, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(
+                "input",
+                {
+                  type: "checkbox",
+                  checked: on,
+                  onChange: () => setHabitIds((s) => toggle(s, h.id))
+                }
+              ),
+              /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("span", { className: "track-pick-icon", children: /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Icon, { size: 13 }) }),
+              /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("span", { className: "truncate", children: [
+                h.name,
+                !h.active ? " (archived)" : ""
+              ] })
+            ] }, h.id);
+          }) })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("div", { className: "field", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("label", { className: "row", style: { gap: 6 }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(IconShield, { size: 14 }),
+            " Rules in this track"
+          ] }),
+          rules.length === 0 && newRules.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("p", { className: "small muted", children: "No rules yet \u2014 add one below." }) : /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("div", { className: "track-picks", children: [
+            rules.map((r) => {
+              const on = ruleIds.has(r.id);
+              return /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("label", { className: `track-pick${on ? " on" : ""}`, children: [
+                /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(
+                  "input",
+                  {
+                    type: "checkbox",
+                    checked: on,
+                    onChange: () => setRuleIds((s) => toggle(s, r.id))
+                  }
+                ),
+                /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("span", { className: "truncate", children: [
+                  r.text,
+                  !r.active ? " (archived)" : ""
+                ] })
+              ] }, r.id);
+            }),
+            newRules.map((text, i) => /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("span", { className: "track-pick on", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("span", { className: "truncate", children: text }),
+              /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(
+                "button",
+                {
+                  type: "button",
+                  className: "btn btn-ghost btn-icon",
+                  onClick: () => setNewRules((prev) => prev.filter((_, idx) => idx !== i)),
+                  "aria-label": `Remove new rule ${text}`,
+                  children: /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(IconTrash, { size: 13 })
+                }
+              )
+            ] }, `${text}-${i}`))
+          ] }),
+          allowNewRules && /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("div", { className: "row", style: { marginTop: 10 }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(
+              "input",
+              {
+                className: "input",
+                style: { minHeight: 40 },
+                placeholder: "e.g. No screens after 10 PM",
+                value: newRuleText,
+                maxLength: 120,
+                onChange: (e) => setNewRuleText(e.target.value),
+                onKeyDown: (e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    addNewRule();
+                  }
+                },
+                "aria-label": "New rule for this track"
+              }
+            ),
+            /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("button", { type: "button", className: "btn", onClick: addNewRule, disabled: !newRuleText.trim(), children: [
+              /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(IconPlus, { size: 14 }),
+              " Add"
+            ] })
+          ] })
+        ] })
+      ]
+    }
+  );
+}
+
+// src/pages/MyTracks.tsx
+var import_jsx_runtime19 = __toESM(require_jsx_runtime(), 1);
+function scoped(items, trackId) {
+  return items.filter((i) => belongsToTrack(i.trackIds, trackId));
+}
+function summarize(track, data2, today2) {
+  const habits = scoped(data2.habits, track.id);
+  const rules = scoped(data2.rules, track.id);
+  const stats2 = computeOverallStats(track, habits, rules, data2.dailyRecords, today2);
+  const lastDay = addDays(track.startDate, track.durationDays - 1);
+  const notStarted = today2 < track.startDate;
+  const complete = isArcComplete(track, today2);
+  const dayNumber2 = stats2.dayNumber;
+  const daysLeft = notStarted ? Math.round((new Date(track.startDate).getTime() - new Date(today2).getTime()) / 864e5) : Math.max(0, track.durationDays - dayNumber2);
+  const todayHabits = habits.filter((h) => h.active || h.createdAt.slice(0, 10) <= today2);
+  const habitEligible = todayHabits.length;
+  const habitDone = todayHabits.filter(
+    (h) => data2.dailyRecords[today2]?.habits[h.id]?.completed === true
+  ).length;
+  let followed = 0;
+  let ruleEligible = 0;
+  for (const r of rules) {
+    if (!r.active) continue;
+    ruleEligible += 1;
+    if (data2.dailyRecords[today2]?.rules?.[r.id]?.status === "followed") followed += 1;
+  }
+  return {
+    dayNumber: dayNumber2,
+    totalPct: stats2.totalPct,
+    daysLeft,
+    notStarted,
+    complete,
+    currentStreak: stats2.streaks.current,
+    bestStreak: stats2.streaks.best,
+    perfectDays: stats2.perfectDays,
+    habitDone,
+    habitEligible,
+    rulePct: ruleEligible === 0 ? null : Math.round(followed / ruleEligible * 100)
+  };
+}
+function MyTracksPage({ api: api2 }) {
+  const { data: data2 } = api2;
+  const today2 = todayISO();
+  const [formOpen, setFormOpen] = (0, import_react15.useState)(false);
+  const [editing, setEditing] = (0, import_react15.useState)(null);
+  const [confirmDelete, setConfirmDelete] = (0, import_react15.useState)(null);
+  const activeTracks = data2.tracks.filter((t) => t.status === "active");
+  const otherTracks = data2.tracks.filter((t) => t.status !== "active");
+  const activeTrack = data2.arc;
+  const openCreate = () => {
+    setEditing(null);
+    setFormOpen(true);
+  };
+  const openEdit = (t) => {
+    setEditing(t);
+    setFormOpen(true);
+  };
+  const saveForm = (payload) => {
+    if (editing) {
+      api2.updateTrack(editing.id, {
+        title: payload.draft.title,
+        description: payload.draft.description ?? "",
+        icon: payload.draft.icon ?? "",
+        startDate: payload.draft.startDate,
+        durationDays: payload.draft.durationDays,
+        goal: payload.draft.goal ?? "",
+        why: payload.draft.why ?? ""
+      });
+      api2.setTrackMembership(editing.id, payload.habitIds, payload.ruleIds);
+    } else {
+      api2.createTrack(payload.draft, payload.habitIds, payload.ruleIds);
+      payload.newRuleTexts.forEach((text) => api2.addRule(text));
+    }
+    setFormOpen(false);
+    setEditing(null);
+  };
+  const includedHabitIds = (0, import_react15.useMemo)(
+    () => editing ? new Set(scoped(data2.habits, editing.id).map((h) => h.id)) : void 0,
+    [editing, data2.habits]
+  );
+  const includedRuleIds = (0, import_react15.useMemo)(
+    () => editing ? new Set(scoped(data2.rules, editing.id).map((r) => r.id)) : void 0,
+    [editing, data2.rules]
+  );
+  return /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)("div", { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(
+      PageHeader,
+      {
+        title: "My Tracks",
+        sub: "Your personal challenges. The Life System never ends \u2014 tracks run inside it.",
+        actions: /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)("button", { type: "button", className: "btn btn-primary", onClick: openCreate, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(IconPlus, { size: 15 }),
+          " Create Track"
+        ] })
+      }
+    ),
+    data2.tracks.length === 0 && /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)("div", { className: "card empty-state", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("div", { className: "big", children: "No tracks yet" }),
+      /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("p", { children: "Create your first track \u2014 Winter Arc, a fitness journey, a coding challenge, or anything you want." }),
+      /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)("button", { type: "button", className: "btn btn-primary", onClick: openCreate, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(IconPlus, { size: 15 }),
+        " Create Track"
+      ] })
+    ] }),
+    activeTracks.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)("section", { style: { marginBottom: 26 }, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("div", { className: "card-title", children: "Active tracks" }),
+      /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("div", { className: "tracks-grid", children: activeTracks.map((t) => /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(
+        TrackCard,
+        {
+          track: t,
+          summary: summarize(t, data2, today2),
+          isActive: data2.activeTrackId === t.id,
+          onActivate: () => api2.setActiveTrack(t.id),
+          onEdit: () => openEdit(t),
+          onComplete: () => api2.setTrackStatus(t.id, "completed"),
+          onDelete: () => setConfirmDelete(t)
+        },
+        t.id
+      )) })
+    ] }),
+    otherTracks.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)("section", { style: { marginBottom: 26 }, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("div", { className: "card-title", children: "Completed & archived" }),
+      /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("div", { className: "tracks-grid", children: otherTracks.map((t) => /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(
+        TrackCard,
+        {
+          track: t,
+          summary: summarize(t, data2, today2),
+          isActive: data2.activeTrackId === t.id,
+          onActivate: () => api2.setActiveTrack(t.id),
+          onEdit: () => openEdit(t),
+          onReopen: () => api2.setTrackStatus(t.id, "active"),
+          onDelete: () => setConfirmDelete(t)
+        },
+        t.id
+      )) })
+    ] }),
+    activeTrack && /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(ActiveTrackEditor, { api: api2, track: activeTrack, onEdit: () => openEdit(activeTrack) }, activeTrack.id),
+    formOpen && /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(
+      TrackForm,
+      {
+        initial: editing,
+        habits: data2.habits,
+        rules: data2.rules,
+        includedHabitIds,
+        includedRuleIds,
+        allowNewRules: !editing,
+        onSave: saveForm,
+        onCancel: () => {
+          setFormOpen(false);
+          setEditing(null);
+        }
+      }
+    ),
+    confirmDelete && /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(
+      ConfirmModal,
+      {
+        title: "Delete this track?",
+        danger: true,
+        requireText: "DELETE",
+        message: /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)(import_jsx_runtime19.Fragment, { children: [
+          "This removes the track ",
+          /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("strong", { children: confirmDelete.title }),
+          " and its membership tag from habits and rules. Your daily records, habits and reflections are ",
+          /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("strong", { children: "not" }),
+          " deleted."
+        ] }),
+        confirmLabel: "Delete track",
+        onConfirm: () => api2.deleteTrack(confirmDelete.id),
+        onClose: () => setConfirmDelete(null)
+      }
+    )
+  ] });
+}
+function TrackCard({
+  track,
+  summary,
+  isActive,
+  onActivate,
+  onEdit,
+  onComplete,
+  onReopen,
+  onDelete
+}) {
+  const progressPct = summary.notStarted ? 0 : Math.min(100, Math.round(summary.dayNumber / track.durationDays * 100));
+  const statusLabel = summary.complete ? "Complete" : track.status === "archived" ? "Archived" : track.status === "completed" ? "Completed" : isActive ? "Active" : "Paused";
+  return /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)("div", { className: `track-card${isActive ? " is-active" : ""}`, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)("div", { className: "track-card-top", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("span", { className: "track-icon", "aria-hidden": "true", children: track.icon || /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(IconTarget, { size: 16 }) }),
+      /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)("div", { className: "track-card-head", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("div", { className: "track-title truncate", title: track.title, children: track.title }),
+        /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)("div", { className: "track-meta", children: [
+          summary.notStarted ? `Starts in ${summary.daysLeft} day${summary.daysLeft === 1 ? "" : "s"}` : `Day ${summary.dayNumber} / ${track.durationDays}`,
+          " \xB7 ",
+          progressPct,
+          "% complete"
+        ] })
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("span", { className: `track-badge${isActive ? " on" : ""}`, children: statusLabel })
+    ] }),
+    track.description && /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("p", { className: "small secondary track-desc", children: track.description }),
+    /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)("div", { className: "track-stat-row", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)("span", { className: "track-stat", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(IconFlame, { size: 13 }),
+        " ",
+        /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("strong", { children: summary.currentStreak }),
+        " streak"
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)("span", { className: "track-stat", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(IconTrophy, { size: 13 }),
+        " ",
+        /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("strong", { children: summary.bestStreak }),
+        " best"
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)("span", { className: "track-stat", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(IconSpark, { size: 13 }),
+        " ",
+        /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("strong", { children: summary.perfectDays }),
+        " perfect"
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)("span", { className: "track-stat", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(IconCheckCircle, { size: 13 }),
+        " ",
+        /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)("strong", { children: [
+          summary.habitDone,
+          "/",
+          summary.habitEligible
+        ] }),
+        " habits today"
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)("span", { className: "track-stat", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(IconShield, { size: 13 }),
+        " ",
+        /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("strong", { children: summary.rulePct === null ? "\u2014" : `${summary.rulePct}%` }),
+        " rule control"
+      ] })
+    ] }),
+    /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("div", { className: "track-bar", role: "progressbar", "aria-valuenow": progressPct, "aria-valuemin": 0, "aria-valuemax": 100, "aria-label": `${track.title} progress`, children: /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("div", { className: "track-bar-fill", style: { width: `${progressPct}%` } }) }),
+    /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)("div", { className: "track-card-actions", children: [
+      !isActive && /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("button", { type: "button", className: "btn btn-sm", onClick: onActivate, children: "Activate" }),
+      /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)("button", { type: "button", className: "btn btn-ghost btn-sm", onClick: onEdit, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(IconEdit, { size: 13 }),
+        " Edit"
+      ] }),
+      onComplete && /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)("button", { type: "button", className: "btn btn-ghost btn-sm", onClick: onComplete, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(IconCheck, { size: 13 }),
+        " Complete"
+      ] }),
+      onReopen && /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)("button", { type: "button", className: "btn btn-ghost btn-sm", onClick: onReopen, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(IconRestore, { size: 13 }),
+        " Reopen"
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("button", { type: "button", className: "btn btn-ghost btn-icon", onClick: onDelete, "aria-label": `Delete ${track.title}`, children: /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(IconTrash, { size: 14 }) })
+    ] })
+  ] });
+}
+function ActiveTrackEditor({ api: api2, track, onEdit }) {
+  const { data: data2 } = api2;
+  const [goal, setGoal] = (0, import_react15.useState)(track.goal);
+  const [why, setWhy] = (0, import_react15.useState)(track.why);
+  const [newRuleText, setNewRuleText] = (0, import_react15.useState)("");
+  const [confirmDeleteRule, setConfirmDeleteRule] = (0, import_react15.useState)(null);
+  const identityDirty = goal !== track.goal || why !== track.why;
+  const lastDay = addDays(track.startDate, track.durationDays - 1);
+  const complete = isArcComplete(track, todayISO());
+  const rules = scoped(data2.rules, track.id);
+  const activeRules = rules.filter((r) => r.active).sort((a, b) => a.order - b.order);
+  const archivedRules = rules.filter((r) => !r.active).sort((a, b) => a.order - b.order);
   const addRule = () => {
     const text = newRuleText.trim();
     if (!text) return;
@@ -20185,256 +21546,557 @@ function MyArcPage({ api: api2 }) {
     [ids[i], ids[j]] = [ids[j], ids[i]];
     api2.reorderRules(ids);
   };
-  return /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("div", { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(
-      PageHeader,
-      {
-        title: "My Winter Arc",
-        sub: "Your identity and settings for this Arc. Edits never delete daily history."
-      }
-    ),
-    /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("div", { className: "grid-2", style: { alignItems: "start" }, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("div", { className: "stack", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("div", { className: "card", style: { display: "grid", placeItems: "center", padding: 24 }, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(
-            ProgressRing,
-            {
-              pct: Math.round(daysElapsed / arc2.durationDays * 100),
-              size: 120,
-              stroke: 10,
-              label: "Arc elapsed"
-            }
-          ),
-          /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("div", { className: "row", style: { marginTop: 12, gap: 14 }, children: [
-            /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("span", { className: "stat-value", style: { fontSize: 22 }, children: [
-              "Day ",
-              Math.max(1, daysElapsed)
-            ] }),
-            /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("span", { className: "muted", children: [
-              "/ ",
-              arc2.durationDays
-            ] })
+  return /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)("div", { className: "grid-2", style: { alignItems: "start" }, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)("div", { className: "stack", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)("div", { className: "card", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)("div", { className: "card-title", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)("span", { children: [
+            "Editing: ",
+            track.title
           ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("p", { className: "small muted", style: { marginTop: 6, textAlign: "center" }, children: [
-            formatLong(arc2.startDate),
-            " \u2192 ",
-            formatLong(lastArcDay)
+          /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("button", { type: "button", className: "btn btn-ghost btn-sm", onClick: onEdit, children: "Edit details" })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)("div", { className: "kv-row", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("span", { className: "kv-key", children: "Status" }),
+          /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("span", { className: "kv-val", children: complete ? "Time is up" : track.status })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)("div", { className: "kv-row", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("span", { className: "kv-key", children: "Dates" }),
+          /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("span", { className: "kv-val", children: formatDateRange(track.startDate, lastDay) })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)("div", { className: "kv-row", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("span", { className: "kv-key", children: "Duration" }),
+          /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)("span", { className: "kv-val", children: [
+            track.durationDays,
+            " days"
           ] })
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("div", { className: "card", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("div", { className: "card-title", children: "Status" }),
-          /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("div", { className: "kv-row", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("span", { className: "kv-key", children: "Title" }),
-            /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("span", { className: "kv-val", children: arc2.title })
-          ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("div", { className: "kv-row", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("span", { className: "kv-key", children: "Status" }),
-            /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("span", { className: "kv-val success-text", children: arcComplete ? "completed" : arc2.status })
-          ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("div", { className: "kv-row", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("span", { className: "kv-key", children: "Dates" }),
-            /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("span", { className: "kv-val", children: formatDateRange(arc2.startDate, lastArcDay) })
-          ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("div", { className: "kv-row", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("span", { className: "kv-key", children: "Duration" }),
-            /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("span", { className: "kv-val", children: [
-              arc2.durationDays,
-              " days"
-            ] })
-          ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("div", { className: "kv-row", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("span", { className: "kv-key", children: "Habits" }),
-            /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("span", { className: "kv-val", children: [
-              data2.habits.filter((h) => h.active).length,
-              " active \xB7 ",
-              data2.habits.filter((h) => !h.active).length,
-              " archived"
-            ] })
-          ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("div", { className: "kv-row", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("span", { className: "kv-key", children: "Rules" }),
-            /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("span", { className: "kv-val", children: [
-              activeRules.length,
-              " active \xB7 ",
-              archivedRules.length,
-              " archived"
-            ] })
-          ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("div", { className: "kv-row", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("span", { className: "kv-key", children: "Recorded days" }),
-            /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("span", { className: "kv-val", children: Object.keys(data2.dailyRecords).length })
+        /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)("div", { className: "kv-row", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("span", { className: "kv-key", children: "Habits" }),
+          /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)("span", { className: "kv-val", children: [
+            scoped(data2.habits, track.id).filter((h) => h.active).length,
+            " active"
+          ] })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)("div", { className: "kv-row", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("span", { className: "kv-key", children: "Rules" }),
+          /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)("span", { className: "kv-val", children: [
+            activeRules.length,
+            " active \xB7 ",
+            archivedRules.length,
+            " archived"
           ] })
         ] })
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("div", { className: "stack", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("div", { className: "card", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("div", { className: "card-title", children: "Goal & Why" }),
-          /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("div", { className: "field", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("label", { htmlFor: "ma-goal", children: "Goal" }),
-            /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("input", { id: "ma-goal", className: "input", value: goal, maxLength: 140, onChange: (e) => setGoal(e.target.value) })
-          ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("div", { className: "field", style: { marginBottom: 0 }, children: [
-            /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("label", { htmlFor: "ma-why", children: "Why" }),
-            /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("textarea", { id: "ma-why", className: "textarea", value: why, onChange: (e) => setWhy(e.target.value), placeholder: "Why does this Arc matter to you?" })
-          ] })
+      /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)("div", { className: "card", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("div", { className: "card-title", children: "Goal & Why" }),
+        /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)("div", { className: "field", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("label", { htmlFor: "tr-goal", children: "Goal" }),
+          /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("input", { id: "tr-goal", className: "input", value: goal, maxLength: 140, onChange: (e) => setGoal(e.target.value) })
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("div", { className: "card", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("div", { className: "card-title", children: /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("span", { className: "row", style: { gap: 6 }, children: [
-            /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(IconShield, { size: 13 }),
-            " Rules \u2014 daily trackable"
-          ] }) }),
-          /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("p", { className: "small muted", style: { marginBottom: 14 }, children: [
-            "Rules are things you want to ",
-            /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("strong", { children: "follow, avoid or control" }),
-            " \u2014 they appear in every day's checklist next to your habits and count toward your day's completion. Existing rules are already trackable from Arc Day 1."
-          ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("div", { className: "rules-editor", children: [
-            activeRules.length === 0 && /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("p", { className: "small muted", children: "No active rules yet \u2014 add your first below." }),
-            activeRules.map((rule, idx) => /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("div", { className: "rule-row", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("span", { className: "mg-icon mg-rule-icon", title: "Rule", children: "R" }),
-              /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(
-                "input",
-                {
-                  className: "input",
-                  style: { minHeight: 40 },
-                  value: rule.text,
-                  maxLength: 120,
-                  onChange: (e) => api2.updateRule(rule.id, { text: e.target.value }),
-                  "aria-label": `Rule ${idx + 1}`
-                }
-              ),
-              /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("button", { type: "button", className: "btn btn-ghost btn-icon", disabled: idx === 0, onClick: () => moveRule(rule.id, -1), "aria-label": `Move rule ${idx + 1} up`, children: /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(IconUp, { size: 14 }) }),
-              /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("button", { type: "button", className: "btn btn-ghost btn-icon", disabled: idx === activeRules.length - 1, onClick: () => moveRule(rule.id, 1), "aria-label": `Move rule ${idx + 1} down`, children: /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(IconDown, { size: 14 }) }),
-              /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("button", { type: "button", className: "btn btn-ghost btn-icon", onClick: () => api2.archiveRule(rule.id), "aria-label": `Archive rule ${idx + 1}`, title: "Archive \u2014 past records stay intact", children: /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(IconTrash, { size: 15 }) })
-            ] }, rule.id))
-          ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("div", { className: "row", style: { marginTop: 12 }, children: [
-            /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(
-              "input",
-              {
-                className: "input",
-                style: { minHeight: 40 },
-                placeholder: "e.g. No Instagram after 10 PM",
-                value: newRuleText,
-                maxLength: 120,
-                onChange: (e) => setNewRuleText(e.target.value),
-                onKeyDown: (e) => {
-                  if (e.key === "Enter") addRule();
-                },
-                "aria-label": "New rule text"
-              }
-            ),
-            /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("button", { type: "button", className: "btn btn-primary", onClick: addRule, disabled: !newRuleText.trim(), children: [
-              /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(IconPlus, { size: 14 }),
-              " Add rule"
-            ] })
-          ] }),
-          activeRules.length >= 10 && /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("p", { className: "small muted", style: { marginTop: 8 }, children: "Ten rules is plenty \u2014 consider archiving one first." }),
-          archivedRules.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("div", { style: { marginTop: 18 }, children: [
-            /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("div", { className: "section-label", children: /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("span", { children: "Archived rules \u2014 history preserved" }) }),
-            archivedRules.map((rule) => /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("div", { className: "rule-row", style: { opacity: 0.65 }, children: [
-              /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(
-                "input",
-                {
-                  className: "input",
-                  style: { minHeight: 36 },
-                  value: rule.text,
-                  maxLength: 120,
-                  disabled: true,
-                  "aria-label": `Archived rule ${rule.text}`
-                }
-              ),
-              /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("button", { type: "button", className: "btn btn-ghost btn-icon", onClick: () => api2.restoreRule(rule.id), "aria-label": `Restore rule`, title: "Restore to daily tracking", children: /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(IconRestore, { size: 14 }) }),
-              /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("button", { type: "button", className: "btn btn-ghost btn-icon", onClick: () => setConfirmDeleteRule(rule.id), "aria-label": `Delete rule permanently`, children: /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(IconTrash, { size: 14 }) })
-            ] }, rule.id))
-          ] })
+        /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)("div", { className: "field", style: { marginBottom: 0 }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("label", { htmlFor: "tr-why", children: "Why" }),
+          /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("textarea", { id: "tr-why", className: "textarea", value: why, onChange: (e) => setWhy(e.target.value), placeholder: "Why does this track matter to you?" })
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("div", { className: "card", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("div", { className: "card-title", children: "Dates" }),
-          /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("div", { className: "grid-2", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("div", { className: "field", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("label", { htmlFor: "ma-start", children: "Start date" }),
-              /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(
-                "input",
-                {
-                  id: "ma-start",
-                  type: "date",
-                  className: "input",
-                  value: startDate,
-                  onChange: (e) => isValidISO(e.target.value) && setStartDate(e.target.value)
-                }
-              )
-            ] }),
-            /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("div", { className: "field", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("label", { htmlFor: "ma-duration", children: "Duration (days)" }),
-              /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(
-                "input",
-                {
-                  id: "ma-duration",
-                  type: "number",
-                  className: "input",
-                  min: 7,
-                  max: 365,
-                  value: duration,
-                  onChange: (e) => {
-                    const n = Math.floor(Number(e.target.value));
-                    if (n >= 7 && n <= 365) setDuration(n);
-                  }
-                }
-              )
-            ] })
-          ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("p", { className: "small muted", children: [
-            "New end date: ",
-            /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("strong", { style: { color: "var(--text)" }, children: formatLong(addDays(startDate, duration - 1)) }),
-            ".",
-            hasProgress && " Changing dates with recorded progress requires confirmation."
-          ] })
-        ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("div", { className: "row-between", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("span", { className: "small muted", children: identityDirty || datesDirty ? "Unsaved changes" : "All changes saved" }),
-          /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("div", { className: "row", style: { gap: 8 }, children: [
-            identityDirty && /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("button", { type: "button", className: "btn btn-primary", onClick: saveIdentity, children: [
-              /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(IconCheck, { size: 15 }),
-              " Save identity"
-            ] }),
-            datesDirty && /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("button", { type: "button", className: "btn", onClick: requestDateChange, children: "Save dates" })
-          ] })
+        identityDirty && /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)("div", { className: "row-between", style: { marginTop: 12 }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("span", { className: "small muted", children: "Unsaved changes" }),
+          /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)(
+            "button",
+            {
+              type: "button",
+              className: "btn btn-primary",
+              onClick: () => api2.updateTrack(track.id, { goal: goal.trim(), why: why.trim() }),
+              children: [
+                /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(IconCheck, { size: 15 }),
+                " Save"
+              ]
+            }
+          )
         ] })
       ] })
     ] }),
-    pendingDates && /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(
-      ConfirmModal,
-      {
-        title: "Change Arc dates?",
-        danger: true,
-        message: /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)(import_jsx_runtime18.Fragment, { children: [
-          /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("p", { children: "You have recorded days under the current dates. Changing the start date or shortening the Arc can move or hide existing day records relative to the new window." }),
-          /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("p", { style: { marginTop: 8 }, children: [
-            "New range: ",
-            /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("strong", { children: formatDateRange(pendingDates.startDate, addDays(pendingDates.startDate, pendingDates.durationDays - 1)) })
-          ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("p", { className: "small muted", style: { marginTop: 8 }, children: "Your daily records themselves are never deleted \u2014 but days outside the new Arc window won't count toward streaks or analytics." })
+    /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)("div", { className: "card card-rules", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)("div", { className: "card-title", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)("span", { className: "card-title-main rule", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(IconShield, { size: 14 }),
+          " Rules \u2014 daily trackable"
         ] }),
-        confirmLabel: "Update dates",
-        onConfirm: applyDateChange,
-        onClose: () => setPendingDates(null)
-      }
-    ),
-    confirmDeleteRule && /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(
+        /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)("span", { className: "pill", children: [
+          activeRules.length,
+          " active"
+        ] })
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)("p", { className: "small muted", style: { marginBottom: 14 }, children: [
+        "Rules are things you want to ",
+        /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("strong", { children: "follow, avoid or control" }),
+        " \u2014 they appear in every day's checklist next to your habits and count toward your day's completion."
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)("div", { className: "rules-editor", children: [
+        activeRules.length === 0 && /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("p", { className: "small muted", children: "No active rules yet \u2014 add your first below." }),
+        activeRules.map((rule, idx) => /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)("div", { className: "rule-row", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("span", { className: "mg-icon mg-rule-icon", title: "Rule", children: /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(IconShield, { size: 13 }) }),
+          /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(
+            "input",
+            {
+              className: "input",
+              style: { minHeight: 40 },
+              value: rule.text,
+              maxLength: 120,
+              onChange: (e) => api2.updateRule(rule.id, { text: e.target.value }),
+              "aria-label": `Rule ${idx + 1}`
+            }
+          ),
+          /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("button", { type: "button", className: "btn btn-ghost btn-icon", disabled: idx === 0, onClick: () => moveRule(rule.id, -1), "aria-label": `Move rule ${idx + 1} up`, children: /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(IconUp, { size: 14 }) }),
+          /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("button", { type: "button", className: "btn btn-ghost btn-icon", disabled: idx === activeRules.length - 1, onClick: () => moveRule(rule.id, 1), "aria-label": `Move rule ${idx + 1} down`, children: /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(IconDown, { size: 14 }) }),
+          /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("button", { type: "button", className: "btn btn-ghost btn-icon", onClick: () => api2.archiveRule(rule.id), "aria-label": `Archive rule ${idx + 1}`, title: "Archive \u2014 past records stay intact", children: /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(IconTrash, { size: 15 }) })
+        ] }, rule.id))
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)("div", { className: "row", style: { marginTop: 12 }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(
+          "input",
+          {
+            className: "input",
+            style: { minHeight: 40 },
+            placeholder: "e.g. No Instagram after 10 PM",
+            value: newRuleText,
+            maxLength: 120,
+            onChange: (e) => setNewRuleText(e.target.value),
+            onKeyDown: (e) => {
+              if (e.key === "Enter") addRule();
+            },
+            "aria-label": "New rule text"
+          }
+        ),
+        /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)("button", { type: "button", className: "btn btn-primary", onClick: addRule, disabled: !newRuleText.trim(), children: [
+          /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(IconPlus, { size: 14 }),
+          " Add rule"
+        ] })
+      ] }),
+      archivedRules.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)("div", { style: { marginTop: 18 }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("div", { className: "section-label", children: /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("span", { children: "Archived rules \u2014 history preserved" }) }),
+        archivedRules.map((rule) => /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)("div", { className: "rule-row", style: { opacity: 0.65 }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("input", { className: "input", style: { minHeight: 36 }, value: rule.text, maxLength: 120, disabled: true, "aria-label": `Archived rule ${rule.text}` }),
+          /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("button", { type: "button", className: "btn btn-ghost btn-icon", onClick: () => api2.restoreRule(rule.id), "aria-label": "Restore rule", title: "Restore to daily tracking", children: /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(IconRestore, { size: 14 }) }),
+          /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("button", { type: "button", className: "btn btn-ghost btn-icon", onClick: () => setConfirmDeleteRule(rule.id), "aria-label": "Delete rule permanently", children: /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(IconTrash, { size: 14 }) })
+        ] }, rule.id))
+      ] })
+    ] }),
+    confirmDeleteRule && /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(
       ConfirmModal,
       {
         title: "Delete rule permanently?",
         danger: true,
         requireText: "DELETE",
-        message: /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)(import_jsx_runtime18.Fragment, { children: [
+        message: /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)(import_jsx_runtime19.Fragment, { children: [
           "This removes the rule ",
-          /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("strong", { children: "and every followed/not-followed record" }),
+          /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("strong", { children: "and every followed/not-followed record" }),
           " for it. If you only want it off your daily checklist, archive it instead \u2014 archiving keeps history."
         ] }),
         confirmLabel: "Delete forever",
         onConfirm: () => api2.deleteRulePermanently(confirmDeleteRule),
         onClose: () => setConfirmDeleteRule(null)
+      }
+    )
+  ] });
+}
+
+// src/app/intro/Intro.tsx
+var import_react16 = __toESM(require_react(), 1);
+
+// src/app/platform.ts
+var import_core = __toESM(require_index_cjs(), 1);
+var PLATFORM_ORDER = ["desktop", "android", "web"];
+var RELEASES_URL = "https://github.com/VISHNU2407-hub/tracker/releases";
+function detectPlatform(s) {
+  if (s.tauri) return "desktop";
+  if (s.electron) return "desktop";
+  if (s.nativePlatform && s.capacitorPlatform === "android") return "android";
+  return "web";
+}
+function currentPlatform() {
+  try {
+    const w = typeof window !== "undefined" ? window : {};
+    const tauri = Boolean(w.__TAURI__ || w.__TAURI_INTERNALS__);
+    const ua = typeof navigator !== "undefined" ? navigator.userAgent : "";
+    const electron = /\bElectron\//i.test(ua);
+    let nativePlatform = false;
+    let capacitorPlatform = "web";
+    if (typeof import_core.Capacitor !== "undefined" && typeof import_core.Capacitor.isNativePlatform === "function") {
+      nativePlatform = import_core.Capacitor.isNativePlatform();
+      capacitorPlatform = import_core.Capacitor.getPlatform();
+    }
+    return detectPlatform({ tauri, electron, nativePlatform, capacitorPlatform, userAgent: ua });
+  } catch {
+    return "web";
+  }
+}
+function describeOS(userAgent = typeof navigator !== "undefined" ? navigator.userAgent : "") {
+  if (/Windows NT/i.test(userAgent)) return "Windows";
+  if (/Android/i.test(userAgent)) return "Android";
+  if (/iPhone|iPad|iPod/i.test(userAgent)) return "iOS";
+  if (/Mac OS X|Macintosh/i.test(userAgent)) return "macOS";
+  if (/Linux/i.test(userAgent)) return "Linux";
+  return "this platform";
+}
+var ENTRY_KEY = "lifeSystem.entry";
+function readEntry() {
+  try {
+    const raw = localStorage.getItem(ENTRY_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (!parsed || !PLATFORMS.includes(parsed.platform)) return null;
+    return { platform: parsed.platform, at: typeof parsed.at === "string" ? parsed.at : "" };
+  } catch {
+    return null;
+  }
+}
+var SETUP_KEY = "lifeSystem.setup";
+function readSetup() {
+  try {
+    const raw = localStorage.getItem(SETUP_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    return parsed && typeof parsed.at === "string" ? parsed.at : null;
+  } catch {
+    return null;
+  }
+}
+var PLATFORMS = PLATFORM_ORDER;
+
+// src/app/passport.ts
+var PASSPORT_FORMAT = "lifesystem-setup";
+var PASSPORT_VERSION = 1;
+var PASSPORT_FILENAME = "lifesystem-setup.json";
+var PASSPORT_TOKEN_PREFIX = "lifesystem-setup:";
+var DATA_PREFIX = "winterArc.";
+var DATA_KEYS = ["settings", "tracks", "activeTrackId", "arc", "habits", "rules", "dailyRecords", "reflections", "version"];
+function isSetupComplete() {
+  if (readSetup() !== null) return true;
+  try {
+    const rawSettings = localStorage.getItem(DATA_PREFIX + "settings");
+    const rawArc = localStorage.getItem(DATA_PREFIX + "arc");
+    if (!rawSettings || !rawArc) return false;
+    const settings = JSON.parse(rawSettings);
+    return settings.onboarded === true && JSON.parse(rawArc) !== null;
+  } catch {
+    return false;
+  }
+}
+function buildPassport() {
+  if (!isSetupComplete()) return null;
+  const data2 = {};
+  for (const key of DATA_KEYS) {
+    try {
+      const raw = localStorage.getItem(DATA_PREFIX + key);
+      data2[key] = raw === null ? null : JSON.parse(raw);
+    } catch {
+      return null;
+    }
+  }
+  if (!data2.settings || typeof data2.settings !== "object") return null;
+  if (!data2.arc || typeof data2.arc !== "object") return null;
+  const setupAt = readSetup();
+  return {
+    format: PASSPORT_FORMAT,
+    v: PASSPORT_VERSION,
+    createdAt: (/* @__PURE__ */ new Date()).toISOString(),
+    entry: readEntry(),
+    setup: { at: setupAt ?? (/* @__PURE__ */ new Date()).toISOString() },
+    data: data2
+  };
+}
+function toBase64(text) {
+  const bytes = new TextEncoder().encode(text);
+  let binary = "";
+  for (let i = 0; i < bytes.length; i += 32768) {
+    binary += String.fromCharCode(...bytes.subarray(i, i + 32768));
+  }
+  return btoa(binary);
+}
+function encodePassportToken(p) {
+  return PASSPORT_TOKEN_PREFIX + toBase64(JSON.stringify(p));
+}
+function downloadPassport(p) {
+  try {
+    const blob = new Blob([JSON.stringify(p, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = PASSPORT_FILENAME;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.setTimeout(() => URL.revokeObjectURL(url), 4e3);
+    return true;
+  } catch {
+    return false;
+  }
+}
+function copyPassportToken(p) {
+  try {
+    void navigator.clipboard?.writeText(encodePassportToken(p));
+    return true;
+  } catch {
+    return false;
+  }
+}
+function handoffToInstalledApp() {
+  const p = buildPassport();
+  if (!p) return false;
+  downloadPassport(p);
+  copyPassportToken(p);
+  return true;
+}
+
+// src/app/intro/Intro.tsx
+var import_jsx_runtime20 = __toESM(require_jsx_runtime(), 1);
+var FEATURES = [
+  {
+    icon: IconCheckCircle,
+    title: "Habits",
+    text: "Checkbox, numeric and duration targets \u2014 logged once a day, kept forever."
+  },
+  {
+    icon: IconShield,
+    title: "Rules & self-control",
+    text: "The lines you set for yourself, marked kept or broken every day."
+  },
+  {
+    icon: IconTarget,
+    title: "Daily progress",
+    text: "One honest score per day, habits and rules combined."
+  },
+  {
+    icon: IconFlame,
+    title: "Streaks",
+    text: "Current streak, best streak and perfect days \u2014 computed from real records."
+  },
+  {
+    icon: IconTrophy,
+    title: "Tracks & challenges",
+    text: "Create your own tracks \u2014 a season like Winter Arc, a fitness journey, anything."
+  },
+  {
+    icon: IconBook,
+    title: "Reflection",
+    text: "A weekly check-in: what went well, what to improve, what is next."
+  },
+  {
+    icon: IconChart,
+    title: "Long-term consistency",
+    text: "7 / 30 / 90-day trends, heatmaps and stats that never flatter you."
+  }
+];
+var CARDS = [
+  {
+    id: "desktop",
+    icon: IconDesktop,
+    title: "Install on Desktop",
+    meta: "Windows \xB7 macOS \xB7 Linux",
+    blurb: "A standalone window with its own taskbar and dock entry."
+  },
+  {
+    id: "android",
+    icon: IconPhone,
+    title: "Install on Android",
+    meta: "Phone & tablet",
+    blurb: "A real app on your home screen \u2014 touch-first, works offline."
+  },
+  {
+    id: "web",
+    icon: IconGlobe,
+    title: "Continue on Web",
+    meta: "Any modern browser",
+    blurb: "No install needed \u2014 open the tracker right where you are."
+  }
+];
+var BUILD_STEPS = {
+  desktop: {
+    title: "Build the desktop installer",
+    commands: "npm install\nnpm run desktop:build",
+    out: "Installer written to the release/ folder."
+  },
+  android: {
+    title: "Build the Android app",
+    commands: "npm install\nnpm run android:build",
+    out: "APK written to android/app/build/outputs/apk/debug/."
+  }
+};
+function Intro({ arcTitle, onEnter }) {
+  const platform = (0, import_react16.useMemo)(() => currentPlatform(), []);
+  const [sheet, setSheet] = (0, import_react16.useState)(null);
+  const [copied, setCopied] = (0, import_react16.useState)(false);
+  const challenge = arcTitle?.trim() || "My Tracks";
+  const copySteps = async () => {
+    if (!sheet) return;
+    try {
+      await navigator.clipboard.writeText(BUILD_STEPS[sheet].commands);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1800);
+    } catch {
+      setCopied(false);
+    }
+  };
+  const cardAction = (card) => {
+    if (card.id === "web" || card.id === platform) {
+      onEnter(card.id);
+      return;
+    }
+    setCopied(false);
+    setSheet(card.id);
+  };
+  const buttonLabel = (card) => {
+    if (card.id === "web") return "Continue on Web";
+    if (card.id === platform) return card.id === "desktop" ? "Enter Desktop App" : "Enter Android App";
+    return card.title;
+  };
+  return /* @__PURE__ */ (0, import_jsx_runtime20.jsxs)("div", { className: "intro", children: [
+    /* @__PURE__ */ (0, import_jsx_runtime20.jsxs)("header", { className: "intro-top", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime20.jsxs)("div", { className: "intro-brand", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime20.jsx)("span", { className: "intro-brand-icon", "aria-hidden": "true", children: /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(IconLayers, { size: 17 }) }),
+        /* @__PURE__ */ (0, import_jsx_runtime20.jsx)("span", { className: "intro-brand-name", children: "Life System" })
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime20.jsx)("button", { type: "button", className: "btn btn-ghost btn-sm", onClick: () => onEnter("web"), children: "Skip to tracker" })
+    ] }),
+    /* @__PURE__ */ (0, import_jsx_runtime20.jsxs)("main", { className: "intro-main", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime20.jsxs)("section", { className: "intro-hero", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime20.jsxs)("div", { className: "intro-hero-copy intro-rise", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime20.jsx)("span", { className: "intro-eyebrow", children: "Personal life system" }),
+          /* @__PURE__ */ (0, import_jsx_runtime20.jsxs)("h1", { className: "intro-title", children: [
+            "Your Life. Your Progress. ",
+            /* @__PURE__ */ (0, import_jsx_runtime20.jsx)("span", { className: "intro-title-accent", children: "Your System." })
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime20.jsx)("p", { className: "intro-lead", children: "Build the habits you want, keep the rules you set, and see an honest picture of how consistent you really are \u2014 one private, local-first system for the person you are working on." }),
+          /* @__PURE__ */ (0, import_jsx_runtime20.jsxs)("div", { className: "intro-chips", "aria-label": "Core capabilities", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime20.jsx)("span", { className: "intro-chip", children: "Habits" }),
+            /* @__PURE__ */ (0, import_jsx_runtime20.jsx)("span", { className: "intro-chip", children: "Rules" }),
+            /* @__PURE__ */ (0, import_jsx_runtime20.jsx)("span", { className: "intro-chip", children: "Streaks" }),
+            /* @__PURE__ */ (0, import_jsx_runtime20.jsx)("span", { className: "intro-chip", children: "Progress" }),
+            /* @__PURE__ */ (0, import_jsx_runtime20.jsx)("span", { className: "intro-chip", children: "Reflection" })
+          ] })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime20.jsxs)("aside", { className: "intro-hero-card intro-rise intro-delay-1", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime20.jsx)("div", { className: "intro-hero-card-label", children: "Your active track" }),
+          /* @__PURE__ */ (0, import_jsx_runtime20.jsx)("div", { className: "intro-hero-card-title", children: challenge }),
+          /* @__PURE__ */ (0, import_jsx_runtime20.jsx)("p", { className: "intro-hero-card-text", children: "A track is one challenge inside the continuous Life System \u2014 name it, set a duration and goal, and pick the habits and rules it includes. Everything else (habits, stats, reflection) keeps working between tracks." }),
+          /* @__PURE__ */ (0, import_jsx_runtime20.jsxs)("div", { className: "intro-hero-card-foot", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime20.jsx)("span", { className: "intro-dot", "aria-hidden": "true" }),
+            "Runs entirely on this device"
+          ] })
+        ] })
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime20.jsxs)("section", { className: "intro-section", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime20.jsxs)("div", { className: "intro-section-head intro-rise", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime20.jsx)("h2", { children: "What you can track" }),
+          /* @__PURE__ */ (0, import_jsx_runtime20.jsx)("p", { children: "Seven things the system keeps honest for you." })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime20.jsx)("div", { className: "intro-grid", children: FEATURES.map((f, i) => /* @__PURE__ */ (0, import_jsx_runtime20.jsxs)(
+          "article",
+          {
+            className: `intro-feature intro-rise intro-delay-${Math.min(i % 4, 3)}`,
+            children: [
+              /* @__PURE__ */ (0, import_jsx_runtime20.jsx)("span", { className: "intro-feature-icon", "aria-hidden": "true", children: /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(f.icon, { size: 17 }) }),
+              /* @__PURE__ */ (0, import_jsx_runtime20.jsx)("h3", { children: f.title }),
+              /* @__PURE__ */ (0, import_jsx_runtime20.jsx)("p", { children: f.text })
+            ]
+          },
+          f.title
+        )) })
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime20.jsxs)("section", { className: "intro-section", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime20.jsxs)("div", { className: "intro-section-head intro-rise", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime20.jsx)("h2", { children: "Three ways in" }),
+          /* @__PURE__ */ (0, import_jsx_runtime20.jsx)("p", { children: "Same tracker, same data \u2014 pick where you want to run it." })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime20.jsx)("div", { className: "intro-platforms", children: CARDS.map((card, i) => {
+          const here = card.id === platform;
+          const Icon = card.icon;
+          return /* @__PURE__ */ (0, import_jsx_runtime20.jsxs)(
+            "article",
+            {
+              className: `intro-platform${here ? " is-here" : ""} intro-rise intro-delay-${i}`,
+              children: [
+                /* @__PURE__ */ (0, import_jsx_runtime20.jsxs)("div", { className: "intro-platform-head", children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime20.jsx)("span", { className: "intro-platform-icon", "aria-hidden": "true", children: /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(Icon, { size: 20 }) }),
+                  here && /* @__PURE__ */ (0, import_jsx_runtime20.jsx)("span", { className: "intro-platform-badge", children: "You are here" })
+                ] }),
+                /* @__PURE__ */ (0, import_jsx_runtime20.jsx)("h3", { children: card.title }),
+                /* @__PURE__ */ (0, import_jsx_runtime20.jsx)("div", { className: "intro-platform-meta", children: card.meta }),
+                /* @__PURE__ */ (0, import_jsx_runtime20.jsx)("p", { children: card.blurb }),
+                /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(
+                  "button",
+                  {
+                    type: "button",
+                    className: `btn ${here || card.id === "web" ? "btn-primary" : ""} intro-platform-btn`,
+                    onClick: () => cardAction(card),
+                    children: buttonLabel(card)
+                  }
+                )
+              ]
+            },
+            card.id
+          );
+        }) }),
+        /* @__PURE__ */ (0, import_jsx_runtime20.jsx)("p", { className: "intro-note", children: "Your data stays in this device's local storage on every platform \u2014 no account, no cloud, no tracking of you." })
+      ] })
+    ] }),
+    /* @__PURE__ */ (0, import_jsx_runtime20.jsxs)("footer", { className: "intro-foot", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime20.jsx)("span", { children: "Life System \u2014 habits, rules, tracks and reflection." }),
+      /* @__PURE__ */ (0, import_jsx_runtime20.jsxs)("span", { className: "intro-foot-challenge", children: [
+        "Active track: ",
+        challenge
+      ] })
+    ] }),
+    sheet && /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(
+      Modal,
+      {
+        title: sheet === "desktop" ? "Install on Desktop" : "Install on Android",
+        onClose: () => setSheet(null),
+        wide: true,
+        footer: /* @__PURE__ */ (0, import_jsx_runtime20.jsxs)(import_jsx_runtime20.Fragment, { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime20.jsxs)("button", { type: "button", className: "btn", onClick: () => setSheet(null), children: [
+            /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(IconArrowLeft, { size: 14 }),
+            " Back"
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(
+            "button",
+            {
+              type: "button",
+              className: "btn btn-primary",
+              onClick: () => {
+                setSheet(null);
+                onEnter("web");
+              },
+              children: "Continue on Web"
+            }
+          )
+        ] }),
+        children: /* @__PURE__ */ (0, import_jsx_runtime20.jsxs)("div", { className: "intro-sheet", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime20.jsx)("p", { className: "secondary", children: sheet === "desktop" ? `The desktop build wraps this same tracker in a standalone window for ${describeOS()}.` : `The Android build wraps this same tracker as a native app for ${describeOS()}.` }),
+          /* @__PURE__ */ (0, import_jsx_runtime20.jsxs)("div", { className: "intro-sheet-block", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime20.jsx)("div", { className: "intro-sheet-label", children: "Download" }),
+            /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(
+              "a",
+              {
+                className: "btn",
+                href: RELEASES_URL,
+                target: "_blank",
+                rel: "noreferrer noopener",
+                onClick: handoffToInstalledApp,
+                children: "Open the releases page"
+              }
+            ),
+            /* @__PURE__ */ (0, import_jsx_runtime20.jsx)("span", { className: "small muted", children: "Installers and APKs are published there." })
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime20.jsxs)("div", { className: "intro-sheet-block", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime20.jsx)("div", { className: "intro-sheet-label", children: BUILD_STEPS[sheet].title }),
+            /* @__PURE__ */ (0, import_jsx_runtime20.jsx)("pre", { className: "intro-code", children: BUILD_STEPS[sheet].commands }),
+            /* @__PURE__ */ (0, import_jsx_runtime20.jsxs)("div", { className: "row", style: { gap: 8 }, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime20.jsx)("button", { type: "button", className: "btn btn-sm", onClick: copySteps, children: copied ? "Copied \u2713" : "Copy commands" }),
+              /* @__PURE__ */ (0, import_jsx_runtime20.jsx)("span", { className: "small muted", children: BUILD_STEPS[sheet].out })
+            ] })
+          ] })
+        ] })
       }
     )
   ] });
@@ -20455,16 +22117,17 @@ function buildDemoData(real2) {
   const startDate = addDays(today2, -34);
   const durationDays = 90;
   const rand = mulberry(42);
+  const trackId = "demo_track";
   const habits = [
-    { id: "demo_h1", name: "Workout", icon: "dumbbell", type: "checkbox", target: 1, unit: "session", active: true, createdAt: `${startDate}T08:00:00.000Z`, order: 1 },
-    { id: "demo_h2", name: "Drink water", icon: "hash", type: "numeric", target: 8, unit: "glasses", active: true, createdAt: `${startDate}T08:00:00.000Z`, order: 2 },
-    { id: "demo_h3", name: "Deep work", icon: "clock", type: "duration", target: 90, unit: "min", active: true, createdAt: `${startDate}T08:00:00.000Z`, order: 3 },
-    { id: "demo_h4", name: "Read", icon: "book", type: "duration", target: 20, unit: "min", active: true, createdAt: `${startDate}T08:00:00.000Z`, order: 4 }
+    { id: "demo_h1", name: "Workout", icon: "dumbbell", type: "checkbox", target: 1, unit: "session", active: true, createdAt: `${startDate}T08:00:00.000Z`, order: 1, trackIds: [trackId] },
+    { id: "demo_h2", name: "Drink water", icon: "hash", type: "numeric", target: 8, unit: "glasses", active: true, createdAt: `${startDate}T08:00:00.000Z`, order: 2, trackIds: [trackId] },
+    { id: "demo_h3", name: "Deep work", icon: "clock", type: "duration", target: 90, unit: "min", active: true, createdAt: `${startDate}T08:00:00.000Z`, order: 3, trackIds: [trackId] },
+    { id: "demo_h4", name: "Read", icon: "book", type: "duration", target: 20, unit: "min", active: true, createdAt: `${startDate}T08:00:00.000Z`, order: 4, trackIds: [trackId] }
   ];
   const rules = [
-    { id: "demo_r1", text: "No phone in bed", active: true, fromDay: 1, createdAt: `${startDate}T08:00:00.000Z`, order: 1 },
-    { id: "demo_r2", text: "No sugar", active: true, fromDay: 1, createdAt: `${startDate}T08:00:00.000Z`, order: 2 },
-    { id: "demo_r3", text: "Lights out by 11 PM", active: true, fromDay: 1, createdAt: `${startDate}T08:00:00.000Z`, order: 3 }
+    { id: "demo_r1", text: "No phone in bed", active: true, fromDay: 1, createdAt: `${startDate}T08:00:00.000Z`, order: 1, trackIds: [trackId] },
+    { id: "demo_r2", text: "No sugar", active: true, fromDay: 1, createdAt: `${startDate}T08:00:00.000Z`, order: 2, trackIds: [trackId] },
+    { id: "demo_r3", text: "Lights out by 11 PM", active: true, fromDay: 1, createdAt: `${startDate}T08:00:00.000Z`, order: 3, trackIds: [trackId] }
   ];
   const dailyRecords = {};
   for (let i = 0; i <= 34; i++) {
@@ -20498,21 +22161,27 @@ function buildDemoData(real2) {
       updatedAt: (/* @__PURE__ */ new Date()).toISOString()
     };
   }
+  const track = {
+    id: trackId,
+    title: "Winter Arc",
+    // one example of a user-created track
+    description: "A 90-day season inside the Life System.",
+    icon: "\u2744\uFE0F",
+    startDate,
+    endDate: addDays(startDate, durationDays - 1),
+    durationDays,
+    goal: "Demo: build unbreakable morning discipline",
+    why: "Preview mode \u2014 none of this is your data.",
+    rules: rules.map((r) => r.text),
+    status: "active",
+    createdAt: `${startDate}T08:00:00.000Z`,
+    updatedAt: (/* @__PURE__ */ new Date()).toISOString()
+  };
   return {
     ...real2,
-    arc: {
-      id: "arc_current",
-      title: "Winter Arc",
-      startDate,
-      endDate: addDays(startDate, durationDays - 1),
-      durationDays,
-      goal: "Demo: build unbreakable morning discipline",
-      why: "Preview mode \u2014 none of this is your data.",
-      rules: rules.map((r) => r.text),
-      status: "active",
-      createdAt: `${startDate}T08:00:00.000Z`,
-      updatedAt: (/* @__PURE__ */ new Date()).toISOString()
-    },
+    tracks: [track],
+    activeTrackId: trackId,
+    arc: track,
     habits,
     rules,
     dailyRecords,
@@ -20521,7 +22190,7 @@ function buildDemoData(real2) {
 }
 
 // scripts/render-smoke.tsx
-var import_jsx_runtime19 = __toESM(require_jsx_runtime(), 1);
+var import_jsx_runtime21 = __toESM(require_jsx_runtime(), 1);
 var failures = 0;
 function assert(cond, msg) {
   if (cond) console.log(`  ok   ${msg}`);
@@ -20532,12 +22201,14 @@ function assert(cond, msg) {
 }
 var real = {
   settings: { theme: "dark", onboarded: true, demoMode: false },
+  tracks: [],
+  activeTrackId: null,
   arc: null,
   habits: [],
   rules: [],
   dailyRecords: {},
   reflections: {},
-  version: 2
+  version: 3
 };
 var data = buildDemoData(real);
 var api = { data, loaded: true, today: todayISO() };
@@ -20545,7 +22216,7 @@ var noopNav = (_p) => void 0;
 var today = todayISO();
 var arc = data.arc;
 console.log("\u2014 render: Dashboard \u2014");
-var dash = (0, import_server.renderToString)(/* @__PURE__ */ (0, import_jsx_runtime19.jsx)(DashboardPage, { api, onNavigate: noopNav }));
+var dash = (0, import_server.renderToString)(/* @__PURE__ */ (0, import_jsx_runtime21.jsx)(DashboardPage, { api, onNavigate: noopNav }));
 assert(dash.includes("Coming up"), 'dashboard renders "Coming up" card');
 assert(dash.includes("This week"), 'dashboard renders "This week" card');
 assert(dash.includes("Your goal"), "dashboard renders goal card");
@@ -20556,33 +22227,34 @@ assert(dash.includes("Rules") && dash.includes("Habits"), "dashboard daily list 
 assert(dash.includes("section-label"), "daily list renders labeled sections");
 assert(dash.includes("rule-status-btn"), "rules render Followed / Not followed controls");
 console.log("\u2014 render: Calendar \u2014");
-var cal = (0, import_server.renderToString)(/* @__PURE__ */ (0, import_jsx_runtime19.jsx)(CalendarPage, { api }));
+var cal = (0, import_server.renderToString)(/* @__PURE__ */ (0, import_jsx_runtime21.jsx)(CalendarPage, { api }));
 assert(cal.includes("Last 365 days"), "calendar renders default year heatmap view");
 console.log("\u2014 render: Habits page \u2014");
-var hab = (0, import_server.renderToString)(/* @__PURE__ */ (0, import_jsx_runtime19.jsx)(HabitsPage, { api }));
+var hab = (0, import_server.renderToString)(/* @__PURE__ */ (0, import_jsx_runtime21.jsx)(HabitsPage, { api }));
 assert(hab.includes("Current streak"), "habit cards render current streak");
 assert(hab.includes("Best streak"), "habit cards render best streak");
 assert(hab.includes("hhm-month-label"), "each habit card renders its own month-grouped heatmap");
 assert(hab.includes("completed"), "heatmaps render the completed-days footer");
 console.log("\u2014 render: Stats \u2014");
-var stats = (0, import_server.renderToString)(/* @__PURE__ */ (0, import_jsx_runtime19.jsx)(StatsPage, { api }));
+var stats = (0, import_server.renderToString)(/* @__PURE__ */ (0, import_jsx_runtime21.jsx)(StatsPage, { api }));
 assert(stats.includes("Rule control"), "stats renders Rule control section");
 assert(stats.includes("days followed"), "rule stats show days-followed counts");
-console.log("\u2014 render: My Winter Arc \u2014");
-var myarc = (0, import_server.renderToString)(/* @__PURE__ */ (0, import_jsx_runtime19.jsx)(MyArcPage, { api }));
-assert(myarc.includes("daily trackable"), "MyArc marks rules as daily trackable");
-assert(myarc.includes("Demo rule") || myarc.includes("No phone in bed"), "MyArc lists existing rules");
+console.log("\u2014 render: My Tracks \u2014");
+var mytracks = (0, import_server.renderToString)(/* @__PURE__ */ (0, import_jsx_runtime21.jsx)(MyTracksPage, { api }));
+assert(mytracks.includes("daily trackable"), "My Tracks marks rules as daily trackable");
+assert(mytracks.includes("No phone in bed"), "My Tracks lists existing rules");
+assert(mytracks.includes("Day") && mytracks.includes("complete"), "My Tracks shows per-track progress");
 console.log("\u2014 render: HabitGrid (monthly tracker) \u2014");
 var months = monthGroups(arc.startDate, addDays(arc.startDate, arc.durationDays - 1));
 var firstMonth = (0, import_server.renderToString)(
-  /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(HabitGrid, { arc, habits: data.habits, rules: data.rules, records: data.dailyRecords, dates: months[0].dates, now: today })
+  /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(HabitGrid, { arc, habits: data.habits, rules: data.rules, records: data.dailyRecords, dates: months[0].dates, now: today })
 );
 assert(firstMonth.includes("mg-table"), "grid renders the habit table");
 assert(firstMonth.includes("mg-sum-col"), "grid renders per-habit month summary column");
 assert(firstMonth.includes("mg-cell"), "grid renders status cells");
 assert(firstMonth.includes("mg-rule-cell"), "grid renders rule rows with rule cells");
 var lastMonth = (0, import_server.renderToString)(
-  /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(
+  /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(
     HabitGrid,
     {
       arc,
@@ -20599,11 +22271,53 @@ assert(lastMonth.includes("mg-legend-cell"), "grid renders legend");
 console.log("\u2014 render: HabitHeatmap \u2014");
 var stat = computeHabitStats(arc, data.habits, data.dailyRecords, today)[0];
 var hm = (0, import_server.renderToString)(
-  /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(HabitHeatmap, { habit: stat.habit, arc, records: data.dailyRecords, now: today })
+  /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(HabitHeatmap, { habit: stat.habit, arc, records: data.dailyRecords, now: today })
 );
 assert(hm.includes("hhm-cell"), "heatmap renders day cells");
 assert(hm.includes("hhm-month"), "heatmap groups days by month");
 assert(hm.split("hhm-cell ").length - 1 >= stat.completedCount, "completed days render as blue cells");
+console.log("\u2014 render: DayTasks read-only gate (only today is editable) \u2014");
+var dayNoop = (..._args) => void 0;
+var dayTasksProps = {
+  arc,
+  habits: data.habits,
+  rules: data.rules,
+  records: data.dailyRecords,
+  now: today,
+  onToggle: dayNoop,
+  onSetValue: dayNoop,
+  onRuleStatus: dayNoop,
+  compact: true
+};
+var pastHtml = (0, import_server.renderToString)(/* @__PURE__ */ (0, import_jsx_runtime21.jsx)(DayTasks, { ...dayTasksProps, date: addDays(today, -1) }));
+assert(pastHtml.includes("Read only"), "previous day is labelled read-only");
+assert(pastHtml.includes("task-item"), "previous day still lists habits and rules for history");
+assert(pastHtml.includes("Workout"), "previous day still shows the stored habit data");
+assert(!pastHtml.includes("task-check"), "previous day renders no completion checkbox");
+assert(!pastHtml.includes("rule-status-btn"), "previous day renders no rule status buttons");
+assert(!pastHtml.includes("task-num-input"), "previous day renders no numeric input field");
+assert(!pastHtml.includes("tap to complete"), "previous day renders no editable hint");
+var futureHtml = (0, import_server.renderToString)(/* @__PURE__ */ (0, import_jsx_runtime21.jsx)(DayTasks, { ...dayTasksProps, date: addDays(today, 1) }));
+assert(futureHtml.includes("Locked"), "future day stays locked");
+assert(!futureHtml.includes("task-check"), "future day renders no completion checkbox");
+assert(!futureHtml.includes("task-num-input"), "future day renders no numeric input field");
+var todayHtml = (0, import_server.renderToString)(/* @__PURE__ */ (0, import_jsx_runtime21.jsx)(DayTasks, { ...dayTasksProps, date: today }));
+assert(todayHtml.includes("task-check"), "today keeps completion checkboxes");
+assert(todayHtml.includes("rule-status-btn"), "today keeps rule status buttons");
+assert(todayHtml.includes("task-num-input"), "today keeps numeric input fields");
+assert(!todayHtml.includes("Read only"), "today is never marked read-only");
+console.log("\u2014 render: Intro (welcome screen above the tracker) \u2014");
+var intro = (0, import_server.renderToString)(/* @__PURE__ */ (0, import_jsx_runtime21.jsx)(Intro, { arcTitle: "Winter Arc", onEnter: () => void 0 }));
+assert(intro.includes("Your Life. Your Progress."), "intro shows the product tagline");
+assert(
+  intro.includes("Install on Desktop") && intro.includes("Install on Android") && intro.includes("Continue on Web"),
+  "intro offers the three exact ways in"
+);
+assert(intro.includes("Winter Arc"), "intro names the current challenge");
+assert(intro.includes("intro-platform"), "intro renders the platform cards");
+assert(intro.includes("What you can track"), "intro explains what the system tracks");
+assert(intro.includes("Habits") && intro.includes("Reflection"), "intro lists core capabilities");
+assert(!intro.includes("undefined") && !intro.includes("[object Object]"), "intro leaks no undefined/object strings");
 console.log(failures === 0 ? "\nALL PASS" : `
 ${failures} FAILURE(S)`);
 process.exit(failures === 0 ? 0 : 1);
@@ -20696,4 +22410,7 @@ react/cjs/react-jsx-runtime.development.js:
    * This source code is licensed under the MIT license found in the
    * LICENSE file in the root directory of this source tree.
    *)
+
+@capacitor/core/dist/index.cjs.js:
+  (*! Capacitor: https://capacitorjs.com/ - MIT License *)
 */

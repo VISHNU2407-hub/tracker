@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useAppData } from '../hooks/useAppData';
 import type { AppDataApi } from '../hooks/useAppData';
 import type { PageId } from '../hooks/useArc';
@@ -15,29 +15,81 @@ import { CalendarPage } from '../pages/Calendar';
 import { HabitsPage } from '../pages/Habits';
 import { StatsPage } from '../pages/Stats';
 import { ReflectionPage } from '../pages/Reflection';
-import { MyArcPage } from '../pages/MyArc';
+import { MyTracksPage } from '../pages/MyTracks';
 import { SettingsPage } from '../pages/Settings';
-import { useAnalytics } from '../hooks/useArc';
-import { buildDemoData } from '../services/demoData';
 import { todayISO, dayNumber } from '../services/date';
+import { Intro } from './intro/Intro';
+import { Initializing } from './Initializing';
+import { GetAppsModal } from './layout/GetAppsModal';
+import { readEntry, writeEntry, readSetup, currentPlatform, type Platform } from './platform';
+import { isSetupComplete } from './passport';
+
+/* Minimum time the initialization screen stays visible in installed
+   shells (desktop / Android) — web never renders it. */
+const INIT_MIN_MS = 700;
 
 /* ============================================================
-   App shell: onboarding gate + page routing + demo mode.
+   App shell: welcome screen → onboarding gate → page routing.
+   The intro layer sits ABOVE everything else and never touches
+   tracking state — it only records how the user walked in.
    Mobile-app experience: top app bar, bottom tab navigation,
    "More" bottom sheet, direction-aware screen transitions.
-   Demo mode swaps the data fed to pages; real data untouched.
    ============================================================ */
 
-const PAGES: PageId[] = ['dashboard', 'today', 'calendar', 'habits', 'stats', 'reflection', 'myarc', 'settings'];
+const PAGES: PageId[] = ['dashboard', 'today', 'calendar', 'habits', 'stats', 'reflection', 'tracks', 'settings'];
 
 function pageFromHash(): PageId {
   const hash = window.location.hash.replace(/^#\/?/, '');
+  if (hash === 'myarc') return 'tracks'; // legacy link → My Tracks
   return (PAGES as string[]).includes(hash) ? (hash as PageId) : 'dashboard';
 }
 
 export default function App() {
   const realApi = useAppData();
   const [page, setPage] = useState<PageId>(pageFromHash);
+  // Welcome screen: shown until the user picks a way in (independent
+  // from winterArc.* tracking keys — replayable from Settings).
+  const [introSeen, setIntroSeen] = useState<boolean>(() => readEntry() !== null);
+
+  // Installed shells (Electron / Capacitor) show a short initialization
+  // screen while they settle; on a brand-new install the setup handoff
+  // (clipboard probe → passport import) runs behind it too. Web boots
+  // straight into the correct screen with no splash.
+  const installed = currentPlatform() !== 'web';
+  const [ready, setReady] = useState(!installed);
+
+  useEffect(() => {
+    if (!installed) return;
+    let cancelled = false;
+    const start = Date.now();
+    (async () => {
+      if (!isSetupComplete()) {
+        // First launch of an installed build: look for the setup passport
+        // (Android: clipboard token; desktop: applied in main.tsx inline).
+        try {
+          const { probeClipboardToken } = await import('./handoff-native');
+          if ((await probeClipboardToken()) && !cancelled) {
+            window.location.reload(); // apply happened pre-render → reload routes correctly
+            return;
+          }
+        } catch {
+          /* no handoff — genuinely new user → welcome screen */
+        }
+      }
+      const wait = Math.max(0, INIT_MIN_MS - (Date.now() - start));
+      window.setTimeout(() => {
+        if (!cancelled) setReady(true);
+      }, wait);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [installed]);
+
+  const enterFromIntro = (platform: Platform) => {
+    writeEntry(platform);
+    setIntroSeen(true);
+  };
 
   // Keep the URL hash in sync and follow browser Back/Forward.
   useEffect(() => {
@@ -51,21 +103,41 @@ export default function App() {
     setPage(p);
   };
 
+  // Initialization screen first (installed shells only — web is instant).
+  if (!ready) {
+    return <Initializing />;
+  }
+
   if (!realApi.loaded) {
     return <div className="onboard"><div className="muted">Loading…</div></div>;
   }
 
-  // First run → onboarding wizard.
-  if (!realApi.data.settings.onboarded || !realApi.data.arc) {
+  // Layer 1: welcome / platform choice.
+  if (!introSeen) {
+    return <Intro arcTitle={realApi.data.arc?.title} onEnter={enterFromIntro} />;
+  }
+
+  // Layer 2: first-run setup — runs ONCE. The permanent flag is written
+  // when onboarding finishes; users from before the flag existed derive
+  // "complete" from their existing data, so nobody is sent back to the
+  // wizard. Reset only through Settings → Reset All Data.
+  const setupDone =
+    readSetup() !== null ||
+    (realApi.data.settings.onboarded === true && realApi.data.arc !== null);
+  if (!setupDone) {
     return <Onboarding api={realApi} />;
   }
 
-  return <Shell api={realApi} page={page} setPage={navigate} />;
+  // Layer 3: the tracker itself. If the user has no tracks left (e.g. they
+  // deleted every one), route to My Tracks — its empty state offers
+  // Create Track. This NEVER re-runs the setup wizard on existing data.
+  const effectivePage: PageId = realApi.data.arc ? page : 'tracks';
+  return <Shell api={realApi} page={effectivePage} setPage={navigate} />;
 }
 
 function Shell({ api, page, setPage }: { api: AppDataApi; page: PageId; setPage: (p: PageId) => void }) {
-  const demo = api.data.settings.demoMode;
   const [moreOpen, setMoreOpen] = useState(false);
+  const [appsOpen, setAppsOpen] = useState(false);
 
   // Direction-aware transitions: mobile feels like a stack — moving to a
   // later tab slides in from the right, earlier tabs from the left.
@@ -77,47 +149,17 @@ function Shell({ api, page, setPage }: { api: AppDataApi; page: PageId; setPage:
     prevPageRef.current = page;
   }, [page]);
 
-  // Demo mode: feed pages a synthetic dataset and block mutations,
-  // so the preview can never modify stored user data.
-  const effectiveApi = useMemo<AppDataApi>(() => {
-    if (!demo) return api;
-    const demoData = buildDemoData(api.data);
-    return {
-      ...api,
-      data: demoData,
-      setHabitValue: () => undefined,
-      toggleHabit: () => undefined,
-      setDayNote: () => undefined,
-      addHabit: (h) => ({ ...h, id: 'demo_blocked', active: true, createdAt: new Date().toISOString(), order: 999 }),
-      updateHabit: () => undefined,
-      archiveHabit: () => undefined,
-      restoreHabit: () => undefined,
-      deleteHabitPermanently: () => undefined,
-      reorderHabits: () => undefined,
-      addRule: (text) => ({ id: 'demo_blocked', text, active: true, fromDay: 1, createdAt: new Date().toISOString(), order: 999 }),
-      updateRule: () => undefined,
-      archiveRule: () => undefined,
-      restoreRule: () => undefined,
-      deleteRulePermanently: () => undefined,
-      reorderRules: () => undefined,
-      setRuleStatus: () => undefined,
-      saveReflection: () => undefined,
-      deleteReflection: () => undefined,
-    };
-  }, [api, demo]);
-
-  const { stats } = useAnalytics(effectiveApi.data);
-  const arc = effectiveApi.data.arc!;
+  const arc = api.data.arc!;
 
   const pages: Record<PageId, React.ReactNode> = {
-    dashboard: <DashboardPage api={effectiveApi} onNavigate={setPage} />,
-    today: <TodayPage api={effectiveApi} onNavigate={setPage} />,
-    calendar: <CalendarPage api={effectiveApi} />,
-    habits: <HabitsPage api={effectiveApi} />,
-    stats: <StatsPage api={effectiveApi} />,
-    reflection: <ReflectionPage api={effectiveApi} />,
-    myarc: <MyArcPage api={effectiveApi} />,
-    settings: <SettingsPage api={effectiveApi} />,
+    dashboard: <DashboardPage api={api} onNavigate={setPage} />,
+    today: <TodayPage api={api} onNavigate={setPage} />,
+    calendar: <CalendarPage api={api} />,
+    habits: <HabitsPage api={api} />,
+    stats: <StatsPage api={api} />,
+    reflection: <ReflectionPage api={api} />,
+    tracks: <MyTracksPage api={api} />,
+    settings: <SettingsPage api={api} />,
   };
 
   // Only the active page is mounted (native-app feel; transitions animate
@@ -139,30 +181,34 @@ function Shell({ api, page, setPage }: { api: AppDataApi; page: PageId; setPage:
         onNavigate={setPage}
         dayNumber={arc ? dayNumber(todayISO(), arc.startDate, arc.durationDays) : undefined}
         arcStatus={arc?.status ?? null}
+        arcTitle={arc?.title}
       />
 
       {/* Mobile: app-style chrome — top bar, animated screen, bottom tabs */}
       <div className="mobile-frame">
-        <AppTopBar page={page} dayNumber={arc ? dayNumber(todayISO(), arc.startDate, arc.durationDays) : undefined} />
+        <AppTopBar
+          page={page}
+          dayNumber={arc ? dayNumber(todayISO(), arc.startDate, arc.durationDays) : undefined}
+          arcTitle={arc?.title}
+        />
         <main className={`app-main screen-enter-${direction === 'forward' ? 'fwd' : 'back'}`} key={page}>
           {current}
         </main>
       </div>
 
       <BottomNav page={page} onNavigate={go} onMore={() => setMoreOpen(true)} />
-      <MoreSheet open={moreOpen} onClose={() => setMoreOpen(false)} current={page} onNavigate={go} />
+      <MoreSheet
+        open={moreOpen}
+        onClose={() => setMoreOpen(false)}
+        current={page}
+        onNavigate={go}
+        onGetApps={() => {
+          setMoreOpen(false);
+          setAppsOpen(true);
+        }}
+      />
+      <GetAppsModal open={appsOpen} onClose={() => setAppsOpen(false)} />
       <InstallBanner />
-
-      {demo && (
-        <button
-          type="button"
-          className="toast toast-demo"
-          onClick={() => api.setDemoMode(false)}
-          aria-label="Exit demo mode"
-        >
-          Demo mode — tap to exit
-        </button>
-      )}
     </div>
   );
 }

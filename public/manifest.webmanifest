@@ -1,13 +1,13 @@
 {
-  "name": "Winter Arc Tracker",
-  "short_name": "Winter Arc",
-  "description": "A private, local-first 90-day discipline dashboard.",
+  "name": "Life System",
+  "short_name": "Life System",
+  "description": "Private, local-first life tracker — habits, rules, daily progress and reflection.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#f8f9fc",
-  "theme_color": "#f8f9fc",
+  "background_color": "#eef4fc",
+  "theme_color": "#eef4fc",
   "categories": ["productivity", "lifestyle", "health"],
   "icons": [
     {

@@ -80,7 +80,7 @@ export function eligibleRulesForDate(
 
 /** A rule counts as followed when an explicit status was stored for that day.
  *  Unmarked past days = not followed (backfill from Arc Day 1 semantics). */
-export function ruleFollowed(rule: Rule, rec: { status: RuleStatus } | undefined): boolean {
+export function ruleFollowed(_rule: Rule, rec: { status: RuleStatus } | undefined): boolean {
   return rec?.status === 'followed';
 }
 

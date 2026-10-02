@@ -2,13 +2,15 @@ import React, { useMemo, useState } from 'react';
 import type { AppDataApi } from '../hooks/useAppData';
 import { PageHeader } from '../app/layout/PageHeader';
 import { ConfirmModal } from '../components/ui/Modal';
+import { IconLock } from '../components/icons';
 import {
   addDays, formatShort, todayISO, weekKeyOf, weekStartOf,
 } from '../services/date';
 
 /* ============================================================
    Reflection page (spec §3): weekly what went well / improve /
-   next focus, stored by week key.
+   next focus, stored by week key. Only the current week is
+   editable — earlier and later weeks are read-only history.
    ============================================================ */
 
 export function ReflectionPage({ api }: { api: AppDataApi }) {
@@ -28,6 +30,9 @@ export function ReflectionPage({ api }: { api: AppDataApi }) {
   });
   const weekKey = weekKeyOf(weekStart);
   const existing = data.reflections[weekKey];
+
+  // Only the week containing today may be written — earlier/later weeks are read-only.
+  const editable = weekStartOf(today) === weekStart;
 
   const [wentWell, setWentWell] = useState<string | null>(null);
   const [toImprove, setToImprove] = useState<string | null>(null);
@@ -93,7 +98,10 @@ export function ReflectionPage({ api }: { api: AppDataApi }) {
         <div className="card">
           <div className="card-title">
             <span>Week of {formatShort(weekStart)} – {formatShort(weekEnd)}</span>
-            {existing && <span className="success-text small">saved</span>}
+            {existing && editable && <span className="success-text small">saved</span>}
+            {!editable && (
+              <span className="pill pill-lock"><IconLock size={12} /> Read only</span>
+            )}
           </div>
 
           <div className="field">
@@ -117,6 +125,7 @@ export function ReflectionPage({ api }: { api: AppDataApi }) {
               className="textarea"
               placeholder="Wins, habits that clicked, moments you're proud of…"
               value={val.wentWell}
+              disabled={!editable}
               onChange={(e) => setWentWell(e.target.value)}
             />
           </div>
@@ -128,6 +137,7 @@ export function ReflectionPage({ api }: { api: AppDataApi }) {
               className="textarea"
               placeholder="Missed days, weak spots, obstacles…"
               value={val.toImprove}
+              disabled={!editable}
               onChange={(e) => setToImprove(e.target.value)}
             />
           </div>
@@ -139,26 +149,35 @@ export function ReflectionPage({ api }: { api: AppDataApi }) {
               className="textarea"
               placeholder="One or two concrete adjustments for the coming week…"
               value={val.nextFocus}
+              disabled={!editable}
               onChange={(e) => setNextFocus(e.target.value)}
             />
           </div>
 
           <div className="row-between">
-            {existing ? (
-              <button type="button" className="btn btn-ghost btn-sm" style={{ color: 'var(--danger)' }} onClick={() => setConfirmDelete(true)}>
-                Delete entry
-              </button>
+            {editable ? (
+              existing ? (
+                <button type="button" className="btn btn-ghost btn-sm" style={{ color: 'var(--danger)' }} onClick={() => setConfirmDelete(true)}>
+                  Delete entry
+                </button>
+              ) : (
+                <span className="small muted">Autosaves only when you press save.</span>
+              )
             ) : (
-              <span className="small muted">Autosaves only when you press save.</span>
+              <span className="small muted row" style={{ gap: 6 }}>
+                <IconLock size={13} /> Only the current week can be edited.
+              </span>
             )}
-            <button
-              type="button"
-              className="btn btn-primary"
-              disabled={!dirty}
-              onClick={save}
-            >
-              {savedFlash ? 'Saved ✓' : existing ? 'Update entry' : 'Save entry'}
-            </button>
+            {editable && (
+              <button
+                type="button"
+                className="btn btn-primary"
+                disabled={!dirty}
+                onClick={save}
+              >
+                {savedFlash ? 'Saved ✓' : existing ? 'Update entry' : 'Save entry'}
+              </button>
+            )}
           </div>
         </div>
 
@@ -176,7 +195,7 @@ export function ReflectionPage({ api }: { api: AppDataApi }) {
                   <div className="row-between">
                     <div className="refl-week">Week of {formatShort(r.weekStart)}</div>
                     <button type="button" className="btn btn-ghost btn-sm" onClick={() => setWeekStart(r.weekStart)}>
-                      Edit
+                      {r.weekStart === weekStartOf(today) ? 'Edit' : 'View'}
                     </button>
                   </div>
                   {r.wentWell && (

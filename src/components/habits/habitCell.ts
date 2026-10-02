@@ -42,7 +42,7 @@ export function habitCellFor(
   const arcEnd = arcLastDay(arc);
 
   if (date < arc.startDate || date > arcEnd) {
-    return { state: 'outside', glyph: '', label: 'Outside your Arc' };
+    return { state: 'outside', glyph: '', label: 'Outside your track' };
   }
 
   if (date > now) {
@@ -97,7 +97,7 @@ export function ruleCellFor(
   const arcEnd = addDays(arc.startDate, arc.durationDays - 1);
 
   if (date < arc.startDate || date > arcEnd) {
-    return { state: 'outside', glyph: '', label: 'Outside your Arc' };
+    return { state: 'outside', glyph: '', label: 'Outside your track' };
   }
   if (date > now) {
     return { state: 'future', glyph: '', label: 'Locked — future day' };

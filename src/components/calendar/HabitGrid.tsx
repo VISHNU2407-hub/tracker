@@ -93,7 +93,7 @@ export function HabitGrid({ arc, habits, rules, records, dates, now = todayISO()
     return (
       <div className="empty-state">
         <div className="big">{dates.length === 0 ? 'No days in this month' : 'No habits or rules yet'}</div>
-        <p>Add habits on the Habits page or rules in My Winter Arc — the grid fills in as you track days.</p>
+        <p>Add habits on the Habits page or rules in My Tracks — the grid fills in as you track days.</p>
       </div>
     );
   }
@@ -174,7 +174,7 @@ export function HabitGrid({ arc, habits, rules, records, dates, now = todayISO()
     <div className="mg-wrap">
       <div className="mg-summary small secondary">
         {monthSummary.avg === null
-          ? 'No elapsed Arc days in this month yet.'
+          ? 'No elapsed track days in this month yet.'
           : `${monthSummary.elapsed} elapsed day${monthSummary.elapsed === 1 ? '' : 's'} this month · ${monthSummary.avg}% average · ${monthSummary.perfect} perfect`}
       </div>
 

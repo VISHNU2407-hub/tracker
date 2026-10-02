@@ -1,0 +1,46 @@
+appId: com.lifesystem.app
+productName: Life System
+copyright: Copyright © 2026 Life System
+
+directories:
+  output: release
+  buildResources: build
+
+files:
+  - dist/**/*
+  - desktop/**/*
+  - package.json
+
+asar: true
+
+win:
+  icon: build/icon.ico
+  target:
+    - target: nsis
+      arch:
+        - x64
+
+nsis:
+  oneClick: true
+  perMachine: false
+  allowToChangeInstallationDirectory: false
+  createDesktopShortcut: always
+  createStartMenuShortcut: true
+  shortcutName: Life System
+  uninstallDisplayName: Life System
+
+mac:
+  icon: build/icon.png
+  category: public.app-category.productivity
+  target:
+    - target: dmg
+    - target: zip
+
+linux:
+  icon: build/icon.png
+  category: Utility
+  synopsis: Local-first life tracker
+  target:
+    - target: AppImage
+      arch:
+        - x64

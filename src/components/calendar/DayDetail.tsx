@@ -3,8 +3,9 @@ import type { AppDataApi } from '../../hooks/useAppData';
 import { Modal } from '../ui/Modal';
 import { DayTasks } from '../dashboard/DayTasks';
 import { ProgressRing } from '../ui/ProgressRing';
-import { addDays, dayNumber, formatLong, todayISO } from '../../services/date';
+import { dayNumber, formatLong, todayISO } from '../../services/date';
 import { evaluateDay } from '../../services/analytics';
+import { trackScope } from '../../hooks/useArc';
 
 interface DayDetailProps {
   date: string;
@@ -17,8 +18,9 @@ interface DayDetailProps {
 export function DayDetail({ date, api, onClose }: DayDetailProps) {
   const { data } = api;
   const arc = data.arc!;
+  const { habits: scopedHabits, rules: scopedRules } = trackScope(data);
   const today = todayISO();
-  const ev = arc ? evaluateDay(arc, data.habits, data.rules, data.dailyRecords, date, todayISO()) : null;
+  const ev = arc ? evaluateDay(arc, scopedHabits, scopedRules, data.dailyRecords, date, todayISO()) : null;
   const rec = data.dailyRecords[date];
 
   const dn = dayNumber(date, arc.startDate, arc.durationDays);
@@ -49,16 +51,21 @@ export function DayDetail({ date, api, onClose }: DayDetailProps) {
                 : `${ev?.completedCount ?? 0} of ${ev?.eligibleCount ?? 0} done · ${ev?.habitDone ?? 0} habits + ${ev?.ruleFollowed ?? 0} rules`}
           </div>
           <div className="secondary small" style={{ marginTop: 3 }}>
-            {isFuture ? 'Future day — view only.' : date < today ? 'Past day.' : 'Today.'}
+            {isFuture
+              ? 'Future day — view only.'
+              : date < today
+                ? 'Past day — read only. Only today can be updated.'
+                : 'Today.'}
           </div>
         </div>
       </div>
 
+      {/* Today: editable. Past days render inside DayTasks as read-only history. */}
       {!isFuture && (
         <DayTasks
           arc={arc}
-          habits={data.habits}
-          rules={data.rules}
+          habits={scopedHabits}
+          rules={scopedRules}
           records={data.dailyRecords}
           date={date}
           now={today}

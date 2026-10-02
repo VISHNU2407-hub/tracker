@@ -27,9 +27,24 @@ function base(props: IconProps): React.SVGProps<SVGSVGElement> {
   };
 }
 
+export const IconLayers = (p: IconProps) => (
+  <svg {...base(p)}>
+    <path d="M12 3l9 5-9 5-9-5 9-5Z" />
+    <path d="M3 12l9 5 9-5" />
+    <path d="M3 16l9 5 9-5" />
+  </svg>
+);
+
 export const IconSnowflake = (p: IconProps) => (
   <svg {...base(p)}>
     <path d="M12 2v20M2 12h20M4.9 4.9l14.2 14.2M19.1 4.9L4.9 19.1" />
+  </svg>
+);
+
+export const IconSearch = (p: IconProps) => (
+  <svg {...base(p)}>
+    <circle cx="11" cy="11" r="7" />
+    <path d="M20 20l-3.6-3.6" />
   </svg>
 );
 
@@ -240,5 +255,31 @@ export const IconDots = (p: IconProps) => (
     <circle cx="5" cy="12" r="1.6" fill="currentColor" stroke="none" />
     <circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none" />
     <circle cx="19" cy="12" r="1.6" fill="currentColor" stroke="none" />
+  </svg>
+);
+
+/* ---------- Platform icons (welcome / install choices) ---------- */
+
+export const IconDesktop = (p: IconProps) => (
+  <svg {...base(p)}>
+    <rect x="3" y="4" width="18" height="12.5" rx="2" />
+    <path d="M12 16.5V20M8.5 20h7" />
+    <path d="M6.5 8h5" />
+  </svg>
+);
+
+export const IconPhone = (p: IconProps) => (
+  <svg {...base(p)}>
+    <rect x="7" y="2.5" width="10" height="19" rx="2.6" />
+    <path d="M10.8 18.6h2.4" />
+    <path d="M10 6.2h4" />
+  </svg>
+);
+
+export const IconGlobe = (p: IconProps) => (
+  <svg {...base(p)}>
+    <circle cx="12" cy="12" r="9" />
+    <path d="M3 12h18" />
+    <ellipse cx="12" cy="12" rx="4.1" ry="9" />
   </svg>
 );

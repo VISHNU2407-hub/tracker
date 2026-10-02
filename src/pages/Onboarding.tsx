@@ -1,17 +1,23 @@
 import React, { useMemo, useState } from 'react';
 import type { Arc, HabitType } from '../types';
 import { addDays, formatLong, todayISO, isValidISO } from '../services/date';
-import { useAppData, type AppDataApi } from '../hooks/useAppData';
+import type { AppDataApi } from '../hooks/useAppData';
 import {
-  IconSnowflake, IconPlus, IconTrash, IconCheck, IconDumbbell, IconClock, IconHash,
+  IconPlus, IconTrash, IconCheck, IconClock, IconHash,
 } from '../components/icons';
 
 /* ============================================================
-   Onboarding wizard (spec §9):
-   Welcome -> Arc Setup -> Identity -> Rules -> Habits -> Finish
+   Onboarding wizard (first run only):
+   Welcome → Track → Identity → Rules → Habits → Finish
+
+   The Life System is year-round; the first step creates the
+   user's FIRST TRACK (a challenge inside it). Nothing is
+   hard-coded — "Winter Arc" is just an example name.
    ============================================================ */
 
-const STEPS = ['Welcome', 'Arc', 'Identity', 'Rules', 'Habits', 'Finish'];
+const STEPS = ['Welcome', 'Track', 'Identity', 'Rules', 'Habits', 'Finish'];
+const DURATIONS = [30, 60, 90, 180, 365];
+const EMOJI = ['❄️', '🔥', '💪', '📚', '🧠', '🏃', '🌱', '🎯', '⚡', '📈'];
 
 interface HabitDraft {
   name: string;
@@ -30,11 +36,13 @@ const EXAMPLE_HABITS: HabitDraft[] = [
   { name: 'Sleep by 11pm', icon: 'check', type: 'checkbox', target: 1, unit: '', enabled: false },
 ];
 
-function defaultArc(): Arc {
+function defaultTrack(): Arc {
   const startDate = todayISO();
   return {
-    id: 'arc_current',
-    title: 'Winter Arc',
+    id: 'track_current',
+    title: '',
+    description: '',
+    icon: '',
     startDate,
     endDate: addDays(startDate, 89),
     durationDays: 90,
@@ -49,16 +57,15 @@ function defaultArc(): Arc {
 
 export function Onboarding({ api }: { api: AppDataApi }) {
   const [step, setStep] = useState(0);
-  const [arc, setArc] = useState<Arc>(defaultArc);
+  const [track, setTrack] = useState<Arc>(defaultTrack);
   const [rules, setRules] = useState<string[]>(['']);
   const [habits, setHabits] = useState<HabitDraft[]>(EXAMPLE_HABITS);
 
   const canNext = useMemo(() => {
-    if (step === 1) return isValidISO(arc.startDate) && arc.durationDays >= 1 && arc.durationDays <= 365;
-    if (step === 2) return arc.goal.trim().length > 0;
+    if (step === 1) return track.title.trim().length > 0 && isValidISO(track.startDate) && track.durationDays >= 1 && track.durationDays <= 3650;
     if (step === 4) return habits.some((h) => h.enabled && h.name.trim().length > 0);
     return true;
-  }, [step, arc, habits]);
+  }, [step, track, habits]);
 
   const finish = () => {
     const habitDefs = habits
@@ -72,7 +79,7 @@ export function Onboarding({ api }: { api: AppDataApi }) {
       }));
     const cleanedRules = rules.map((r) => r.trim()).filter(Boolean);
     api.completeOnboarding(
-      { ...arc, goal: arc.goal.trim(), why: arc.why.trim(), rules: cleanedRules },
+      { ...track, title: track.title.trim(), goal: track.goal.trim(), why: track.why.trim(), rules: cleanedRules },
       habitDefs,
       cleanedRules
     );
@@ -87,41 +94,21 @@ export function Onboarding({ api }: { api: AppDataApi }) {
           ))}
         </div>
 
-        {step === 0 && (
-          <Welcome onContinue={() => setStep(1)} />
-        )}
+        {step === 0 && <Welcome onContinue={() => setStep(1)} />}
         {step === 1 && (
-          <ArcSetup
-            arc={arc}
-            onChange={setArc}
-            onBack={() => setStep(0)}
-            onNext={() => setStep(2)}
-            canNext={canNext}
-          />
+          <TrackSetup track={track} onChange={setTrack} onBack={() => setStep(0)} onNext={() => setStep(2)} canNext={canNext} />
         )}
         {step === 2 && (
-          <Identity
-            arc={arc}
-            onChange={setArc}
-            onBack={() => setStep(1)}
-            onNext={() => setStep(3)}
-            canNext={canNext}
-          />
+          <Identity track={track} onChange={setTrack} onBack={() => setStep(1)} onNext={() => setStep(3)} />
         )}
         {step === 3 && (
           <Rules rules={rules} onChange={setRules} onBack={() => setStep(2)} onNext={() => setStep(4)} />
         )}
         {step === 4 && (
-          <Habits
-            habits={habits}
-            onChange={setHabits}
-            onBack={() => setStep(3)}
-            onNext={() => setStep(5)}
-            canNext={canNext}
-          />
+          <Habits habits={habits} onChange={setHabits} onBack={() => setStep(3)} onNext={() => setStep(5)} canNext={canNext} />
         )}
         {step === 5 && (
-          <Finish arc={arc} habits={habits.filter((h) => h.enabled && h.name.trim())} onBack={() => setStep(4)} onFinish={finish} />
+          <Finish track={track} habits={habits.filter((h) => h.enabled && h.name.trim())} onBack={() => setStep(4)} onFinish={finish} />
         )}
       </div>
     </div>
@@ -133,48 +120,91 @@ export function Onboarding({ api }: { api: AppDataApi }) {
 function Welcome({ onContinue }: { onContinue: () => void }) {
   return (
     <div>
-      <div className="onboard-kicker">90 days. One season. One version of you.</div>
-      <h1>Welcome to Winter Arc</h1>
+      <div className="onboard-kicker">Your Life. Your Progress. Your System.</div>
+      <h1>Welcome to Life System</h1>
       <p className="lead">
-        A private, local-first tracker for your 90-day self-improvement Arc. Define your goal,
-        choose your habits, and check in every day. Everything stays in this browser — no account,
-        no internet required.
+        A private, local-first system for year-round personal growth. Track habits you do and rules
+        you control, then create <strong>Tracks</strong> — challenges with a start date and a duration.
+        Everything stays in this browser.
       </p>
       <ul className="secondary" style={{ margin: '0 0 8px', paddingLeft: 18, fontSize: 14, display: 'grid', gap: 6 }}>
-        <li>Pick your start date and track Day 1 → Day 90</li>
+        <li>Create any track you want — no fixed challenge</li>
         <li>Checkbox, numeric and duration habits</li>
-        <li>Streaks, perfect days and honest analytics</li>
+        <li>Streaks, perfect days and honest analytics per track</li>
         <li>Weekly reflections and JSON backup</li>
       </ul>
       <div className="onboard-actions">
         <span />
         <button type="button" className="btn btn-primary" onClick={onContinue}>
-          Start My Arc
+          Create my first track
         </button>
       </div>
     </div>
   );
 }
 
-/* ---------- Step 2: Arc setup ---------- */
+/* ---------- Step 2: Track ---------- */
 
-function ArcSetup({
-  arc, onChange, onBack, onNext, canNext,
+function TrackSetup({
+  track, onChange, onBack, onNext, canNext,
 }: {
-  arc: Arc;
+  track: Arc;
   onChange: (a: Arc) => void;
   onBack: () => void;
   onNext: () => void;
   canNext: boolean;
 }) {
-  const update = (patch: Partial<Arc>) => onChange({ ...arc, ...patch });
-  const end = addDays(arc.startDate, arc.durationDays - 1);
+  const update = (patch: Partial<Arc>) => onChange({ ...track, ...patch });
+  const end = addDays(track.startDate, track.durationDays - 1);
+  const isCustom = !DURATIONS.includes(track.durationDays);
 
   return (
     <div>
-      <div className="onboard-kicker">Step 1 · Arc</div>
-      <h1>Set your Arc</h1>
-      <p className="lead">The default is 90 days starting today. You can change the start date if you are beginning tomorrow.</p>
+      <div className="onboard-kicker">Step 1 · Track</div>
+      <h1>Create your first track</h1>
+      <p className="lead">A track is a challenge inside your continuous Life System — 90 days is a common default, but any length works.</p>
+
+      <div className="field">
+        <label htmlFor="ob-title">Track name *</label>
+        <input
+          id="ob-title"
+          className="input"
+          placeholder="Winter Arc, Fitness Journey, Coding Challenge…"
+          value={track.title}
+          maxLength={60}
+          onChange={(e) => update({ title: e.target.value })}
+        />
+      </div>
+
+      <div className="field">
+        <label htmlFor="ob-desc">Description / purpose</label>
+        <textarea
+          id="ob-desc"
+          className="textarea"
+          placeholder="What is this track about? (optional)"
+          value={track.description}
+          maxLength={240}
+          onChange={(e) => update({ description: e.target.value })}
+        />
+      </div>
+
+      <div className="field">
+        <label>Icon / emoji (optional)</label>
+        <div className="row" style={{ gap: 6, flexWrap: 'wrap' }}>
+          {EMOJI.map((e) => (
+            <button
+              key={e}
+              type="button"
+              className={`btn btn-icon${track.icon === e ? ' btn-primary' : ''}`}
+              onClick={() => update({ icon: track.icon === e ? '' : e })}
+              aria-pressed={track.icon === e}
+              aria-label={`Track emoji ${e}`}
+            >
+              <span style={{ fontSize: 16 }}>{e}</span>
+            </button>
+          ))}
+        </div>
+      </div>
 
       <div className="field">
         <label htmlFor="ob-start">Start date</label>
@@ -182,33 +212,47 @@ function ArcSetup({
           id="ob-start"
           type="date"
           className="input"
-          value={arc.startDate}
+          value={track.startDate}
           max={addDays(todayISO(), 3650)}
           onChange={(e) => {
             const v = e.target.value;
-            if (isValidISO(v)) update({ startDate: v, endDate: addDays(v, arc.durationDays - 1) });
+            if (isValidISO(v)) update({ startDate: v, endDate: addDays(v, track.durationDays - 1) });
           }}
         />
       </div>
 
       <div className="field">
         <label>Duration</label>
-        <div className="segmented" role="group" aria-label="Arc duration">
-          {[30, 60, 90].map((d) => (
+        <div className="segmented" role="group" aria-label="Track duration">
+          {DURATIONS.map((d) => (
             <button
               key={d}
               type="button"
-              className={arc.durationDays === d ? 'active' : ''}
-              onClick={() => update({ durationDays: d, endDate: addDays(arc.startDate, d - 1) })}
+              className={!isCustom && track.durationDays === d ? 'active' : ''}
+              onClick={() => update({ durationDays: d, endDate: addDays(track.startDate, d - 1) })}
             >
-              {d} days{d === 90 ? ' · default' : ''}
+              {d}d
             </button>
           ))}
         </div>
+        <input
+          className="input"
+          style={{ marginTop: 8 }}
+          type="number"
+          min={1}
+          max={3650}
+          placeholder="Custom duration (days) — e.g. 45"
+          value={isCustom ? track.durationDays : ''}
+          onChange={(e) => {
+            const n = Math.floor(Number(e.target.value));
+            if (n >= 1 && n <= 3650) update({ durationDays: n, endDate: addDays(track.startDate, n - 1) });
+          }}
+          aria-label="Custom duration in days"
+        />
       </div>
 
       <p className="small muted">
-        Your Arc runs <strong style={{ color: 'var(--text)' }}>{formatLong(arc.startDate)}</strong> →{' '}
+        Your track runs <strong style={{ color: 'var(--text)' }}>{formatLong(track.startDate)}</strong> →{' '}
         <strong style={{ color: 'var(--text)' }}>{formatLong(end)}</strong>.
       </p>
 
@@ -223,28 +267,27 @@ function ArcSetup({
 /* ---------- Step 3: Identity ---------- */
 
 function Identity({
-  arc, onChange, onBack, onNext, canNext,
+  track, onChange, onBack, onNext,
 }: {
-  arc: Arc;
+  track: Arc;
   onChange: (a: Arc) => void;
   onBack: () => void;
   onNext: () => void;
-  canNext: boolean;
 }) {
   return (
     <div>
       <div className="onboard-kicker">Step 2 · Identity</div>
-      <h1>Define your Arc</h1>
-      <p className="lead">What does finishing this Winter Arc mean for you? You can edit this later without losing history.</p>
+      <h1>Give it a direction</h1>
+      <p className="lead">What does finishing this track mean for you? You can edit this later without losing history.</p>
 
       <div className="field">
-        <label htmlFor="ob-goal">Goal *</label>
+        <label htmlFor="ob-goal">Goal</label>
         <input
           id="ob-goal"
           className="input"
           placeholder="e.g. Build the discipline to run a half marathon"
-          value={arc.goal}
-          onChange={(e) => onChange({ ...arc, goal: e.target.value })}
+          value={track.goal}
+          onChange={(e) => onChange({ ...track, goal: e.target.value })}
         />
       </div>
 
@@ -254,14 +297,14 @@ function Identity({
           id="ob-why"
           className="textarea"
           placeholder="Why does this matter to you? Read this on the hard days."
-          value={arc.why}
-          onChange={(e) => onChange({ ...arc, why: e.target.value })}
+          value={track.why}
+          onChange={(e) => onChange({ ...track, why: e.target.value })}
         />
       </div>
 
       <div className="onboard-actions">
         <button type="button" className="btn" onClick={onBack}>Back</button>
-        <button type="button" className="btn btn-primary" disabled={!canNext} onClick={onNext}>Continue</button>
+        <button type="button" className="btn btn-primary" onClick={onNext}>Continue</button>
       </div>
     </div>
   );
@@ -287,7 +330,7 @@ function Rules({
       <div className="onboard-kicker">Step 3 · Rules</div>
       <h1>Your personal rules</h1>
       <p className="lead">
-        3–7 short, non-negotiable rules for the next {90} days. Rules are things you want to follow,
+        3–7 short, non-negotiable rules for your track. Rules are things you want to follow,
         avoid or control — they become daily check-ins next to your habits. Optional — skip if you prefer.
       </p>
 
@@ -345,7 +388,6 @@ function Habits({
   const setEnabled = (i: number, enabled: boolean) => {
     update(i, { enabled });
     if (!enabled) return;
-    // Give fresh habits a sensible default target if untouched
     const h = habits[i];
     if (h.type === 'duration' && !h.target) update(i, { target: 30, unit: 'min' });
   };
@@ -354,7 +396,7 @@ function Habits({
     <div>
       <div className="onboard-kicker">Step 4 · Habits</div>
       <h1>Choose your daily habits</h1>
-      <p className="lead">Examples are pre-filled and fully editable. Enable at least one — the user decides the actual targets.</p>
+      <p className="lead">Examples are pre-filled and fully editable. Enable at least one — you decide the actual targets.</p>
 
       <div className="example-habits">
         {habits.map((h, i) => (
@@ -431,9 +473,9 @@ function Habits({
 /* ---------- Step 6: Finish ---------- */
 
 function Finish({
-  arc, habits, onBack, onFinish,
+  track, habits, onBack, onFinish,
 }: {
-  arc: Arc;
+  track: Arc;
   habits: HabitDraft[];
   onBack: () => void;
   onFinish: () => void;
@@ -441,26 +483,16 @@ function Finish({
   return (
     <div>
       <div className="onboard-kicker">Final step</div>
-      <h1>Your Arc is ready</h1>
+      <h1>Your track is ready</h1>
       <p className="lead">
-        {formatLong(arc.startDate)} → {formatLong(arc.endDate)} · {arc.durationDays} days ·{' '}
-        {habits.length} habit{habits.length === 1 ? '' : 's'}. Everything is stored locally in this browser.
+        <strong>{track.title}</strong> · {formatLong(track.startDate)} → {formatLong(track.endDate)} ·{' '}
+        {track.durationDays} days · {habits.length} habit{habits.length === 1 ? '' : 's'}. Everything is stored locally in this browser.
       </p>
-
-      <div className="card" style={{ background: 'var(--bg-raised)', boxShadow: 'none' }}>
-        <div className="card-title">Goal</div>
-        <p style={{ fontWeight: 600 }}>{arc.goal}</p>
-        {arc.why && <p className="secondary small" style={{ marginTop: 8 }}>{arc.why}</p>}
-        {arc.rules.filter((r) => r.trim()).length > 0 && (
-          <>
-            <div className="card-title" style={{ marginTop: 16 }}>Rules</div>
-            <ul className="secondary small" style={{ margin: 0, paddingLeft: 18 }}>
-              {arc.rules.filter((r) => r.trim()).map((r, i) => <li key={i}>{r}</li>)}
-            </ul>
-          </>
-        )}
-      </div>
-
+      <ul className="secondary" style={{ margin: '0 0 8px', paddingLeft: 18, fontSize: 14, display: 'grid', gap: 6 }}>
+        <li>Your Life System is continuous — create more tracks any time.</li>
+        <li>Habits and rules you add now belong to this track.</li>
+        <li>Only today is editable; past days stay as read-only history.</li>
+      </ul>
       <div className="onboard-actions">
         <button type="button" className="btn" onClick={onBack}>Back</button>
         <button type="button" className="btn btn-primary" onClick={onFinish}>

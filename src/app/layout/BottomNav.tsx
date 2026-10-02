@@ -1,6 +1,5 @@
 import React from 'react';
 import type { PageId } from '../../hooks/useArc';
-import { NAV_ENTRIES } from './nav';
 import { IconGrid, IconCheckCircle, IconDumbbell, IconChart, IconDots } from '../../components/icons';
 
 interface BottomNavProps {
@@ -19,10 +18,15 @@ const TABS: { id: PageId | 'more'; label: string; icon: React.FC<{ size?: number
 
 /** App-style bottom tab bar — thumb-zone navigation, 48px+ touch targets. */
 export function BottomNav({ page, onNavigate, onMore }: BottomNavProps) {
+  // "More" stays highlighted while the user is on any page it owns
+  // (Calendar, Reflection, My Tracks, Settings) so the tab bar never
+  // shows zero selected state.
+  const moreOwnsPage = !TABS.some((t) => t.id === page);
+
   return (
     <nav className="bottom-nav" aria-label="Main navigation">
       {TABS.map((tab) => {
-        const active = tab.id === 'more' ? false : page === tab.id;
+        const active = tab.id === 'more' ? moreOwnsPage : page === tab.id;
         const Icon = tab.icon;
         return (
           <button

@@ -1,0 +1,483 @@
+/* ============================================================
+   WELCOME / INTRO — the layer above the tracker.
+   Same design language as the app (icy canvas, navy type,
+   one accent), tuned for a first-run landing experience.
+   ============================================================ */
+
+.intro {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  padding: 20px clamp(16px, 4vw, 44px) 0;
+}
+
+/* ---------- Top bar ---------- */
+
+.intro-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  max-width: 1160px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.intro-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.intro-brand-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 11px;
+  display: grid;
+  place-items: center;
+  color: #ffffff;
+  flex-shrink: 0;
+  background: linear-gradient(150deg, #6cb0ff 0%, #3f8ef7 46%, #8b7cf6 100%);
+  box-shadow: 0 6px 16px -6px rgba(63, 142, 247, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.45);
+}
+
+.intro-brand-name {
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+/* ---------- Layout ---------- */
+
+.intro-main {
+  flex: 1;
+  width: 100%;
+  max-width: 1160px;
+  margin: 0 auto;
+  padding: clamp(34px, 6vw, 72px) 0 clamp(28px, 4vw, 48px);
+  display: flex;
+  flex-direction: column;
+  gap: clamp(46px, 7vw, 84px);
+}
+
+/* ---------- Hero ---------- */
+
+.intro-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+  gap: clamp(24px, 4vw, 52px);
+  align-items: center;
+}
+
+.intro-eyebrow {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent-strong);
+  background: var(--accent-soft);
+  border: 1px solid var(--accent-border);
+  border-radius: var(--radius-pill);
+  padding: 5px 12px;
+  margin-bottom: 20px;
+}
+
+.intro-title {
+  margin: 0;
+  font-size: clamp(34px, 5.4vw, 58px);
+  line-height: 1.04;
+  font-weight: 820;
+  letter-spacing: -0.035em;
+  color: var(--text);
+}
+
+.intro-title-accent {
+  background: linear-gradient(92deg, var(--accent) 0%, var(--accent-2) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.intro-lead {
+  margin: 20px 0 0;
+  max-width: 54ch;
+  font-size: clamp(15px, 1.4vw, 17.5px);
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+.intro-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 24px;
+}
+
+.intro-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 13px;
+  border-radius: var(--radius-pill);
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  box-shadow: var(--shadow);
+}
+
+.intro-hero-card {
+  background: var(--bg-raised);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-xl);
+  padding: clamp(22px, 3vw, 30px);
+  box-shadow: var(--shadow-md);
+}
+
+.intro-hero-card-label {
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.intro-hero-card-title {
+  margin-top: 8px;
+  font-size: clamp(24px, 3vw, 32px);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.intro-hero-card-text {
+  margin: 12px 0 0;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+.intro-hero-card-foot {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px dashed var(--border);
+  font-size: 12px;
+  font-weight: 650;
+  color: var(--text-muted);
+}
+
+.intro-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--success);
+  box-shadow: 0 0 0 3px var(--success-dim);
+  flex-shrink: 0;
+}
+
+/* ---------- Sections ---------- */
+
+.intro-section-head {
+  margin-bottom: 22px;
+}
+
+.intro-section-head h2 {
+  margin: 0;
+  font-size: clamp(20px, 2.4vw, 25px);
+  font-weight: 790;
+  letter-spacing: -0.02em;
+}
+
+.intro-section-head p {
+  margin: 7px 0 0;
+  font-size: 14.5px;
+  color: var(--text-muted);
+}
+
+/* ---------- Feature grid ---------- */
+
+.intro-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(238px, 1fr));
+  gap: 14px;
+}
+
+.intro-feature {
+  background: var(--bg-raised);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  padding: 18px 18px 20px;
+  box-shadow: var(--shadow);
+  transition: transform 0.18s var(--ease), box-shadow 0.18s var(--ease),
+    border-color 0.18s var(--ease);
+}
+
+.intro-feature:hover {
+  transform: translateY(-2px);
+  border-color: var(--border-strong);
+  box-shadow: var(--shadow-md);
+}
+
+.intro-feature-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 11px;
+  display: grid;
+  place-items: center;
+  color: var(--accent-strong);
+  background: var(--accent-soft);
+  border: 1px solid var(--accent-border);
+  margin-bottom: 13px;
+}
+
+.intro-feature h3 {
+  margin: 0;
+  font-size: 15.5px;
+  font-weight: 760;
+  letter-spacing: -0.01em;
+}
+
+.intro-feature p {
+  margin: 7px 0 0;
+  font-size: 13.2px;
+  line-height: 1.55;
+  color: var(--text-secondary);
+}
+
+/* ---------- Platform selection ---------- */
+
+.intro-platforms {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(268px, 1fr));
+  gap: 16px;
+}
+
+.intro-platform {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-raised);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: 22px 22px 24px;
+  box-shadow: var(--shadow);
+  transition: transform 0.18s var(--ease), box-shadow 0.18s var(--ease),
+    border-color 0.18s var(--ease);
+}
+
+.intro-platform:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--border-strong);
+}
+
+.intro-platform.is-here {
+  border-color: var(--accent-border);
+  background: linear-gradient(180deg, rgba(63, 142, 247, 0.06) 0%, rgba(255, 255, 255, 0) 55%),
+    var(--bg-raised);
+}
+
+.intro-platform-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.intro-platform-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  color: var(--accent-deep);
+  background: var(--accent-soft);
+  border: 1px solid var(--accent-border);
+}
+
+.intro-platform:nth-child(2) .intro-platform-icon {
+  color: var(--accent-2-strong);
+  background: var(--accent-2-soft);
+  border-color: var(--accent-2-border);
+}
+
+.intro-platform:nth-child(3) .intro-platform-icon {
+  color: var(--accent-3-strong);
+  background: var(--accent-3-soft);
+  border-color: rgba(79, 184, 216, 0.35);
+}
+
+.intro-platform-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  background: var(--success-dim);
+  border: 1px solid var(--success-border);
+  color: var(--success-strong);
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.intro-platform h3 {
+  margin: 0;
+  font-size: 17.5px;
+  font-weight: 780;
+  letter-spacing: -0.015em;
+}
+
+.intro-platform-meta {
+  margin-top: 5px;
+  font-size: 11px;
+  font-weight: 750;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.intro-platform p {
+  margin: 11px 0 20px;
+  font-size: 13.4px;
+  line-height: 1.55;
+  color: var(--text-secondary);
+  flex: 1;
+}
+
+.intro-platform-btn {
+  width: 100%;
+  min-height: 42px;
+  font-weight: 700;
+}
+
+.intro-note {
+  margin: 20px 0 0;
+  font-size: 13px;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+/* ---------- Footer ---------- */
+
+.intro-foot {
+  max-width: 1160px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 18px 0 clamp(20px, 3vw, 30px);
+  border-top: 1px solid var(--border-soft);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  justify-content: space-between;
+  font-size: 12.3px;
+  color: var(--text-muted);
+}
+
+.intro-foot-challenge {
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+/* ---------- Install sheet ---------- */
+
+.intro-sheet {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.intro-sheet-block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.intro-sheet-label {
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.intro-code {
+  margin: 0;
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken);
+  border: 1px solid var(--border);
+  font-family: var(--mono);
+  font-size: 12.7px;
+  line-height: 1.7;
+  color: var(--text);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* ---------- Motion ---------- */
+
+@keyframes introRise {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.intro-rise {
+  animation: introRise 0.55s var(--ease-out) both;
+}
+
+.intro-delay-0 { animation-delay: 0.05s; }
+.intro-delay-1 { animation-delay: 0.12s; }
+.intro-delay-2 { animation-delay: 0.19s; }
+.intro-delay-3 { animation-delay: 0.26s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .intro-rise {
+    animation: none;
+  }
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 900px) {
+  .intro-hero {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 26px;
+  }
+
+  .intro-hero-card {
+    order: 2;
+  }
+}
+
+@media (max-width: 560px) {
+  .intro {
+    padding-top: 14px;
+  }
+
+  .intro-main {
+    gap: 40px;
+    padding-top: 26px;
+  }
+
+  .intro-top .btn-sm {
+    min-height: 34px;
+  }
+
+  .intro-platforms {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .intro-foot {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

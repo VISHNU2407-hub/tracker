@@ -1,22 +1,39 @@
 {
-  "name": "winter-arc-tracker",
+  "name": "life-system",
   "private": true,
   "version": "1.0.0",
+  "description": "Life System — a private, local-first tracker for habits, rules, daily progress and reflection.",
+  "author": "Life System",
   "type": "module",
+  "main": "desktop/main.cjs",
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
-    "test": "esbuild scripts/smoke.ts --bundle --platform=node --outfile=scripts/.smoke.cjs --log-level=error && node scripts/.smoke.cjs && esbuild scripts/render-smoke.tsx --bundle --platform=node --jsx=automatic --outfile=scripts/.render-smoke.cjs --log-level=error && node scripts/.render-smoke.cjs"
+    "icons": "node scripts/build-icons.mjs",
+    "desktop:dev": "npm run build && electron .",
+    "desktop:smoke": "npm run build && electron . --smoke",
+    "desktop:build": "npm run build && node scripts/desktop-build.mjs",
+    "android:sync": "npm run build && cap sync android",
+    "android:build": "npm run build && cap sync android && cd android && gradlew assembleDebug",
+    "android:open": "cap open android",
+    "test": "esbuild scripts/smoke.ts --bundle --platform=node --outfile=scripts/.smoke.cjs --log-level=error && node scripts/.smoke.cjs && esbuild scripts/render-smoke.tsx --bundle --platform=node --jsx=automatic --outfile=scripts/.render-smoke.cjs --log-level=error && node scripts/.render-smoke.cjs && npm run test:edge",
+    "test:edge": "esbuild scripts/edge-smoke.tsx --bundle --platform=node --jsx=automatic --outfile=scripts/.edge-smoke.cjs --log-level=error && node scripts/.edge-smoke.cjs"
   },
   "dependencies": {
+    "@capacitor/clipboard": "^8.0.1",
+    "@capacitor/core": "^8.5.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
   "devDependencies": {
+    "@capacitor/android": "^8.5.2",
+    "@capacitor/cli": "^8.5.2",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^4.3.4",
+    "electron": "^44.5.1",
+    "electron-builder": "^26.15.3",
     "typescript": "^5.6.3",
     "vite": "^5.4.11"
   }

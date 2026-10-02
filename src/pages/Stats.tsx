@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import type { AppDataApi } from '../hooks/useAppData';
-import { useAnalytics } from '../hooks/useArc';
+import { useAnalytics, trackScope } from '../hooks/useArc';
 import { PageHeader } from '../app/layout/PageHeader';
 import { IconFor } from './Habits';
 import {
@@ -23,11 +23,12 @@ export function StatsPage({ api }: { api: AppDataApi }) {
   const { data } = api;
   const arc = data.arc!;
   const { stats, habitStats, ruleStats } = useAnalytics(data);
+  const { habits: scopedHabits, rules: scopedRules } = trackScope(data);
   const [range, setRange] = React.useState<Range>(30);
 
   const trend = useMemo(
-    () => computeTrend(arc, data.habits, data.rules, data.dailyRecords, range),
-    [arc, data.habits, data.rules, data.dailyRecords, range]
+    () => computeTrend(arc, scopedHabits, scopedRules, data.dailyRecords, range),
+    [arc, scopedHabits, scopedRules, data.dailyRecords, range]
   );
 
   // 7-point rolling average — gives the daily line calm, readable context.
@@ -43,8 +44,8 @@ export function StatsPage({ api }: { api: AppDataApi }) {
   }, [trend]);
 
   const weekly = useMemo(
-    () => computeWeeklyTrend(arc, data.habits, data.rules, data.dailyRecords, 13),
-    [arc, data.habits, data.rules, data.dailyRecords]
+    () => computeWeeklyTrend(arc, scopedHabits, scopedRules, data.dailyRecords, 13),
+    [arc, scopedHabits, scopedRules, data.dailyRecords]
   );
 
   const trendSummary = useMemo(() => {
@@ -53,7 +54,7 @@ export function StatsPage({ api }: { api: AppDataApi }) {
     const avg = Math.round(pts.reduce((s, p) => s + (p.pct ?? 0), 0) / pts.length);
     const perfect = trend.filter((p) => p.pct === 100).length;
     const active = trend.filter((p) => p.pct !== null && p.pct > 0).length;
-    return `Last ${range} arc days: ${pts.length} day${pts.length === 1 ? '' : 's'} with items, ${active} with progress, ${perfect} perfect, ${avg}% average completion.`;
+    return `Last ${range} track days: ${pts.length} day${pts.length === 1 ? '' : 's'} with items, ${active} with progress, ${perfect} perfect, ${avg}% average completion.`;
   }, [trend, range]);
 
   const ruleAgg = useMemo(() => {
@@ -98,7 +99,7 @@ export function StatsPage({ api }: { api: AppDataApi }) {
       {/* Trend chart */}
       <section className="card" style={{ marginBottom: 20 }}>
         <div className="card-title">
-          <span>Completion trend</span>
+          <span className="card-title-main"><IconChart size={14} /> Completion trend</span>
           <div className="segmented" style={{ width: 'auto' }} role="group" aria-label="Trend range">
             {([7, 30, 90] as Range[]).map((r) => (
               <button key={r} type="button" className={range === r ? 'active' : ''} onClick={() => setRange(r)}>
@@ -117,7 +118,7 @@ export function StatsPage({ api }: { api: AppDataApi }) {
         />
         {trendPoints.some((p) => p.sub !== null) && (
           <div className="row small muted" style={{ gap: 6, marginTop: 8 }}>
-            <span style={{ width: 18, height: 0, borderTop: '2px dashed #c7d3fd', display: 'inline-block' }} />
+            <span style={{ width: 18, height: 0, borderTop: '2px dashed var(--chart-avg)', display: 'inline-block' }} />
             7-day rolling average · solid line = daily completion
           </div>
         )}
@@ -125,7 +126,7 @@ export function StatsPage({ api }: { api: AppDataApi }) {
 
       {/* Weekly buckets */}
       <section className="card" style={{ marginBottom: 20 }}>
-        <div className="card-title"><span>Weekly averages — full arc</span></div>
+        <div className="card-title"><span className="card-title-main"><IconChart size={14} /> Weekly averages — full arc</span></div>
         {weekly.length === 0 ? (
           <p className="secondary small">No data yet — your weekly averages appear after your first tracked day.</p>
         ) : (
@@ -188,12 +189,12 @@ export function StatsPage({ api }: { api: AppDataApi }) {
       </section>
 
       {/* Rule control — what you CONTROLLED */}
-      <section className="card">
-        <div className="card-title">
-          <span className="row" style={{ gap: 6 }}><IconShield size={13} /> Rule control — what you controlled</span>
+      <section className="card card-rules">
+<div className="card-title">
+          <span className="card-title-main rule"><IconShield size={14} /> Rule control - what you controlled</span>
         </div>
         {ruleStats.length === 0 ? (
-          <p className="secondary small">No rules yet — add them in My Winter Arc to track your self-control.</p>
+          <p className="secondary small">No rules yet — add them in My Tracks to track your self-control.</p>
         ) : (
           <>
             <div className="habit-stat-row" style={{ borderBottom: '1px solid var(--border)' }}>

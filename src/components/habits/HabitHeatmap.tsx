@@ -24,7 +24,7 @@ const STATUS_TEXT: Record<HabitCellState, string> = {
   pending: 'In progress today',
   na: 'Not applicable / paused',
   future: 'Locked — future day',
-  outside: 'Outside your Arc',
+  outside: 'Outside your track',
 };
 
 interface MonthBucket {
@@ -121,7 +121,7 @@ export function HabitHeatmap({ habit, arc, records, now = todayISO() }: HabitHea
   if (total === 0) {
     return (
       <div className="hhm hhm-empty small muted">
-        Your Arc hasn’t started yet — this habit’s 90-day heatmap appears on day 1.
+        Your track hasn’t started yet — this habit’s heatmap appears on day 1.
       </div>
     );
   }

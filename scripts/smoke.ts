@@ -4,8 +4,13 @@ import {
   evaluateDay, computeStreaks, computeOverallStats, computeHabitStats, computeRuleStats,
   computeTrend, eligibleRulesForDate,
 } from '../src/services/analytics';
-import { addDays, daysBetween, weekKeyOf, isValidISO, monthGroups } from '../src/services/date';
-import { importState, exportState, normalizeAppData } from '../src/services/storage';
+import { addDays, daysBetween, isEditableDate, todayISO, weekKeyOf, isValidISO, monthGroups } from '../src/services/date';
+import { importState, exportState, normalizeAppData, belongsToTrack } from '../src/services/storage';
+import { detectPlatform, platformLabel, readEntry, writeEntry, clearEntry, readSetup, writeSetup, clearSetup, RELEASES_URL } from '../src/app/platform';
+import {
+  buildPassport, parsePassport, applyPassport, encodePassportToken, decodePassportToken,
+  isSetupComplete, PASSPORT_FORMAT, PASSPORT_FILENAME,
+} from '../src/app/passport';
 import type { Arc, Habit, Rule, DailyRecord } from '../src/types';
 
 let failures = 0;
@@ -53,6 +58,13 @@ assert(daysBetween('2025-12-30', '2026-01-02') === 3, 'month/year boundary diff 
 assert(addDays('2026-10-31', 1) === '2026-11-01', 'addDays across month boundary');
 assert(weekKeyOf('2026-10-05') === '2026-W41', 'ISO week key Oct 5 2026 = W41');
 assert(weekKeyOf('2026-01-01') === '2026-W01', 'ISO week Jan 1 2026 = W01');
+
+console.log('— read-only day gate (only today is editable) —');
+const gateToday = todayISO();
+assert(isEditableDate(gateToday), 'today is editable');
+assert(isEditableDate(addDays(gateToday, -1)) === false, 'previous days are read-only');
+assert(isEditableDate(addDays(gateToday, -30)) === false, 'older history days are read-only');
+assert(isEditableDate(addDays(gateToday, 1)) === false, 'future days are read-only');
 
 console.log('— month groups (habit grid) —');
 const mg = monthGroups('2026-10-25', '2026-11-30');
@@ -220,6 +232,41 @@ assert(roundTrip.ok && roundTrip.data!.rules.length === 2, 'v2 backup round-trip
 assert(roundTrip.data!.dailyRecords['2026-10-01'].rules[norm.rules[0].id].status === 'followed', 'followed status round-trips');
 assert(roundTrip.data!.dailyRecords['2026-10-02'].rules[norm.rules[0].id].status === 'not_followed', 'not_followed status round-trips');
 
+console.log('— tracks (fixed Winter Arc → user-created Tracks) —');
+// Legacy single arc migrates into one track; the arc mirror stays populated.
+assert(norm.tracks.length === 1, `legacy arc migrates into 1 track (got ${norm.tracks.length})`);
+assert(norm.tracks[0].title === 'Winter Arc', 'migrated track keeps the legacy title');
+assert(norm.activeTrackId === norm.tracks[0].id, 'migrated track becomes the active track');
+assert(norm.arc !== null && norm.arc.id === norm.tracks[0].id, 'arc mirrors the active track');
+assert(norm.habits.every((h) => h.trackIds?.includes(norm.tracks[0].id)), 'migrated habits belong to the track');
+assert(norm.rules.every((r) => r.trackIds?.includes(norm.tracks[0].id)), 'migrated rules belong to the track');
+assert(norm.dailyRecords['2026-10-01'] !== undefined, 'historical daily records survive migration');
+
+// Membership helper semantics.
+assert(belongsToTrack(undefined, 't1'), 'undefined trackIds = belongs to every track (legacy)');
+assert(belongsToTrack(['t1'], 't1') && !belongsToTrack(['t1'], 't2'), 'explicit membership is respected');
+
+// A tracks-only backup (no legacy arc) imports and rebuilds the arc mirror.
+const twoTracks = {
+  settings: { theme: 'dark', onboarded: true, demoMode: false },
+  tracks: [
+    { id: 't_winter', title: 'Winter Arc', description: '', icon: '❄️', startDate: start, endDate: '2026-12-29', durationDays: 90, goal: '', why: '', rules: [], status: 'active', createdAt: '', updatedAt: '' },
+    { id: 't_fit', title: 'Fitness Journey', description: 'Get strong', icon: '💪', startDate: start, endDate: '2026-11-29', durationDays: 60, goal: '', why: '', rules: [], status: 'active', createdAt: '', updatedAt: '' },
+  ],
+  activeTrackId: 't_fit',
+  habits: [{ ...habits[0], trackIds: ['t_winter'] }, { ...habits[1], id: 'h_fit', trackIds: ['t_fit'] }],
+  rules: [],
+  dailyRecords: {},
+  reflections: {},
+  version: 3,
+};
+const tracksImport = importState(JSON.stringify(twoTracks));
+assert(tracksImport.ok && tracksImport.data!.tracks.length === 2, 'tracks-only backup imports both tracks');
+assert(tracksImport.data!.activeTrackId === 't_fit', 'active track is preserved');
+assert(tracksImport.data!.arc?.title === 'Fitness Journey', 'arc mirror follows the active track (not hard-coded to Winter Arc)');
+assert(!belongsToTrack(tracksImport.data!.habits[0].trackIds, 't_fit'), 'a Winter Arc habit is not scoped to Fitness Journey');
+
+
 console.log('— export / import validation —');
 const goodBackup = {
   settings: { theme: 'dark', onboarded: true },
@@ -246,6 +293,129 @@ const imp3 = importState(JSON.stringify(corrupt));
 assert(imp3.ok && imp3.data!.dailyRecords['garbage-date'] === undefined, 'corrupt record entries dropped');
 const exported = JSON.parse(exportState(imp.data!));
 assert(!!exported.exportedAt && exported.arc.startDate === arc.startDate, 'export includes timestamp and round-trips');
+
+console.log('— platform layer (welcome screen) —');
+assert(detectPlatform({}) === 'web', 'no signals → web');
+assert(detectPlatform({ userAgent: 'Mozilla/5.0' }) === 'web', 'plain browser → web');
+assert(detectPlatform({ electron: true }) === 'desktop', 'Electron renderer → desktop');
+assert(detectPlatform({ tauri: true }) === 'desktop', 'Tauri shell → desktop');
+assert(detectPlatform({ nativePlatform: true, capacitorPlatform: 'android' }) === 'android', 'Capacitor Android → android');
+assert(detectPlatform({ nativePlatform: true, capacitorPlatform: 'ios' }) === 'web', 'unsupported native shell → web');
+assert(detectPlatform({ tauri: true, electron: true, nativePlatform: true, capacitorPlatform: 'android' }) === 'desktop', 'desktop signals win over android');
+assert(
+  platformLabel('desktop') === 'Desktop app' &&
+    platformLabel('android') === 'Android app' &&
+    platformLabel('web') === 'Web app',
+  'platform labels'
+);
+assert(RELEASES_URL.startsWith('https://github.com/'), 'releases URL points at the real repo');
+
+// Entry record — Node has no localStorage, so stub it (process-local, after all
+// storage-service tests have already run without it).
+const entryStore = new Map<string, string>();
+(globalThis as unknown as { localStorage: unknown }).localStorage = {
+  getItem: (k: string) => (entryStore.has(k) ? entryStore.get(k)! : null),
+  setItem: (k: string, v: string) => void entryStore.set(k, String(v)),
+  removeItem: (k: string) => void entryStore.delete(k),
+};
+assert(readEntry() === null, 'no entry recorded before the first visit');
+const entry = writeEntry('desktop');
+assert(entry.platform === 'desktop' && /^\d{4}-/.test(entry.at), 'entry records platform + timestamp');
+assert(readEntry()?.platform === 'desktop', 'entry round-trips');
+writeEntry('android');
+assert(entryStore.size === 1 && entryStore.has('lifeSystem.entry'), 'platform layer writes only lifeSystem.entry (never winterArc.*)');
+entryStore.set('lifeSystem.entry', JSON.stringify({ platform: 'nope' }));
+assert(readEntry() === null, 'unknown platform in entry ignored');
+entryStore.set('lifeSystem.entry', 'not json{');
+assert(readEntry() === null, 'unparseable entry ignored');
+clearEntry();
+assert(readEntry() === null && entryStore.size === 0, 'clearEntry removes the record (replays the intro)');
+
+// Setup record — permanent first-run flag, independent from the entry.
+assert(readSetup() === null, 'no setup flag before onboarding completes');
+writeSetup();
+assert(typeof readSetup() === 'string', 'setup flag round-trips with a timestamp');
+assert(entryStore.size === 1 && entryStore.has('lifeSystem.setup'), 'setup flag lives in its own key');
+entryStore.set('lifeSystem.setup', 'not json{');
+assert(readSetup() === null, 'unparseable setup flag treated as not-done');
+clearSetup();
+assert(readSetup() === null && entryStore.size === 0, 'clearSetup removes the flag (Settings reset path)');
+
+// Setup passport — the cross-platform handoff (web → installed shells).
+console.log('— setup passport (cross-platform handoff) —');
+assert(PASSPORT_FILENAME === 'lifesystem-setup.json', 'passport filename matches the desktop Downloads scan');
+assert(buildPassport() === null && !isSetupComplete(), 'no passport before first-run setup completes');
+
+const seedCompletedSetup = () => {
+  entryStore.clear();
+  entryStore.set('winterArc.settings', JSON.stringify({ onboarded: true, name: 'V' }));
+  entryStore.set('winterArc.arc', JSON.stringify(arc));
+  entryStore.set('winterArc.habits', JSON.stringify(habits));
+  entryStore.set('winterArc.rules', JSON.stringify([]));
+  entryStore.set('winterArc.dailyRecords', JSON.stringify({}));
+  entryStore.set('winterArc.reflections', JSON.stringify([]));
+  entryStore.set('winterArc.version', JSON.stringify(2));
+  writeEntry('web');
+  writeSetup('2026-10-01T10:00:00.000Z');
+};
+seedCompletedSetup();
+assert(isSetupComplete(), 'flagged setup reports complete');
+const passport = buildPassport();
+assert(passport !== null && passport.format === PASSPORT_FORMAT && passport.v === 1, 'passport builds with format marker + version');
+assert(passport!.setup.at === '2026-10-01T10:00:00.000Z', 'passport preserves the original setup timestamp');
+assert((passport!.data.habits as Habit[]).length === habits.length, 'passport carries the full dataset');
+assert(JSON.parse(entryStore.get('winterArc.settings')!).onboarded === true, 'building a passport never mutates local data');
+
+// Validation — only our format, fully shaped, is accepted.
+assert(parsePassport(JSON.stringify(passport)) !== null, 'passport round-trips through JSON text');
+assert(parsePassport({ format: 'someone-elses', v: 1, setup: { at: 'x' }, data: { settings: {}, arc: {} } }) === null, 'foreign format rejected');
+assert(parsePassport({ ...passport!, format: PASSPORT_FORMAT, v: 99 }) === null, 'unknown version rejected');
+assert(parsePassport({ ...passport!, data: { settings: null, arc: {} } }) === null, 'dataset without settings rejected');
+assert(parsePassport('not json {') === null, 'garbage text rejected');
+
+// Clipboard token (Android first-launch channel).
+const unicodePassport = JSON.parse(JSON.stringify(passport)) as typeof passport;
+unicodePassport.data.settings = { onboarded: true, name: 'Шторм ⛅ 日本語' };
+const token = encodePassportToken(unicodePassport!);
+const decoded = decodePassportToken(token);
+assert(decoded !== null && (decoded.data.settings as { name: string }).name === 'Шторм ⛅ 日本語', 'token round-trips unicode dataset');
+assert(decodePassportToken('unrelated clipboard text') === null, 'non-token clipboard text ignored');
+assert(decodePassportToken(`${'lifesystem-setup:'}%%%bad%%%`) === null, 'corrupt token rejected');
+
+// Import rules — an existing install always wins (never reset data).
+seedCompletedSetup();
+const habitsBefore = entryStore.get('winterArc.habits');
+const foreign = JSON.parse(JSON.stringify(passport)) as typeof passport;
+foreign.data.habits = [{ id: 'not-from-here' }];
+assert(applyPassport(foreign) === false, 'import refused when setup is already complete');
+assert(entryStore.get('winterArc.habits') === habitsBefore, 'refused import leaves existing data untouched');
+
+// Fresh install (first launch of an installed shell).
+entryStore.clear();
+assert(!isSetupComplete(), 'fresh store reports setup incomplete');
+assert(applyPassport(passport!) === true, 'fresh install imports the passport');
+assert(isSetupComplete(), 'imported install reports setup complete (no welcome/onboarding)');
+assert(readEntry()?.platform === 'web', 'entry record carried across platforms');
+assert(readSetup() === '2026-10-01T10:00:00.000Z', 'setup timestamp carried over');
+assert((JSON.parse(entryStore.get('winterArc.habits')!) as Habit[]).length === habits.length, 'dataset carried over');
+
+// Legacy user (data predates the setup flag) — same protection as App.tsx.
+entryStore.clear();
+entryStore.set('winterArc.settings', JSON.stringify({ onboarded: true }));
+entryStore.set('winterArc.arc', JSON.stringify(arc));
+assert(isSetupComplete() && readSetup() === null, 'legacy user derives setup-complete without the flag');
+assert(applyPassport(passport!) === false, 'legacy user protected from import too (no reset)');
+
+// Corrupt local key → export nothing rather than a broken passport.
+entryStore.clear();
+entryStore.set('winterArc.settings', JSON.stringify({ onboarded: true }));
+entryStore.set('winterArc.arc', JSON.stringify(arc));
+entryStore.set('winterArc.habits', 'not json{');
+assert(buildPassport() === null, 'corrupt dataset refuses to export');
+
+// Reset All Data clears both flags → next launch is a first launch again.
+entryStore.clear();
+assert(!isSetupComplete() && buildPassport() === null, 'after Reset All Data the next launch starts fresh');
 
 console.log(failures === 0 ? '\nALL PASS' : `\n${failures} FAILURE(S)`);
 process.exit(failures === 0 ? 0 : 1);

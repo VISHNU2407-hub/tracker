@@ -41,6 +41,16 @@ export function daysBetween(a: string, b: string): number {
   return Math.round((db.getTime() - da.getTime()) / 86_400_000);
 }
 
+/**
+ * Write gate for tracked data — ONLY the current local day is editable.
+ * Previous days (history) and future days are read-only. Enforced in the
+ * data layer (useAppData) and mirrored by the UI, which hides edit controls
+ * on any date that fails this check.
+ */
+export function isEditableDate(iso: string): boolean {
+  return iso === todayISO();
+}
+
 /** Day number inside the arc: floor(today - start) + 1, clamped 1..duration. */
 export function dayNumber(today: string, startDate: string, durationDays: number): number {
   return Math.min(Math.max(daysBetween(startDate, today) + 1, 1), durationDays);

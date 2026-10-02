@@ -1,13 +1,15 @@
 /* ============================================================
    useAppData — central state store wired to the storage service.
-   Every mutation persists immediately (spec §5).
-   v2: rules are daily-trackable entities; per-day follow status
-   is stored inside each DailyRecord.
+   Every mutation persists immediately.
+
+   v3: user-created Tracks. `tracks` + `activeTrackId` are
+   canonical; `arc` is kept as a live mirror of the active track
+   so analytics and pages read one derived "current track".
    ============================================================ */
 
 import { useCallback, useEffect, useState } from 'react';
 import { useToday } from './useToday';
-import type { AppData, Arc, Habit, Rule, DailyRecord, Reflection, RuleStatus } from '../types';
+import type { AppData, Arc, Habit, Rule, Track, DailyRecord, Reflection, RuleStatus, TrackStatus } from '../types';
 import {
   loadAppData,
   saveAppData,
@@ -15,10 +17,13 @@ import {
   normalizeAppData,
   SCHEMA_VERSION,
 } from '../services/storage';
-import { todayISO, weekStartOf } from '../services/date';
+import { addDays, isEditableDate, todayISO, weekKeyOf, weekStartOf } from '../services/date';
+import { writeSetup, clearEntry, clearSetup } from '../app/platform';
 
 const EMPTY: AppData = {
   settings: { theme: 'dark', onboarded: false, demoMode: false },
+  tracks: [],
+  activeTrackId: null,
   arc: null,
   habits: [],
   rules: [],
@@ -27,18 +32,38 @@ const EMPTY: AppData = {
   version: SCHEMA_VERSION,
 };
 
+/** Fields a user supplies when creating (or editing) a track. */
+export interface TrackDraft {
+  title: string;
+  description?: string;
+  icon?: string;
+  startDate: string;
+  durationDays: number;
+  goal?: string;
+  why?: string;
+}
+
 export interface AppDataApi {
   data: AppData;
   loaded: boolean;
   /** Today's local date (YYYY-MM-DD). Refreshes automatically at midnight. */
   today: string;
   /* onboarding / settings */
-  completeOnboarding: (arc: Arc, habits: Omit<Habit, 'id' | 'createdAt' | 'order' | 'active'>[], rules: string[]) => void;
+  completeOnboarding: (track: Arc, habits: Omit<Habit, 'id' | 'createdAt' | 'order' | 'active' | 'trackIds'>[], rules: string[]) => void;
   setOnboarded: (v: boolean) => void;
   setDemoMode: (v: boolean) => void;
+  /* tracks */
+  createTrack: (draft: TrackDraft, includedHabitIds?: string[], includedRuleIds?: string[]) => Track;
+  updateTrack: (id: string, patch: Partial<Omit<Track, 'id' | 'createdAt'>>) => void;
+  /** Set which habits/rules belong to a track (membership is `trackIds`). */
+  setTrackMembership: (id: string, habitIds: string[], ruleIds: string[]) => void;
+  deleteTrack: (id: string) => void;
+  setActiveTrack: (id: string) => void;
+  setTrackStatus: (id: string, status: TrackStatus) => void;
+  /** Back-compat alias: patches the ACTIVE track. */
   updateArc: (patch: Partial<Arc>) => void;
   /* habits */
-  addHabit: (h: Omit<Habit, 'id' | 'createdAt' | 'order' | 'active'>) => Habit;
+  addHabit: (h: Omit<Habit, 'id' | 'createdAt' | 'order' | 'active' | 'trackIds'>) => Habit;
   updateHabit: (id: string, patch: Partial<Omit<Habit, 'id' | 'createdAt'>>) => void;
   archiveHabit: (id: string) => void;
   restoreHabit: (id: string) => void;
@@ -51,13 +76,14 @@ export interface AppDataApi {
   restoreRule: (id: string) => void;
   deleteRulePermanently: (id: string) => void;
   reorderRules: (orderedIds: string[]) => void;
-  /** status null removes the stored status for that day */
+  /** status null removes the stored status for that day.
+   *  REJECTED unless date is today — previous/future days are read-only. */
   setRuleStatus: (date: string, ruleId: string, status: RuleStatus | null) => void;
-  /* daily records */
+  /* daily records — all three reject any date other than today */
   setHabitValue: (date: string, habitId: string, value: number) => void;
   toggleHabit: (date: string, habitId: string) => void;
   setDayNote: (date: string, note: string) => void;
-  /* reflections */
+  /* reflections — only the current week's reflection is writable */
   saveReflection: (weekKey: string, fields: Pick<Reflection, 'wentWell' | 'toImprove' | 'nextFocus'>) => void;
   deleteReflection: (weekKey: string) => void;
   /* danger zone */
@@ -89,17 +115,41 @@ function withDay(d: AppData, date: string, fn: (rec: DailyRecord) => DailyRecord
   };
 }
 
-function makeHabit(h: Omit<Habit, 'id' | 'createdAt' | 'order' | 'active'>, order: number): Habit {
+/** Keep `arc` (the derived active track) and every track's rules text
+ *  mirror in sync after each mutation — single source of truth: the
+ *  Rule/Habit entities. */
+function syncActive(d: AppData): AppData {
+  const ruleTextsFor = (trackId: string): string[] =>
+    d.rules
+      .filter((r) => r.active && (r.trackIds === undefined || r.trackIds.includes(trackId)))
+      .map((r) => r.text);
+  const tracks = d.tracks.map((t) => {
+    const rules = ruleTextsFor(t.id);
+    return rules.length === t.rules.length && rules.every((x, i) => x === t.rules[i])
+      ? t
+      : { ...t, rules };
+  });
+  const base = tracks === d.tracks ? d : { ...d, tracks };
+  const active = tracks.find((t) => t.id === d.activeTrackId) ?? null;
+  return { ...base, arc: active };
+}
+
+function makeHabit(
+  h: Omit<Habit, 'id' | 'createdAt' | 'order' | 'active' | 'trackIds'>,
+  order: number,
+  trackId: string | null
+): Habit {
   return {
     ...h,
     id: newId('habit'),
     active: true,
     createdAt: new Date().toISOString(),
     order,
+    trackIds: trackId ? [trackId] : undefined,
   };
 }
 
-function makeRule(text: string, order: number, fromDay: number): Rule {
+function makeRule(text: string, order: number, fromDay: number, trackId: string | null): Rule {
   return {
     id: newId('rule'),
     text: text.trim(),
@@ -107,7 +157,44 @@ function makeRule(text: string, order: number, fromDay: number): Rule {
     fromDay,
     createdAt: new Date().toISOString(),
     order,
+    trackIds: trackId ? [trackId] : undefined,
   };
+}
+
+function makeTrack(draft: TrackDraft): Track {
+  const durationDays = Math.max(1, Math.floor(draft.durationDays) || 90);
+  const nowISO = new Date().toISOString();
+  return {
+    id: newId('track'),
+    title: draft.title.trim() || 'My Track',
+    description: (draft.description ?? '').trim(),
+    icon: (draft.icon ?? '').trim(),
+    startDate: draft.startDate,
+    endDate: addDays(draft.startDate, durationDays - 1),
+    durationDays,
+    goal: (draft.goal ?? '').trim(),
+    why: (draft.why ?? '').trim(),
+    rules: [],
+    status: 'active',
+    createdAt: nowISO,
+    updatedAt: nowISO,
+  };
+}
+
+/** Materialise membership then add/remove a track id (undefined = all tracks). */
+function setMembership<T extends { id: string; trackIds?: string[] }>(
+  items: T[],
+  trackId: string,
+  selectedIds: Set<string>,
+  allTrackIds: string[]
+): T[] {
+  return items.map((item) => {
+    const current = item.trackIds === undefined ? allTrackIds : item.trackIds;
+    const next = new Set(current);
+    if (selectedIds.has(item.id)) next.add(trackId);
+    else next.delete(trackId);
+    return { ...item, trackIds: Array.from(next) };
+  });
 }
 
 export function useAppData(): AppDataApi {
@@ -126,23 +213,67 @@ export function useAppData(): AppDataApi {
 
   const apply = useCallback((fn: (d: AppData) => AppData) => {
     setData((prev) => {
-      const next = fn(prev);
+      const next = syncActive(fn(prev));
       saveAppData(next);
       return next;
     });
   }, []);
 
+  /**
+   * Hard gate for tracked-day writes: only today's record may be mutated.
+   * Calls for any previous or future date are rejected right here, so the
+   * read-only rule holds no matter what the UI (or a hand-made call) tries.
+   */
+  const applyDay = useCallback(
+    (date: string, fn: (d: AppData) => AppData) => {
+      if (!isEditableDate(date)) return;
+      apply(fn);
+    },
+    [apply]
+  );
+
+  /**
+   * Same gate at week granularity for reflections: only the week containing
+   * today is writable — past/future weeks are history.
+   */
+  const applyReflectionWeek = useCallback(
+    (weekKey: string, fn: (d: AppData) => AppData) => {
+      if (weekKey !== weekKeyOf(todayISO())) return;
+      apply(fn);
+    },
+    [apply]
+  );
+
   const completeOnboarding = useCallback<AppDataApi['completeOnboarding']>(
-    (arc, habitDefs, ruleTexts) => {
+    (track, habitDefs, ruleTexts) => {
+      const trackId = track.id || newId('track');
+      const nowISO = new Date().toISOString();
+      const newTrack: Track = {
+        id: trackId,
+        title: (track.title || 'My Track').trim() || 'My Track',
+        description: (track.description ?? '').trim(),
+        icon: (track.icon ?? '').trim(),
+        startDate: track.startDate,
+        endDate: track.endDate || addDays(track.startDate, Math.max(1, track.durationDays) - 1),
+        durationDays: Math.max(1, Math.floor(track.durationDays) || 90),
+        goal: (track.goal ?? '').trim(),
+        why: (track.why ?? '').trim(),
+        rules: [],
+        status: 'active',
+        createdAt: nowISO,
+        updatedAt: nowISO,
+      };
       apply((d) => ({
         ...d,
         settings: { ...d.settings, onboarded: true },
-        arc: { ...arc, updatedAt: new Date().toISOString() },
-        habits: habitDefs.map((h, i) => makeHabit(h, i + 1)),
-        rules: ruleTexts.map((t, i) => makeRule(t, i + 1, 1)),
-        dailyRecords: {}, // fresh arc
+        tracks: [newTrack],
+        activeTrackId: trackId,
+        habits: habitDefs.map((h, i) => makeHabit(h, i + 1, trackId)),
+        rules: ruleTexts.map((t, i) => makeRule(t, i + 1, 1, trackId)),
+        dailyRecords: {}, // fresh track
         reflections: {},
       }));
+      writeSetup(); // permanent first-run flag → wizard never runs again
     },
     [apply]
   );
@@ -155,13 +286,111 @@ export function useAppData(): AppDataApi {
     apply((d) => ({ ...d, settings: { ...d.settings, demoMode: v } }));
   }, [apply]);
 
+  /* ---------- tracks ---------- */
+
+  const createTrack = useCallback<AppDataApi['createTrack']>(
+    (draft, includedHabitIds, includedRuleIds) => {
+      const track = makeTrack(draft);
+      apply((d) => {
+        const allTrackIds = [...d.tracks.map((t) => t.id), track.id];
+        const habitIds = new Set(includedHabitIds ?? d.habits.filter((h) => h.active).map((h) => h.id));
+        const ruleIds = new Set(includedRuleIds ?? d.rules.filter((r) => r.active).map((r) => r.id));
+        return {
+          ...d,
+          tracks: [...d.tracks, track],
+          activeTrackId: track.id, // newly created track becomes the working one
+          habits: setMembership(d.habits, track.id, habitIds, allTrackIds),
+          rules: setMembership(d.rules, track.id, ruleIds, allTrackIds),
+        };
+      });
+      return track;
+    },
+    [apply]
+  );
+
+  const updateTrack = useCallback<AppDataApi['updateTrack']>(
+    (id, patch) => {
+      apply((d) => {
+        const tracks = d.tracks.map((t) => {
+          if (t.id !== id) return t;
+          const next: Track = { ...t, ...patch, updatedAt: new Date().toISOString() };
+          // Keep the end date consistent with start + duration unless given.
+          if ((patch.startDate || patch.durationDays) && patch.endDate === undefined) {
+            const duration = Math.max(1, Math.floor(patch.durationDays ?? t.durationDays));
+            next.durationDays = duration;
+            next.endDate = addDays(patch.startDate ?? t.startDate, duration - 1);
+          }
+          return next;
+        });
+        return { ...d, tracks };
+      });
+    },
+    [apply]
+  );
+
+  const setTrackMembership = useCallback<AppDataApi['setTrackMembership']>(
+    (id, habitIds, ruleIds) => {
+      apply((d) => {
+        if (!d.tracks.some((t) => t.id === id)) return d;
+        const allTrackIds = d.tracks.map((t) => t.id);
+        return {
+          ...d,
+          habits: setMembership(d.habits, id, new Set(habitIds), allTrackIds),
+          rules: setMembership(d.rules, id, new Set(ruleIds), allTrackIds),
+        };
+      });
+    },
+    [apply]
+  );
+
+  const setTrackStatus = useCallback<AppDataApi['setTrackStatus']>(
+    (id, status) => updateTrack(id, { status }),
+    [updateTrack]
+  );
+
+  const setActiveTrack = useCallback<AppDataApi['setActiveTrack']>(
+    (id) => {
+      apply((d) => (d.tracks.some((t) => t.id === id) ? { ...d, activeTrackId: id } : d));
+    },
+    [apply]
+  );
+
+  const deleteTrack = useCallback<AppDataApi['deleteTrack']>(
+    (id) => {
+      apply((d) => {
+        const tracks = d.tracks.filter((t) => t.id !== id);
+        // Remove the track from every membership list (records are preserved).
+        const dropMembership = <T extends { trackIds?: string[] }>(items: T[]): T[] =>
+          items.map((item) =>
+            item.trackIds === undefined
+              ? item
+              : { ...item, trackIds: item.trackIds.filter((tid) => tid !== id) }
+          );
+        const activeTrackId =
+          d.activeTrackId === id
+            ? tracks.find((t) => t.status === 'active')?.id ?? tracks[0]?.id ?? null
+            : d.activeTrackId;
+        return {
+          ...d,
+          tracks,
+          activeTrackId,
+          habits: dropMembership(d.habits),
+          rules: dropMembership(d.rules),
+        };
+      });
+    },
+    [apply]
+  );
+
   const updateArc = useCallback<AppDataApi['updateArc']>(
     (patch) => {
-      apply((d) =>
-        d.arc
-          ? { ...d, arc: { ...d.arc, ...patch, updatedAt: new Date().toISOString() } }
-          : d
-      );
+      apply((d) => {
+        if (!d.activeTrackId) return d;
+        const tracks = d.tracks.map((t) =>
+          t.id === d.activeTrackId ? { ...t, ...patch, updatedAt: new Date().toISOString() } : t
+        );
+        return { ...d, tracks };
+      });
     },
     [apply]
   );
@@ -170,7 +399,7 @@ export function useAppData(): AppDataApi {
 
   const addHabit = useCallback<AppDataApi['addHabit']>(
     (h) => {
-      const habit = makeHabit(h, 0);
+      const habit = makeHabit(h, 0, null);
       apply((d) => ({
         ...d,
         habits: [...d.habits, { ...habit, order: d.habits.length + 1 }],
@@ -250,14 +479,10 @@ export function useAppData(): AppDataApi {
 
   const addRule = useCallback<AppDataApi['addRule']>(
     (text, fromDay) => {
-      const rule = makeRule(text, 0, fromDay ?? 1);
+      const rule = makeRule(text, 0, fromDay ?? 1, null);
       apply((d) => ({
         ...d,
-        rules: [...d.rules, { ...rule, order: d.rules.length + 1 }],
-        // Mirror active rule texts onto arc.rules for back-compat.
-        arc: d.arc
-          ? { ...d.arc, rules: [...d.arc.rules, rule.text], updatedAt: new Date().toISOString() }
-          : d.arc,
+        rules: [...d.rules, { ...rule, order: d.rules.length + 1, trackIds: d.activeTrackId ? [d.activeTrackId] : undefined }],
       }));
       return rule;
     },
@@ -266,42 +491,30 @@ export function useAppData(): AppDataApi {
 
   const updateRule = useCallback<AppDataApi['updateRule']>(
     (id, patch) => {
-      apply((d) => {
-        const rules = d.rules.map((r) => (r.id === id ? { ...r, ...patch } : r));
-        return {
-          ...d,
-          rules,
-          arc: d.arc ? { ...d.arc, rules: rules.map((r) => r.text), updatedAt: new Date().toISOString() } : d.arc,
-        };
-      });
+      apply((d) => ({
+        ...d,
+        rules: d.rules.map((r) => (r.id === id ? { ...r, ...patch } : r)),
+      }));
     },
     [apply]
   );
 
   const archiveRule = useCallback(
     (id: string) => {
-      apply((d) => {
-        const rules = d.rules.map((r) => (r.id === id ? { ...r, active: false } : r));
-        return {
-          ...d,
-          rules,
-          arc: d.arc ? { ...d.arc, rules: rules.filter((r) => r.active).map((r) => r.text) } : d.arc,
-        };
-      });
+      apply((d) => ({
+        ...d,
+        rules: d.rules.map((r) => (r.id === id ? { ...r, active: false } : r)),
+      }));
     },
     [apply]
   );
 
   const restoreRule = useCallback(
     (id: string) => {
-      apply((d) => {
-        const rules = d.rules.map((r) => (r.id === id ? { ...r, active: true } : r));
-        return {
-          ...d,
-          rules,
-          arc: d.arc ? { ...d.arc, rules: rules.filter((r) => r.active).map((r) => r.text) } : d.arc,
-        };
-      });
+      apply((d) => ({
+        ...d,
+        rules: d.rules.map((r) => (r.id === id ? { ...r, active: true } : r)),
+      }));
     },
     [apply]
   );
@@ -321,13 +534,7 @@ export function useAppData(): AppDataApi {
             dailyRecords[date] = { ...rec, rules, updatedAt: new Date().toISOString() };
           }
         }
-        const remaining = d.rules.filter((r) => r.id !== id);
-        return {
-          ...d,
-          rules: remaining,
-          dailyRecords,
-          arc: d.arc ? { ...d.arc, rules: remaining.map((r) => r.text) } : d.arc,
-        };
+        return { ...d, rules: d.rules.filter((r) => r.id !== id), dailyRecords };
       });
     },
     [apply]
@@ -350,7 +557,7 @@ export function useAppData(): AppDataApi {
 
   const setRuleStatus = useCallback<AppDataApi['setRuleStatus']>(
     (date, ruleId, status) => {
-      apply((d) =>
+      applyDay(date, (d) =>
         withDay(d, date, (rec) => {
           const rules = { ...(rec.rules ?? {}) };
           if (status === null) {
@@ -362,21 +569,21 @@ export function useAppData(): AppDataApi {
         })
       );
     },
-    [apply]
+    [applyDay]
   );
 
-  /* ---------- daily records ---------- */
+  /* ---------- daily records (today only) ---------- */
 
   const mutateDay = useCallback(
     (date: string, fn: (rec: DailyRecord) => DailyRecord) => {
-      apply((d) => withDay(d, date, fn));
+      applyDay(date, (d) => withDay(d, date, fn));
     },
-    [apply]
+    [applyDay]
   );
 
   const setHabitValue = useCallback<AppDataApi['setHabitValue']>(
     (date, habitId, value) => {
-      apply((d) => {
+      applyDay(date, (d) => {
         const habit = d.habits.find((h) => h.id === habitId);
         const completed =
           habit?.type === 'checkbox' ? value > 0 : habit ? value >= habit.target : value > 0;
@@ -386,12 +593,12 @@ export function useAppData(): AppDataApi {
         }));
       });
     },
-    [apply]
+    [applyDay]
   );
 
   const toggleHabit = useCallback<AppDataApi['toggleHabit']>(
     (date, habitId) => {
-      apply((d) => {
+      applyDay(date, (d) => {
         const habit = d.habits.find((h) => h.id === habitId);
         return withDay(d, date, (rec) => {
           const cur = rec.habits[habitId];
@@ -413,7 +620,7 @@ export function useAppData(): AppDataApi {
         });
       });
     },
-    [apply]
+    [applyDay]
   );
 
   const setDayNote = useCallback<AppDataApi['setDayNote']>(
@@ -427,7 +634,7 @@ export function useAppData(): AppDataApi {
 
   const saveReflection = useCallback<AppDataApi['saveReflection']>(
     (weekKey, fields) => {
-      apply((d) => {
+      applyReflectionWeek(weekKey, (d) => {
         const existing = d.reflections[weekKey];
         const nowISO = new Date().toISOString();
         const reflection: Reflection = {
@@ -441,17 +648,17 @@ export function useAppData(): AppDataApi {
         return { ...d, reflections: { ...d.reflections, [weekKey]: reflection } };
       });
     },
-    [apply]
+    [applyReflectionWeek]
   );
 
   const deleteReflection = useCallback((weekKey: string) => {
-    apply((d) => {
+    applyReflectionWeek(weekKey, (d) => {
       if (!d.reflections[weekKey]) return d;
       const reflections = { ...d.reflections };
       delete reflections[weekKey];
       return { ...d, reflections };
     });
-  }, [apply]);
+  }, [applyReflectionWeek]);
 
   /* ---------- danger zone ---------- */
 
@@ -461,12 +668,17 @@ export function useAppData(): AppDataApi {
       normalized.settings.onboarded = true;
       saveAppData(normalized);
       setData(normalized);
+      writeSetup(); // a restored backup is a configured tracker
     },
     []
   );
 
   const wipeEverything = useCallback(() => {
     resetAllData();
+    // Full reset also returns the product to its first-launch state:
+    // welcome screen + setup wizard (explicit Settings action only).
+    clearEntry();
+    clearSetup();
     setData({ ...EMPTY, version: SCHEMA_VERSION });
   }, []);
 
@@ -477,6 +689,12 @@ export function useAppData(): AppDataApi {
     completeOnboarding,
     setOnboarded,
     setDemoMode,
+    createTrack,
+    updateTrack,
+    setTrackMembership,
+    deleteTrack,
+    setActiveTrack,
+    setTrackStatus,
     updateArc,
     addHabit,
     updateHabit,

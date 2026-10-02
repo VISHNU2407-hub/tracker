@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useId, useMemo, useRef, useState } from 'react';
 import { formatShort } from '../../services/date';
 
 /* ============================================================
@@ -10,10 +10,11 @@ import { formatShort } from '../../services/date';
    BarChart  → "Completion by week / by habit"
    ============================================================ */
 
-const ACCENT = '#4f6ef7';
-const ACCENT_SOFT = '#c7d3fd';
-const GRID = '#e9edf5';
-const MUTED = '#8894ab';
+/* Winter palette: icy blue primary, soft violet companion, glacier grid. */
+const ACCENT = '#3f8ef7';
+const ACCENT_SOFT = '#8b7cf6';
+const GRID = '#e2eaf6';
+const MUTED = '#6f819f';
 
 export interface ChartPoint {
   /** ISO date (yyyy-mm-dd) or any short label */
@@ -50,6 +51,7 @@ export function LineChart({
   const wrapRef = useRef<HTMLDivElement>(null);
   const [tip, setTip] = useState<Tooltip | null>(null);
   const [hoverIdx, setHoverIdx] = useState<number | null>(null);
+  const gradId = useId().replace(/:/g, '');
 
   const W = 720;
   const H = height;
@@ -146,6 +148,13 @@ export function LineChart({
         aria-label={ariaLabel}
         onMouseLeave={() => { setTip(null); setHoverIdx(null); }}
       >
+        <defs>
+          <linearGradient id={`fill-${gradId}`} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#5aa2fb" stopOpacity="0.26" />
+            <stop offset="100%" stopColor="#8b7cf6" stopOpacity="0.02" />
+          </linearGradient>
+        </defs>
+
         {/* horizontal gridlines */}
         {[0, 50, 100].map((v) => (
           <g key={v}>
@@ -158,7 +167,7 @@ export function LineChart({
 
         {/* area fills */}
         {geo.areaPaths.map((d, k) => (
-          <path key={k} d={d} fill={ACCENT} opacity={0.07} />
+          <path key={k} d={d} fill={`url(#fill-${gradId})`} />
         ))}
 
         {/* main line(s) */}
@@ -193,14 +202,14 @@ export function LineChart({
             cx={geo.x(p.i)}
             cy={geo.y(p.v)}
             r={hoverIdx === p.i ? 4.5 : 2.6}
-            fill="#ffffff"
+            fill="var(--card)"
             stroke={ACCENT}
             strokeWidth={2}
           />
         ))}
 
         {/* hover targets — full-height columns */}
-        {points.map((p, i) => (
+        {points.map((_p, i) => (
           <rect
             key={i}
             x={geo.x(i) - (W - PAD_L - PAD_R) / (2 * Math.max(1, points.length - 1))}
@@ -272,6 +281,7 @@ export function BarChart({
 }) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const [tip, setTip] = useState<Tooltip | null>(null);
+  const gradId = useId().replace(/:/g, '');
 
   const W = 720;
   const H = height;
@@ -316,6 +326,13 @@ export function BarChart({
         aria-label={ariaLabel}
         onMouseLeave={() => setTip(null)}
       >
+        <defs>
+          <linearGradient id={`bar-${gradId}`} x1="0" y1="1" x2="0" y2="0">
+            <stop offset="0%" stopColor="#6cb0ff" />
+            <stop offset="100%" stopColor="#3f8ef7" />
+          </linearGradient>
+        </defs>
+
         {[0, 50, 100].map((v) => (
           <g key={v}>
             <line x1={PAD_L} x2={W - PAD_R} y1={y(v)} y2={y(v)} stroke={GRID} strokeWidth={1} />
@@ -345,9 +362,9 @@ export function BarChart({
                   y={PAD_T + innerH - barH}
                   width={barW}
                   height={barH}
-                  rx={Math.min(5, barW / 2)}
-                  fill={ACCENT}
-                  opacity={0.88}
+                  rx={Math.min(6, barW / 2)}
+                  fill={`url(#bar-${gradId})`}
+                  opacity={0.92}
                   style={{ transition: 'opacity 0.15s ease' }}
                 />
               ) : (

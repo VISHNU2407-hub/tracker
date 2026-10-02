@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import type { Habit } from '../types';
-import { useAppData, type AppDataApi } from '../hooks/useAppData';
-import { useAnalytics } from '../hooks/useArc';
+import type { AppDataApi } from '../hooks/useAppData';
+import { computeHabitStats } from '../services/analytics';
 import { PageHeader } from '../app/layout/PageHeader';
 import { HabitForm, type HabitFormValues } from '../components/habits/HabitForm';
 import { HabitHeatmap } from '../components/habits/HabitHeatmap';
@@ -15,11 +15,12 @@ import {
 
 /* ============================================================
    Habits page: add / edit / archive / reorder.
-   Archived habits preserve history. Each habit gets its own
-   compact card — icon, name, target, rate, streaks, controls —
-   with an independent 90-day heatmap built only from that
-   habit's stored records. All metrics come from the existing
-   analytics; nothing new is stored.
+   Archived habits preserve history. Each habit lives in its own
+   compact card, arranged in a responsive grid — 3 columns on
+   desktop, 2 on tablet, 1 on mobile. Each card keeps icon, name,
+   target, rate, streaks, controls and an independent 90-day
+   heatmap built only from that habit's stored records. All
+   metrics come from the existing analytics; nothing new is stored.
    ============================================================ */
 
 const ICON_MAP: Record<string, React.FC<{ size?: number }>> = {
@@ -46,8 +47,14 @@ function targetLabel(habit: Habit): string {
 
 export function HabitsPage({ api }: { api: AppDataApi }) {
   const { data } = api;
-  const { habitStats } = useAnalytics(data);
   const today = todayISO();
+  const arc = data.arc!;
+  // Stats use the active track's window but cover every habit definition,
+  // so a habit that only belongs to another track still shows its history.
+  const habitStats = useMemo(
+    () => (arc ? computeHabitStats(arc, data.habits, data.dailyRecords, today) : []),
+    [arc, data.habits, data.dailyRecords, today]
+  );
   const statMap = new Map(habitStats.map((s) => [s.habit.id, s]));
 
   const [formOpen, setFormOpen] = useState(false);
@@ -77,8 +84,6 @@ export function HabitsPage({ api }: { api: AppDataApi }) {
     api.reorderHabits(ids);
   };
 
-  const rateFor = (habit: Habit) => habitStats.find((s) => s.habit.id === habit.id)?.rate ?? null;
-
   return (
     <div>
       <PageHeader
@@ -91,10 +96,10 @@ export function HabitsPage({ api }: { api: AppDataApi }) {
         }
       />
 
-      {/* Active habits */}
-      <div className="stack" style={{ gap: 16 }}>
+      {/* Active habits — responsive card grid */}
+      <div className="habits-grid" role="list">
         {active.length === 0 && (
-          <div className="card empty-state">
+          <div className="card empty-state habits-grid-empty">
             <div className="big">No active habits</div>
             <p>Add at least one habit to start tracking your days.</p>
           </div>
@@ -103,12 +108,12 @@ export function HabitsPage({ api }: { api: AppDataApi }) {
           const Icon = IconFor(habit.icon);
           const stat = statMap.get(habit.id);
           return (
-            <div className="habit-card" key={habit.id}>
+            <div className="habit-card" role="listitem" key={habit.id}>
               <div className="habit-card-top">
-                <span className="task-icon"><Icon size={16} /></span>
+                <span className="task-icon"><Icon size={15} /></span>
                 <div className="task-body">
                   <div className="task-name truncate">{habit.name}</div>
-                  <div className="task-meta">{targetLabel(habit)}</div>
+                  <div className="task-meta truncate">{targetLabel(habit)}</div>
                 </div>
                 {stat && stat.rate !== null && (
                   <span className="habit-rate" title="Completion rate over eligible days">{stat.rate}%</span>
@@ -133,23 +138,27 @@ export function HabitsPage({ api }: { api: AppDataApi }) {
                 <>
                   <div className="habit-stat-strip">
                     <span className="hss-item">
-                      <IconFlame size={14} style={{ color: 'var(--warning)' }} />
+                      <IconFlame size={13} style={{ color: 'var(--warning-strong)' }} />
                       <span className="hss-k">Current streak</span>
-                      <strong>{stat.currentStreak} <span className="hss-unit">days</span></strong>
+                      <strong>{stat.currentStreak} <span className="hss-unit">d</span></strong>
                     </span>
                     <span className="hss-item">
-                      <IconTrophy size={14} style={{ color: 'var(--success)' }} />
+                      <IconTrophy size={13} style={{ color: 'var(--success-strong)' }} />
                       <span className="hss-k">Best streak</span>
-                      <strong>{stat.bestStreak} <span className="hss-unit">days</span></strong>
+                      <strong>{stat.bestStreak} <span className="hss-unit">d</span></strong>
                     </span>
                     <span className="hss-item">
-                      <IconTarget size={14} style={{ color: 'var(--accent)' }} />
+                      <IconTarget size={13} style={{ color: 'var(--habit-accent, var(--accent))' }} />
                       <span className="hss-k">Completion</span>
                       <strong>{stat.rate === null ? '—' : `${stat.rate}%`}</strong>
                     </span>
                   </div>
 
-                  <HabitHeatmap habit={habit} arc={data.arc!} records={data.dailyRecords} now={today} />
+                  <div className="habit-ratebar" aria-hidden="true">
+                    <span style={{ width: `${stat.rate ?? 0}%` }} />
+                  </div>
+
+                  <HabitHeatmap habit={habit} arc={arc} records={data.dailyRecords} now={today} />
                 </>
               )}
             </div>
@@ -161,14 +170,14 @@ export function HabitsPage({ api }: { api: AppDataApi }) {
       {archived.length > 0 && (
         <div style={{ marginTop: 30 }}>
           <div className="card-title">Archived — history preserved</div>
-          <div className="stack" style={{ gap: 14 }}>
+          <div className="habits-grid habits-grid-archived">
             {archived.map((habit) => {
               const Icon = IconFor(habit.icon);
               const stat = statMap.get(habit.id);
               return (
                 <div className="habit-card archived" key={habit.id}>
                   <div className="habit-card-top">
-                    <span className="task-icon"><Icon size={16} /></span>
+                    <span className="task-icon"><Icon size={15} /></span>
                     <div className="task-body">
                       <div className="row" style={{ gap: 8, minWidth: 0 }}>
                         <div className="task-name truncate">{habit.name}</div>
@@ -191,23 +200,23 @@ export function HabitsPage({ api }: { api: AppDataApi }) {
                     <>
                       <div className="habit-stat-strip">
                         <span className="hss-item">
-                          <IconFlame size={14} style={{ color: 'var(--warning)' }} />
+                          <IconFlame size={13} style={{ color: 'var(--warning-strong)' }} />
                           <span className="hss-k">Current streak</span>
-                          <strong>{stat.currentStreak} <span className="hss-unit">days</span></strong>
+                          <strong>{stat.currentStreak} <span className="hss-unit">d</span></strong>
                         </span>
                         <span className="hss-item">
-                          <IconTrophy size={14} style={{ color: 'var(--success)' }} />
+                          <IconTrophy size={13} style={{ color: 'var(--success-strong)' }} />
                           <span className="hss-k">Best streak</span>
-                          <strong>{stat.bestStreak} <span className="hss-unit">days</span></strong>
+                          <strong>{stat.bestStreak} <span className="hss-unit">d</span></strong>
                         </span>
                         <span className="hss-item">
-                          <IconTarget size={14} style={{ color: 'var(--accent)' }} />
+                          <IconTarget size={13} style={{ color: 'var(--habit-accent, var(--accent))' }} />
                           <span className="hss-k">Completion</span>
                           <strong>{stat.rate === null ? '—' : `${stat.rate}%`}</strong>
                         </span>
                       </div>
 
-                      <HabitHeatmap habit={habit} arc={data.arc!} records={data.dailyRecords} now={today} />
+                      <HabitHeatmap habit={habit} arc={arc} records={data.dailyRecords} now={today} />
                     </>
                   )}
                 </div>

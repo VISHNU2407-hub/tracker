@@ -7,7 +7,7 @@ import {
   IconDumbbell,
   IconChart,
   IconBook,
-  IconTarget,
+  IconLayers,
   IconSettings,
   type IconProps,
 } from '../../components/icons';
@@ -25,7 +25,7 @@ export const NAV_ENTRIES: NavEntry[] = [
   { id: 'habits', label: 'Habits', icon: IconDumbbell },
   { id: 'stats', label: 'Stats', icon: IconChart },
   { id: 'reflection', label: 'Reflection', icon: IconBook },
-  { id: 'myarc', label: 'My Winter Arc', icon: IconTarget },
+  { id: 'tracks', label: 'My Tracks', icon: IconLayers },
   { id: 'settings', label: 'Settings', icon: IconSettings },
 ];
 

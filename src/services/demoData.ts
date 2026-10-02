@@ -4,7 +4,7 @@
    v2: includes trackable rules with followed/broken history.
    ============================================================ */
 
-import type { AppData, Habit, Rule, DailyRecord } from '../types';
+import type { AppData, Habit, Rule, Track, DailyRecord } from '../types';
 import { addDays, todayISO } from './date';
 
 /** Deterministic pseudo-random so the preview is stable across renders. */
@@ -24,17 +24,18 @@ export function buildDemoData(real: AppData): AppData {
   const durationDays = 90;
   const rand = mulberry(42);
 
+  const trackId = 'demo_track';
   const habits: Habit[] = [
-    { id: 'demo_h1', name: 'Workout', icon: 'dumbbell', type: 'checkbox', target: 1, unit: 'session', active: true, createdAt: `${startDate}T08:00:00.000Z`, order: 1 },
-    { id: 'demo_h2', name: 'Drink water', icon: 'hash', type: 'numeric', target: 8, unit: 'glasses', active: true, createdAt: `${startDate}T08:00:00.000Z`, order: 2 },
-    { id: 'demo_h3', name: 'Deep work', icon: 'clock', type: 'duration', target: 90, unit: 'min', active: true, createdAt: `${startDate}T08:00:00.000Z`, order: 3 },
-    { id: 'demo_h4', name: 'Read', icon: 'book', type: 'duration', target: 20, unit: 'min', active: true, createdAt: `${startDate}T08:00:00.000Z`, order: 4 },
+    { id: 'demo_h1', name: 'Workout', icon: 'dumbbell', type: 'checkbox', target: 1, unit: 'session', active: true, createdAt: `${startDate}T08:00:00.000Z`, order: 1, trackIds: [trackId] },
+    { id: 'demo_h2', name: 'Drink water', icon: 'hash', type: 'numeric', target: 8, unit: 'glasses', active: true, createdAt: `${startDate}T08:00:00.000Z`, order: 2, trackIds: [trackId] },
+    { id: 'demo_h3', name: 'Deep work', icon: 'clock', type: 'duration', target: 90, unit: 'min', active: true, createdAt: `${startDate}T08:00:00.000Z`, order: 3, trackIds: [trackId] },
+    { id: 'demo_h4', name: 'Read', icon: 'book', type: 'duration', target: 20, unit: 'min', active: true, createdAt: `${startDate}T08:00:00.000Z`, order: 4, trackIds: [trackId] },
   ];
 
   const rules: Rule[] = [
-    { id: 'demo_r1', text: 'No phone in bed', active: true, fromDay: 1, createdAt: `${startDate}T08:00:00.000Z`, order: 1 },
-    { id: 'demo_r2', text: 'No sugar', active: true, fromDay: 1, createdAt: `${startDate}T08:00:00.000Z`, order: 2 },
-    { id: 'demo_r3', text: 'Lights out by 11 PM', active: true, fromDay: 1, createdAt: `${startDate}T08:00:00.000Z`, order: 3 },
+    { id: 'demo_r1', text: 'No phone in bed', active: true, fromDay: 1, createdAt: `${startDate}T08:00:00.000Z`, order: 1, trackIds: [trackId] },
+    { id: 'demo_r2', text: 'No sugar', active: true, fromDay: 1, createdAt: `${startDate}T08:00:00.000Z`, order: 2, trackIds: [trackId] },
+    { id: 'demo_r3', text: 'Lights out by 11 PM', active: true, fromDay: 1, createdAt: `${startDate}T08:00:00.000Z`, order: 3, trackIds: [trackId] },
   ];
 
   const dailyRecords: Record<string, DailyRecord> = {};
@@ -71,21 +72,27 @@ export function buildDemoData(real: AppData): AppData {
     };
   }
 
+  const track: Track = {
+    id: trackId,
+    title: 'Winter Arc', // one example of a user-created track
+    description: 'A 90-day season inside the Life System.',
+    icon: '❄️',
+    startDate,
+    endDate: addDays(startDate, durationDays - 1),
+    durationDays,
+    goal: 'Demo: build unbreakable morning discipline',
+    why: 'Preview mode — none of this is your data.',
+    rules: rules.map((r) => r.text),
+    status: 'active',
+    createdAt: `${startDate}T08:00:00.000Z`,
+    updatedAt: new Date().toISOString(),
+  };
+
   return {
     ...real,
-    arc: {
-      id: 'arc_current',
-      title: 'Winter Arc',
-      startDate,
-      endDate: addDays(startDate, durationDays - 1),
-      durationDays,
-      goal: 'Demo: build unbreakable morning discipline',
-      why: 'Preview mode — none of this is your data.',
-      rules: rules.map((r) => r.text),
-      status: 'active',
-      createdAt: `${startDate}T08:00:00.000Z`,
-      updatedAt: new Date().toISOString(),
-    },
+    tracks: [track],
+    activeTrackId: trackId,
+    arc: track,
     habits,
     rules,
     dailyRecords,

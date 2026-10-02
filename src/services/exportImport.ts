@@ -14,7 +14,7 @@ export function downloadBackup(data: AppData): void {
   const d = new Date();
   const stamp = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
   a.href = url;
-  a.download = `winter-arc-backup-${stamp}.json`;
+  a.download = `life-system-backup-${stamp}.json`;
   document.body.appendChild(a);
   a.click();
   a.remove();
@@ -26,17 +26,20 @@ export function pickBackupFile(): Promise<string> {
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = 'application/json,.json';
+    // Settle on every exit path: a cancelled dialog must not hang forever.
+    const done = (fn: () => void) => { input.onchange = null; input.oncancel = null; fn(); };
     input.onchange = () => {
       const file = input.files?.[0];
       if (!file) {
-        reject(new Error('No file selected.'));
+        done(() => reject(new Error('No file selected.')));
         return;
       }
       const reader = new FileReader();
-      reader.onload = () => resolve(String(reader.result ?? ''));
-      reader.onerror = () => reject(new Error('Could not read the file.'));
+      reader.onload = () => done(() => resolve(String(reader.result ?? '')));
+      reader.onerror = () => done(() => reject(new Error('Could not read the file.')));
       reader.readAsText(file);
     };
+    input.oncancel = () => done(() => reject(new Error('Import cancelled.')));
     input.click();
   });
 }

@@ -1,16 +1,23 @@
 /* ============================================================
-   Storage service — ALL localStorage access lives here (spec §5).
+   Storage service — ALL localStorage access lives here.
    Handles missing/corrupt storage safely; validates imports.
-   v2: adds Rule entities + per-day rule statuses. Legacy v1 data
-   (rules stored as arc.rules text) migrates automatically and
-   idempotently — existing rule texts are preserved verbatim.
+
+   v3: the fixed Winter Arc becomes user-created Tracks.
+     - `tracks` + `activeTrackId` are the canonical challenge data.
+     - `arc` stays as a mirror of the active track (and is exported
+       for back-compat).
+     - legacy v1/v2 data (a single `arc`) migrates into a track named
+       after its title (default "Winter Arc") with all habits, rules,
+       records, streaks and reflections preserved.
    ============================================================ */
 
-import type { AppData, Arc, Habit, Rule, DailyRecord, Reflection, Settings } from '../types';
-import { isValidISO } from './date';
+import type { AppData, Arc, Habit, Rule, Track, DailyRecord, Reflection, Settings } from '../types';
+import { addDays, isValidISO } from './date';
 
 const KEYS = {
   settings: 'winterArc.settings',
+  tracks: 'winterArc.tracks',
+  activeTrackId: 'winterArc.activeTrackId',
   arc: 'winterArc.arc',
   habits: 'winterArc.habits',
   rules: 'winterArc.rules',
@@ -19,7 +26,7 @@ const KEYS = {
   version: 'winterArc.version',
 } as const;
 
-export const SCHEMA_VERSION = 2;
+export const SCHEMA_VERSION = 3;
 
 /* ---------- Safe JSON primitives ---------- */
 
@@ -53,11 +60,21 @@ function str(v: unknown, fallback = ''): string {
   return typeof v === 'string' ? v : fallback;
 }
 
+function strArray(v: unknown): string[] {
+  return Array.isArray(v) ? v.filter((x): x is string => typeof x === 'string') : [];
+}
+
+/** Tracks list from stored value; undefined means "belongs to all" (legacy). */
+function trackIdsOf(v: unknown): string[] | undefined {
+  if (!Array.isArray(v)) return undefined;
+  return v.filter((x): x is string => typeof x === 'string' && x.length > 0);
+}
+
 /* ---------- Rules: parse + legacy migration ----------
    Existing arc.rules strings stay intact; they become trackable
-   Rule entities eligible from Arc Day 1 (user choice: backfill).
-   Migration is idempotent: stored Rule entities win; deterministic
-   ids derived from text mean re-runs never duplicate. */
+   Rule entities eligible from Day 1. Migration is idempotent:
+   stored Rule entities win; deterministic ids derived from text
+   mean re-runs never duplicate. */
 
 function parseRules(arr: unknown[]): Rule[] {
   const map = new Map<string, Rule>();
@@ -73,13 +90,14 @@ function parseRules(arr: unknown[]): Rule[] {
       fromDay: typeof r.fromDay === 'number' && r.fromDay >= 1 ? Math.floor(r.fromDay) : 1,
       createdAt: str(r.createdAt, new Date().toISOString()),
       order: typeof r.order === 'number' ? r.order : map.size,
+      trackIds: trackIdsOf(r.trackIds),
     });
   }
   return Array.from(map.values()).sort((a, b) => a.order - b.order);
 }
 
-/** Turn arc.rules text into Rule entities (stable ids derived from the text). */
-function migrateTextRules(texts: string[], existing: Rule[]): Rule[] {
+/** Turn rule text into Rule entities (stable ids derived from the text). */
+function migrateTextRules(texts: string[], existing: Rule[], trackIds?: string[]): Rule[] {
   if (existing.length > 0) return existing; // entities already exist — nothing to migrate
   const out: Rule[] = [];
   for (let i = 0; i < texts.length; i++) {
@@ -93,6 +111,7 @@ function migrateTextRules(texts: string[], existing: Rule[]): Rule[] {
       fromDay: 1,
       createdAt: new Date().toISOString(),
       order: i + 1,
+      trackIds,
     });
   }
   return out;
@@ -106,6 +125,57 @@ function hash(s: string): number {
   return h >>> 0;
 }
 
+/* ---------- Track parsing ---------- */
+
+function parseTrack(v: unknown, fallbackId: string): Track | null {
+  if (!isRecord(v) || !isValidISO(v.startDate)) return null;
+  const startDate = v.startDate as string;
+  const duration =
+    typeof v.durationDays === 'number' && v.durationDays > 0 ? Math.floor(v.durationDays) : 90;
+  const endDate = isValidISO(v.endDate) ? (v.endDate as string) : addDays(startDate, duration - 1);
+  const status = v.status === 'completed' || v.status === 'archived' ? v.status : 'active';
+  return {
+    id: str(v.id, fallbackId) || fallbackId,
+    title: str(v.title, 'My Track').trim() || 'My Track',
+    description: str(v.description),
+    icon: str(v.icon),
+    startDate,
+    endDate,
+    durationDays: duration,
+    goal: str(v.goal),
+    why: str(v.why),
+    rules: strArray(v.rules),
+    status,
+    createdAt: str(v.createdAt, new Date().toISOString()),
+    updatedAt: str(v.updatedAt, new Date().toISOString()),
+  };
+}
+
+/** Build a track from a legacy single `arc` object. */
+function trackFromArc(arc: Arc): Track {
+  return {
+    id: arc.id || 'track_current',
+    title: arc.title || 'Winter Arc',
+    description: '',
+    icon: '',
+    startDate: arc.startDate,
+    endDate: arc.endDate,
+    durationDays: arc.durationDays,
+    goal: arc.goal,
+    why: arc.why,
+    rules: Array.isArray(arc.rules) ? arc.rules : [],
+    status: arc.status,
+    createdAt: arc.createdAt,
+    updatedAt: arc.updatedAt,
+  };
+}
+
+function scopeLegacyTrackIds<T extends { trackIds?: string[] }>(items: T[], trackId: string | null): T[] {
+  if (!trackId) return items;
+  // Legacy items with no membership belong to the (single) migrated track.
+  return items.map((item) => (item.trackIds === undefined ? { ...item, trackIds: [trackId] } : item));
+}
+
 /* ---------- Coerce unknown data into a valid AppData (load + import) ---------- */
 
 export function normalizeAppData(input: unknown): AppData {
@@ -117,25 +187,32 @@ export function normalizeAppData(input: unknown): AppData {
     demoMode: src.settings && isRecord(src.settings) ? !!src.settings.demoMode : false,
   };
 
-  // --- Arc ---
-  let arc: Arc | null = null;
+  // --- Legacy single arc (used as a fallback / migration source) ---
+  let legacyArc: Arc | null = null;
   if (isRecord(src.arc) && isValidISO(src.arc.startDate) && isValidISO(src.arc.endDate)) {
-    const a = src.arc;
-    const duration = typeof a.durationDays === 'number' && a.durationDays > 0 ? Math.floor(a.durationDays) : 90;
-    arc = {
-      id: str(a.id, 'arc_current'),
-      title: str(a.title, 'Winter Arc'),
-      startDate: a.startDate as string,
-      endDate: a.endDate as string,
-      durationDays: duration,
-      goal: str(a.goal),
-      why: str(a.why),
-      rules: Array.isArray(a.rules) ? a.rules.filter((r): r is string => typeof r === 'string') : [],
-      status: a.status === 'completed' || a.status === 'archived' ? a.status : 'active',
-      createdAt: str(a.createdAt, new Date().toISOString()),
-      updatedAt: str(a.updatedAt, new Date().toISOString()),
-    };
+    legacyArc = parseTrack(src.arc, 'track_current') as Arc;
   }
+
+  // --- Tracks: canonical, else migrate the legacy arc into one ---
+  const trackArr = Array.isArray(src.tracks) ? src.tracks : [];
+  const trackMap = new Map<string, Track>();
+  for (const t of trackArr) {
+    const parsed = parseTrack(t, `track_${trackMap.size + 1}`);
+    if (!parsed) continue;
+    trackMap.set(parsed.id, parsed); // dedupe by id, last wins
+  }
+  if (trackMap.size === 0 && legacyArc) {
+    const migrated = trackFromArc(legacyArc);
+    trackMap.set(migrated.id, migrated);
+  }
+  let tracks = Array.from(trackMap.values());
+
+  // Active track: stored id when valid, else the first active track, else first.
+  let activeTrackId = str(src.activeTrackId) || null;
+  if (!activeTrackId || !tracks.some((t) => t.id === activeTrackId)) {
+    activeTrackId = tracks.find((t) => t.status === 'active')?.id ?? tracks[0]?.id ?? null;
+  }
+  const primaryTrack = tracks.find((t) => t.id === activeTrackId) ?? null;
 
   // --- Habits (dedupe by id, keep last) ---
   const habitArr = Array.isArray(src.habits) ? src.habits : [];
@@ -155,29 +232,39 @@ export function normalizeAppData(input: unknown): AppData {
       active: h.active !== false,
       createdAt: str(h.createdAt, new Date().toISOString()),
       order: typeof h.order === 'number' ? h.order : habitMap.size,
+      trackIds: trackIdsOf(h.trackIds),
+    });
+  }
+  let habits = scopeLegacyTrackIds(Array.from(habitMap.values()), activeTrackId);
+
+  // --- Rules: stored entities first, else migrate from track/arc rules text ---
+  const ruleArr = Array.isArray(src.rules) ? src.rules : [];
+  let rules = parseRules(ruleArr);
+  const ruleTexts = primaryTrack?.rules?.length ? primaryTrack.rules : (legacyArc?.rules ?? []);
+  rules = migrateTextRules(ruleTexts, rules, activeTrackId ? [activeTrackId] : undefined);
+  rules = scopeLegacyTrackIds(rules, activeTrackId);
+
+  // Keep each track's rules text mirror in sync for back-compat exports.
+  if (tracks.length > 0) {
+    tracks = tracks.map((t) => {
+      const texts = rules
+        .filter((r) => r.active && belongsToTrack(r.trackIds, t.id))
+        .map((r) => r.text);
+      return { ...t, rules: texts };
     });
   }
 
-  // --- Rules: stored entities first, else migrate from arc.rules text ---
-  const ruleArr = Array.isArray(src.rules) ? src.rules : [];
-  let rules = parseRules(ruleArr);
-  rules = migrateTextRules(arc?.rules ?? [], rules);
-  if (arc && rules.length > 0) {
-    // Keep arc.rules as the canonical text mirror (back-compat for exports).
-    arc.rules = rules.map((r) => r.text);
-  }
-
-  // --- Daily records (now include per-day rule statuses) ---
+  // --- Daily records (per-day rule statuses preserved verbatim) ---
   const dailyRecords: Record<string, DailyRecord> = {};
   if (isRecord(src.dailyRecords)) {
     for (const [date, rec] of Object.entries(src.dailyRecords)) {
       if (!isValidISO(date) || !isRecord(rec)) continue;
-      const habits: Record<string, { value: number; completed: boolean }> = {};
+      const dayHabits: Record<string, { value: number; completed: boolean }> = {};
       if (isRecord(rec.habits)) {
         for (const [hid, hr] of Object.entries(rec.habits)) {
           if (!isRecord(hr)) continue;
           const value = typeof hr.value === 'number' && isFinite(hr.value) ? hr.value : 0;
-          habits[hid] = { value, completed: hr.completed === true || value > 0 };
+          dayHabits[hid] = { value, completed: hr.completed === true || value > 0 };
         }
       }
       const ruleRecs: Record<string, { status: 'followed' | 'not_followed' }> = {};
@@ -190,7 +277,7 @@ export function normalizeAppData(input: unknown): AppData {
       }
       dailyRecords[date] = {
         date,
-        habits,
+        habits: dayHabits,
         rules: ruleRecs,
         note: str(rec.note),
         updatedAt: str(rec.updatedAt, new Date().toISOString()),
@@ -216,15 +303,25 @@ export function normalizeAppData(input: unknown): AppData {
     }
   }
 
+  // Mirror the (post-migration) active track so pages can read `arc`.
+  const activeTrack = tracks.find((t) => t.id === activeTrackId) ?? null;
+
   return {
     settings,
-    arc,
-    habits: Array.from(habitMap.values()).sort((a, b) => a.order - b.order),
+    tracks,
+    activeTrackId,
+    arc: activeTrack,
+    habits,
     rules,
     dailyRecords,
     reflections,
     version: SCHEMA_VERSION,
   };
+}
+
+/** Membership rule shared by every layer: undefined = every track. */
+export function belongsToTrack(trackIds: string[] | undefined, trackId: string): boolean {
+  return trackIds === undefined || trackIds.includes(trackId);
 }
 
 /* ---------- Load / save ---------- */
@@ -233,6 +330,8 @@ export function loadAppData(): AppData {
   const version = readJSON<number>(KEYS.version) ?? SCHEMA_VERSION;
   const legacyShape: Record<string, unknown> = {
     settings: readJSON(KEYS.settings),
+    tracks: readJSON(KEYS.tracks),
+    activeTrackId: readJSON(KEYS.activeTrackId),
     arc: readJSON(KEYS.arc),
     habits: readJSON(KEYS.habits),
     rules: readJSON(KEYS.rules),
@@ -247,6 +346,8 @@ export function loadAppData(): AppData {
 
 export function saveAppData(data: AppData): void {
   writeJSON(KEYS.settings, data.settings);
+  writeJSON(KEYS.tracks, data.tracks);
+  writeJSON(KEYS.activeTrackId, data.activeTrackId);
   writeJSON(KEYS.arc, data.arc);
   writeJSON(KEYS.habits, data.habits);
   writeJSON(KEYS.rules, data.rules);
@@ -261,7 +362,7 @@ export function resetAllData(): void {
   }
 }
 
-/* ---------- Export / import (spec §5: validate before replacing) ---------- */
+/* ---------- Export / import (validate before replacing) ---------- */
 
 export interface ImportResult {
   ok: boolean;
@@ -283,12 +384,13 @@ export function importState(jsonText: string): ImportResult {
   if (!isRecord(parsed)) {
     return { ok: false, error: 'Invalid backup: expected a JSON object.' };
   }
-  if (parsed.arc === null && (parsed.habits === undefined || (Array.isArray(parsed.habits) && parsed.habits.length === 0))) {
-    return { ok: false, error: 'This backup is empty (no Arc and no habits).' };
+  const hasTracks = Array.isArray(parsed.tracks) && parsed.tracks.length > 0;
+  if (!hasTracks && parsed.arc === null && (parsed.habits === undefined || (Array.isArray(parsed.habits) && parsed.habits.length === 0))) {
+    return { ok: false, error: 'This backup is empty (no track and no habits).' };
   }
   const data = normalizeAppData(parsed);
   if (data.arc === null) {
-    return { ok: false, error: 'Invalid backup: no valid Arc data found.' };
+    return { ok: false, error: 'Invalid backup: no valid track data found.' };
   }
   return { ok: true, data };
 }

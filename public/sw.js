@@ -1,11 +1,11 @@
 /* ============================================================
-   Winter Arc Tracker — minimal service worker.
+   Life System — minimal service worker.
    Precache the app shell; network-first for HTML (so updates
    land on the next reload), cache-first for hashed assets.
    Data stays in localStorage — nothing to cache there.
    ============================================================ */
 
-const VERSION = 'winter-arc-v3';
+const VERSION = 'life-system-v1';
 const PRECACHE = [
   './',
   './index.html',

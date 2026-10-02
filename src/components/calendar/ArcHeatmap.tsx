@@ -161,7 +161,7 @@ export function ArcHeatmap({
       if (ev.isPerfect) perfect++;
     }
     const yearNote = range === 'year' ? ' · last 365 days shown' : '';
-    if (elapsed === 0) return `Your Arc hasn't started yet.${yearNote}`;
+    if (elapsed === 0) return `Your track hasn't started yet.${yearNote}`;
     if (tracked === 0) return `Day 1–${elapsed}: no progress logged yet — the grid fills in as you complete habits.${yearNote}`;
     return `${perfect} perfect · ${tracked} active · ${elapsed - tracked} missed of the first ${elapsed} day${elapsed === 1 ? '' : 's'}${yearNote}`;
   }, [arc, habits, rules, records, now, range]);
@@ -193,7 +193,7 @@ export function ArcHeatmap({
               ref={gridRef}
               className="heatmap-grid"
               role="grid"
-              aria-label={range === 'year' ? 'Last 365 days completion heatmap' : '90-day completion heatmap'}
+              aria-label={range === 'year' ? 'Last 365 days completion heatmap' : 'Track completion heatmap'}
               tabIndex={0}
               onKeyDown={onGridKeyDown}
             >
@@ -208,7 +208,7 @@ export function ArcHeatmap({
                     const inArc = dayNum >= 1 && dayNum <= arc.durationDays;
 
                     if (!inArc) {
-                      const label = `${formatShort(date)} · outside your Arc`;
+                      const label = `${formatShort(date)} · outside your track`;
                       return (
                         <div
                           key={date}

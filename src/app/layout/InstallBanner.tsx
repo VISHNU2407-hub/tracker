@@ -42,10 +42,10 @@ export function InstallBanner() {
   };
 
   return (
-    <div className="install-banner" role="dialog" aria-label="Install Winter Arc Tracker">
+    <div className="install-banner" role="dialog" aria-label="Install Life System">
       <span className="install-icon"><IconSnowflake size={18} /></span>
       <div className="install-text">
-        <strong>Install Winter Arc</strong>
+        <strong>Install Life System</strong>
         <span>Add to your home screen — works offline</span>
       </div>
       <button

@@ -8,8 +8,10 @@ import { DashboardPage } from '../src/pages/Dashboard';
 import { CalendarPage } from '../src/pages/Calendar';
 import { HabitsPage } from '../src/pages/Habits';
 import { StatsPage } from '../src/pages/Stats';
-import { MyArcPage } from '../src/pages/MyArc';
+import { MyTracksPage } from '../src/pages/MyTracks';
 import { HabitGrid } from '../src/components/calendar/HabitGrid';
+import { DayTasks } from '../src/components/dashboard/DayTasks';
+import { Intro } from '../src/app/intro/Intro';
 import { HabitHeatmap } from '../src/components/habits/HabitHeatmap';
 import { buildDemoData } from '../src/services/demoData';
 import { computeHabitStats } from '../src/services/analytics';
@@ -26,12 +28,14 @@ function assert(cond: boolean, msg: string) {
 
 const real: AppData = {
   settings: { theme: 'dark', onboarded: true, demoMode: false },
+  tracks: [],
+  activeTrackId: null,
   arc: null,
   habits: [],
   rules: [],
   dailyRecords: {},
   reflections: {},
-  version: 2,
+  version: 3,
 };
 const data = buildDemoData(real);
 const api = { data, loaded: true, today: todayISO() } as unknown as AppDataApi;
@@ -67,10 +71,11 @@ const stats = renderToString(<StatsPage api={api} />);
 assert(stats.includes('Rule control'), 'stats renders Rule control section');
 assert(stats.includes('days followed'), 'rule stats show days-followed counts');
 
-console.log('— render: My Winter Arc —');
-const myarc = renderToString(<MyArcPage api={api} />);
-assert(myarc.includes('daily trackable'), 'MyArc marks rules as daily trackable');
-assert(myarc.includes('Demo rule') || myarc.includes('No phone in bed'), 'MyArc lists existing rules');
+console.log('— render: My Tracks —');
+const mytracks = renderToString(<MyTracksPage api={api} />);
+assert(mytracks.includes('daily trackable'), 'My Tracks marks rules as daily trackable');
+assert(mytracks.includes('No phone in bed'), 'My Tracks lists existing rules');
+assert(mytracks.includes('Day') && mytracks.includes('complete'), 'My Tracks shows per-track progress');
 
 console.log('— render: HabitGrid (monthly tracker) —');
 const months = monthGroups(arc.startDate, addDays(arc.startDate, arc.durationDays - 1));
@@ -103,6 +108,53 @@ const hm = renderToString(
 assert(hm.includes('hhm-cell'), 'heatmap renders day cells');
 assert(hm.includes('hhm-month'), 'heatmap groups days by month');
 assert(hm.split('hhm-cell ').length - 1 >= stat.completedCount, 'completed days render as blue cells');
+
+console.log('— render: DayTasks read-only gate (only today is editable) —');
+const dayNoop = (..._args: unknown[]): void => undefined;
+const dayTasksProps = {
+  arc,
+  habits: data.habits,
+  rules: data.rules,
+  records: data.dailyRecords,
+  now: today,
+  onToggle: dayNoop,
+  onSetValue: dayNoop,
+  onRuleStatus: dayNoop,
+  compact: true,
+};
+
+const pastHtml = renderToString(<DayTasks {...dayTasksProps} date={addDays(today, -1)} />);
+assert(pastHtml.includes('Read only'), 'previous day is labelled read-only');
+assert(pastHtml.includes('task-item'), 'previous day still lists habits and rules for history');
+assert(pastHtml.includes('Workout'), 'previous day still shows the stored habit data');
+assert(!pastHtml.includes('task-check'), 'previous day renders no completion checkbox');
+assert(!pastHtml.includes('rule-status-btn'), 'previous day renders no rule status buttons');
+assert(!pastHtml.includes('task-num-input'), 'previous day renders no numeric input field');
+assert(!pastHtml.includes('tap to complete'), 'previous day renders no editable hint');
+
+const futureHtml = renderToString(<DayTasks {...dayTasksProps} date={addDays(today, 1)} />);
+assert(futureHtml.includes('Locked'), 'future day stays locked');
+assert(!futureHtml.includes('task-check'), 'future day renders no completion checkbox');
+assert(!futureHtml.includes('task-num-input'), 'future day renders no numeric input field');
+
+const todayHtml = renderToString(<DayTasks {...dayTasksProps} date={today} />);
+assert(todayHtml.includes('task-check'), 'today keeps completion checkboxes');
+assert(todayHtml.includes('rule-status-btn'), 'today keeps rule status buttons');
+assert(todayHtml.includes('task-num-input'), 'today keeps numeric input fields');
+assert(!todayHtml.includes('Read only'), 'today is never marked read-only');
+
+console.log('— render: Intro (welcome screen above the tracker) —');
+const intro = renderToString(<Intro arcTitle="Winter Arc" onEnter={() => undefined} />);
+assert(intro.includes('Your Life. Your Progress.'), 'intro shows the product tagline');
+assert(
+  intro.includes('Install on Desktop') && intro.includes('Install on Android') && intro.includes('Continue on Web'),
+  'intro offers the three exact ways in'
+);
+assert(intro.includes('Winter Arc'), 'intro names the current challenge');
+assert(intro.includes('intro-platform'), 'intro renders the platform cards');
+assert(intro.includes('What you can track'), 'intro explains what the system tracks');
+assert(intro.includes('Habits') && intro.includes('Reflection'), 'intro lists core capabilities');
+assert(!intro.includes('undefined') && !intro.includes('[object Object]'), 'intro leaks no undefined/object strings');
 
 console.log(failures === 0 ? '\nALL PASS' : `\n${failures} FAILURE(S)`);
 process.exit(failures === 0 ? 0 : 1);

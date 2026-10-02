@@ -1,19 +1,21 @@
 import React, { useEffect, useRef } from 'react';
 import type { PageId } from '../../hooks/useArc';
 import { NAV_ENTRIES } from './nav';
-import { IconX } from '../../components/icons';
+import { IconX, IconDownload } from '../../components/icons';
 
 interface MoreSheetProps {
   open: boolean;
   onClose: () => void;
   current: PageId;
   onNavigate: (p: PageId) => void;
+  /** Optional: post-setup "Get the apps" download entry (with setup handoff). */
+  onGetApps?: () => void;
 }
 
-const MORE_PAGES: PageId[] = ['calendar', 'reflection', 'myarc', 'settings'];
+const MORE_PAGES: PageId[] = ['calendar', 'reflection', 'tracks', 'settings'];
 
 /** Mobile "More" bottom sheet — secondary screens behind the More tab. */
-export function MoreSheet({ open, onClose, current, onNavigate }: MoreSheetProps) {
+export function MoreSheet({ open, onClose, current, onNavigate, onGetApps }: MoreSheetProps) {
   const sheetRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -68,6 +70,12 @@ export function MoreSheet({ open, onClose, current, onNavigate }: MoreSheetProps
               </button>
             );
           })}
+          {onGetApps && (
+            <button type="button" className="sheet-item" onClick={onGetApps}>
+              <span className="sheet-item-icon"><IconDownload size={20} /></span>
+              <span className="sheet-item-label">Get the apps</span>
+            </button>
+          )}
         </div>
       </div>
     </div>
