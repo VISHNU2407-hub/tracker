@@ -3,10 +3,10 @@ import { Modal } from '../../components/ui/Modal';
 import {
   IconLayers, IconCheckCircle, IconShield, IconTarget, IconFlame,
   IconTrophy, IconBook, IconChart, IconDesktop, IconPhone, IconGlobe,
-  IconArrowLeft,
+  IconArrowLeft, IconDownload,
 } from '../../components/icons';
 import {
-  currentPlatform, describeOS, RELEASES_URL,
+  currentPlatform, describeOS, DESKTOP_DOWNLOAD_URL, ANDROID_DOWNLOAD_URL,
   type Platform,
 } from '../platform';
 import { handoffToInstalledApp } from '../passport';
@@ -101,43 +101,43 @@ const CARDS: PlatformCard[] = [
   },
 ];
 
-const BUILD_STEPS: Record<Exclude<Platform, 'web'>, { title: string; commands: string; out: string }> = {
+/** User-facing download info for the install sheets — direct links to the
+ *  published GitHub release assets (no build commands, no dev instructions). */
+interface DownloadInfo {
+  href: string;
+  label: string;
+  detail: string;
+  hint: string;
+}
+
+const DOWNLOADS: Record<Exclude<Platform, 'web'>, DownloadInfo> = {
   desktop: {
-    title: 'Build the desktop installer',
-    commands: 'npm install\nnpm run desktop:build',
-    out: 'Installer written to the release/ folder.',
+    href: DESKTOP_DOWNLOAD_URL,
+    label: 'Download for Windows',
+    detail: 'Windows installer (.exe) — from the latest GitHub release.',
+    hint: 'Open the downloaded installer to install Life System on Windows.',
   },
   android: {
-    title: 'Build the Android app',
-    commands: 'npm install\nnpm run android:build',
-    out: 'APK written to android/app/build/outputs/apk/debug/.',
+    href: ANDROID_DOWNLOAD_URL,
+    label: 'Download APK',
+    detail: 'Android package (.apk) — from the latest GitHub release.',
+    hint: 'Open the downloaded APK to install Life System on Android.',
   },
 };
 
 export function Intro({ arcTitle, onEnter }: IntroProps) {
   const platform = useMemo(() => currentPlatform(), []);
   const [sheet, setSheet] = useState<Exclude<Platform, 'web'> | null>(null);
-  const [copied, setCopied] = useState(false);
+  const [downloaded, setDownloaded] = useState(false);
 
   const challenge = arcTitle?.trim() || 'My Tracks';
-
-  const copySteps = async () => {
-    if (!sheet) return;
-    try {
-      await navigator.clipboard.writeText(BUILD_STEPS[sheet].commands);
-      setCopied(true);
-      window.setTimeout(() => setCopied(false), 1800);
-    } catch {
-      setCopied(false);
-    }
-  };
 
   const cardAction = (card: PlatformCard) => {
     if (card.id === 'web' || card.id === platform) {
       onEnter(card.id);
       return;
     }
-    setCopied(false);
+    setDownloaded(false);
     setSheet(card.id as Exclude<Platform, 'web'>);
   };
 
@@ -299,26 +299,21 @@ export function Intro({ arcTitle, onEnter }: IntroProps) {
             <div className="intro-sheet-block">
               <div className="intro-sheet-label">Download</div>
               <a
-                className="btn"
-                href={RELEASES_URL}
-                target="_blank"
-                rel="noreferrer noopener"
-                onClick={handoffToInstalledApp}
+                className="btn btn-primary"
+                href={DOWNLOADS[sheet].href}
+                onClick={() => {
+                  handoffToInstalledApp(); // setup passport for the installed shell
+                  setDownloaded(true);
+                }}
               >
-                Open the releases page
+                <IconDownload size={15} /> {DOWNLOADS[sheet].label}
               </a>
-              <span className="small muted">Installers and APKs are published there.</span>
-            </div>
-
-            <div className="intro-sheet-block">
-              <div className="intro-sheet-label">{BUILD_STEPS[sheet].title}</div>
-              <pre className="intro-code">{BUILD_STEPS[sheet].commands}</pre>
-              <div className="row" style={{ gap: 8 }}>
-                <button type="button" className="btn btn-sm" onClick={copySteps}>
-                  {copied ? 'Copied ✓' : 'Copy commands'}
-                </button>
-                <span className="small muted">{BUILD_STEPS[sheet].out}</span>
-              </div>
+              <span className="small muted">{DOWNLOADS[sheet].detail}</span>
+              {downloaded && (
+                <span className="small" style={{ color: 'var(--text)', display: 'inline-flex', gap: 6, alignItems: 'center' }}>
+                  <IconCheckCircle size={14} /> {DOWNLOADS[sheet].hint}
+                </span>
+              )}
             </div>
           </div>
         </Modal>

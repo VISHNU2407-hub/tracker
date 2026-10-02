@@ -18226,6 +18226,7 @@ var IconSpark = (p) => /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("svg", { ..
   /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("path", { d: "M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9Z" }),
   /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("path", { d: "M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8Z" })
 ] });
+var IconDownload = (p) => /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("svg", { ...base(p), children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("path", { d: "M12 3v12M7 10l5 5 5-5M4 21h16" }) });
 var IconClock = (p) => /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("svg", { ...base(p), children: [
   /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("circle", { cx: "12", cy: "12", r: "9" }),
   /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("path", { d: "M12 7v5l3.5 2" })
@@ -21706,7 +21707,8 @@ var import_react16 = __toESM(require_react(), 1);
 // src/app/platform.ts
 var import_core = __toESM(require_index_cjs(), 1);
 var PLATFORM_ORDER = ["desktop", "android", "web"];
-var RELEASES_URL = "https://github.com/VISHNU2407-hub/tracker/releases";
+var DESKTOP_DOWNLOAD_URL = "https://github.com/VISHNU2407-hub/tracker/releases/latest/download/Life.System.Setup.1.0.0.exe";
+var ANDROID_DOWNLOAD_URL = "https://github.com/VISHNU2407-hub/tracker/releases/latest/download/app-debug.apk";
 function detectPlatform(s) {
   if (s.tauri) return "desktop";
   if (s.electron) return "desktop";
@@ -21910,39 +21912,31 @@ var CARDS = [
     blurb: "No install needed \u2014 open the tracker right where you are."
   }
 ];
-var BUILD_STEPS = {
+var DOWNLOADS = {
   desktop: {
-    title: "Build the desktop installer",
-    commands: "npm install\nnpm run desktop:build",
-    out: "Installer written to the release/ folder."
+    href: DESKTOP_DOWNLOAD_URL,
+    label: "Download for Windows",
+    detail: "Windows installer (.exe) \u2014 from the latest GitHub release.",
+    hint: "Open the downloaded installer to install Life System on Windows."
   },
   android: {
-    title: "Build the Android app",
-    commands: "npm install\nnpm run android:build",
-    out: "APK written to android/app/build/outputs/apk/debug/."
+    href: ANDROID_DOWNLOAD_URL,
+    label: "Download APK",
+    detail: "Android package (.apk) \u2014 from the latest GitHub release.",
+    hint: "Open the downloaded APK to install Life System on Android."
   }
 };
 function Intro({ arcTitle, onEnter }) {
   const platform = (0, import_react16.useMemo)(() => currentPlatform(), []);
   const [sheet, setSheet] = (0, import_react16.useState)(null);
-  const [copied, setCopied] = (0, import_react16.useState)(false);
+  const [downloaded, setDownloaded] = (0, import_react16.useState)(false);
   const challenge = arcTitle?.trim() || "My Tracks";
-  const copySteps = async () => {
-    if (!sheet) return;
-    try {
-      await navigator.clipboard.writeText(BUILD_STEPS[sheet].commands);
-      setCopied(true);
-      window.setTimeout(() => setCopied(false), 1800);
-    } catch {
-      setCopied(false);
-    }
-  };
   const cardAction = (card) => {
     if (card.id === "web" || card.id === platform) {
       onEnter(card.id);
       return;
     }
-    setCopied(false);
+    setDownloaded(false);
     setSheet(card.id);
   };
   const buttonLabel = (card) => {
@@ -22075,25 +22069,27 @@ function Intro({ arcTitle, onEnter }) {
           /* @__PURE__ */ (0, import_jsx_runtime20.jsx)("p", { className: "secondary", children: sheet === "desktop" ? `The desktop build wraps this same tracker in a standalone window for ${describeOS()}.` : `The Android build wraps this same tracker as a native app for ${describeOS()}.` }),
           /* @__PURE__ */ (0, import_jsx_runtime20.jsxs)("div", { className: "intro-sheet-block", children: [
             /* @__PURE__ */ (0, import_jsx_runtime20.jsx)("div", { className: "intro-sheet-label", children: "Download" }),
-            /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(
+            /* @__PURE__ */ (0, import_jsx_runtime20.jsxs)(
               "a",
               {
-                className: "btn",
-                href: RELEASES_URL,
-                target: "_blank",
-                rel: "noreferrer noopener",
-                onClick: handoffToInstalledApp,
-                children: "Open the releases page"
+                className: "btn btn-primary",
+                href: DOWNLOADS[sheet].href,
+                onClick: () => {
+                  handoffToInstalledApp();
+                  setDownloaded(true);
+                },
+                children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(IconDownload, { size: 15 }),
+                  " ",
+                  DOWNLOADS[sheet].label
+                ]
               }
             ),
-            /* @__PURE__ */ (0, import_jsx_runtime20.jsx)("span", { className: "small muted", children: "Installers and APKs are published there." })
-          ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime20.jsxs)("div", { className: "intro-sheet-block", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime20.jsx)("div", { className: "intro-sheet-label", children: BUILD_STEPS[sheet].title }),
-            /* @__PURE__ */ (0, import_jsx_runtime20.jsx)("pre", { className: "intro-code", children: BUILD_STEPS[sheet].commands }),
-            /* @__PURE__ */ (0, import_jsx_runtime20.jsxs)("div", { className: "row", style: { gap: 8 }, children: [
-              /* @__PURE__ */ (0, import_jsx_runtime20.jsx)("button", { type: "button", className: "btn btn-sm", onClick: copySteps, children: copied ? "Copied \u2713" : "Copy commands" }),
-              /* @__PURE__ */ (0, import_jsx_runtime20.jsx)("span", { className: "small muted", children: BUILD_STEPS[sheet].out })
+            /* @__PURE__ */ (0, import_jsx_runtime20.jsx)("span", { className: "small muted", children: DOWNLOADS[sheet].detail }),
+            downloaded && /* @__PURE__ */ (0, import_jsx_runtime20.jsxs)("span", { className: "small", style: { color: "var(--text)", display: "inline-flex", gap: 6, alignItems: "center" }, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(IconCheckCircle, { size: 14 }),
+              " ",
+              DOWNLOADS[sheet].hint
             ] })
           ] })
         ] })

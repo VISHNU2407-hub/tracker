@@ -20,6 +20,15 @@ export const PLATFORM_ORDER: Platform[] = ['desktop', 'android', 'web'];
  *  Derived from this repo's git remote — not a guessed URL. */
 export const RELEASES_URL = 'https://github.com/VISHNU2407-hub/tracker/releases';
 
+/** Direct "latest release" download links for the published assets.
+ *  GitHub resolves /releases/latest/download/<asset> to the newest
+ *  release, so these keep pointing at the current installer/APK.
+ *  Asset names match the files published on the releases page. */
+export const DESKTOP_DOWNLOAD_URL =
+  'https://github.com/VISHNU2407-hub/tracker/releases/latest/download/Life.System.Setup.1.0.0.exe';
+export const ANDROID_DOWNLOAD_URL =
+  'https://github.com/VISHNU2407-hub/tracker/releases/latest/download/app-debug.apk';
+
 export interface PlatformSignals {
   /** Tauri shell (window.__TAURI__ / window.__TAURI_INTERNALS__). */
   tauri?: boolean;
